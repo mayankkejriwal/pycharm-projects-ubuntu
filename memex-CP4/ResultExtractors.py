@@ -1,0 +1,285 @@
+import Grouper, SelectExtractors, pprint, PrintUtils, re
+
+class ResultExtractors:
+    """
+    Methods in here should be called from ExecuteESQueries after a query has been successfully
+    processed and frames have been retrieved.
+    """
+
+    @staticmethod
+    def standard_extractor(retrieved_frames, translated_query_data_structure, original_sparql_query, verbose = False):
+        """
+
+        :param retrieved_frames The frames as exactly retrieved by elasticsearch (not sub-indexed)
+        :param translated_query_data_structure The data structure returned by the translated_ functions
+        in SparqlTranslator
+        :param original_sparql_query We use this for resolving a number of things, including the
+        group-by variable
+        :param verbose Only make True if you want to print out a lot of things.
+        :return: A list of results, where each result is a dictionary that contains the variables
+        requested in the select. Each value in the dictionary is necessarily atomic. The list is ordered if
+         there is an order-by in the groupByDict. If there is no limit, or the limit is smaller than
+         |retrieved_frames| the output will be of size |retrieved_frames|, otherwise it has size limit.
+        """
+
+
+        group_by_var = ResultExtractors._find_group_by(original_sparql_query)
+        order_by_var = ResultExtractors._find_order_by(original_sparql_query)
+        order_by_property = None
+        sort_order = None
+        is_order_var_in_select = False
+        flattened_list = None   #this is the list that must be processed for orders and limits
+                                            #(but not optionals or filters)
+
+        if translated_query_data_structure['groupByDict']:
+                if 'order-variable' in translated_query_data_structure['groupByDict']: # any order-bys?
+                    order_var_list = list(translated_query_data_structure['groupByDict']['order-variable'])
+                    sort_order = translated_query_data_structure['groupByDict']['sorted-order']
+                    if len(order_var_list) != 1:
+                        raise Exception('not exactly one mapping for order-variable!')
+                    order_by_property = order_var_list[0]
+
+        if translated_query_data_structure['simpleSelectDict'] and not group_by_var:
+            select = SelectExtractors.SelectExtractors.extractSimpleSelect(retrieved_frames['hits']['hits'],
+                                                        translated_query_data_structure['simpleSelectDict'])
+            if order_by_var:
+                for i in range(0, len(retrieved_frames['hits']['hits'])):
+                    if order_by_var not in select[i]:
+                        prop = ResultExtractors._get_property_from_source_frame(
+                                         retrieved_frames['hits']['hits'][i]['_source'],order_by_property)
+                        if prop is not None:
+                            select[i][order_by_var] = prop
+                    else:
+                        is_order_var_in_select = True
+            if verbose:
+                ResultExtractors._printers(select = select)
+
+            flattened_list = ResultExtractors._flatten(select)
+
+        elif translated_query_data_structure['groupByDict'] \
+         and 'group-variable' in translated_query_data_structure['groupByDict']:
+            group = Grouper.Grouper.standard_grouper(retrieved_frames['hits']['hits'],
+                                    list(translated_query_data_structure['groupByDict']['group-variable'])[0])
+            if verbose:
+                ResultExtractors._printers(group = group)
+
+            unflattened_dict = dict()
+            for key in group.keys():
+                tmp = {}
+                if group_by_var:
+                    tmp[group_by_var] = key
+                unflattened_dict[key] = tmp
+
+            #process group-concat
+            if translated_query_data_structure['groupConcatSelectDict']:
+                groupConcatSelect= SelectExtractors.SelectExtractors.extractGroupConcatSelect(group,
+                                                    translated_query_data_structure['groupConcatSelectDict'])
+                if verbose:
+                    ResultExtractors._printers(groupConcatSelect = groupConcatSelect)
+
+                for key, value in groupConcatSelect.items():
+                    unflattened_dict[key].update(value)
+
+
+            #process count
+            if translated_query_data_structure['countSelectDict']:
+                countSelect= SelectExtractors.SelectExtractors.extractCountSelect(group,
+                                                    translated_query_data_structure['countSelectDict'])
+                if verbose:
+                    ResultExtractors._printers(countSelect = countSelect)
+                for key, value in countSelect.items():
+                    unflattened_dict[key].update(value)
+            if order_by_var:
+                is_order_var_in_select = True
+
+            flattened_list = ResultExtractors._flatten(unflattened_dict.values())
+
+        if order_by_var:
+            flattened_list = ResultExtractors._order_flattened_list(flattened_list,order_by_var, sort_order)
+
+            if not is_order_var_in_select: # this must be nested to distinguish between None and False
+                for result in flattened_list:
+                    if order_by_var in result:
+                        del result[order_by_var]
+
+        if translated_query_data_structure['groupByDict'] \
+         and 'limit' in translated_query_data_structure['groupByDict']: # any limit?
+            limit = translated_query_data_structure['groupByDict']['limit']
+            if limit <= len(flattened_list):
+                return flattened_list[0:limit]
+
+        return flattened_list
+
+    @staticmethod
+    def _get_property_from_source_frame(source_frame, property):
+        """
+        Be careful. The property could be dot-delimited.
+        :param source_frame: A source frame
+        :param property: a property in the source frame
+        :return: Either the property value, or None if it doesn't exist in the frame
+        """
+
+        if '.' not in property:
+            if property in source_frame:
+                return source_frame
+            else:
+                return None
+        else:
+            l = re.split('\.',property)
+            # print l
+            tmp = source_frame
+            for element in l:
+                if element not in tmp:
+                    return None
+                else:
+                    tmp = tmp[element]
+            return tmp
+
+    @staticmethod
+    def _order_flattened_list(flattened_list, order_variable, sort_order):
+        """
+
+        At present, if order_variable is not there in an object in the flattened_list, that object will
+        get pushed to the end. This helps us keep the semantics consistent (and the length of
+        flattened_list is preserved). We break ties by placing lower-index items before higher-index items
+        :param flattened_list: the unordered results-list
+        :param order_variable: the variable by which to order the results-list
+        :param sort_order: must be 'desc' or 'asc'
+        :return: a sorted flattened list. Note that if no sorting took place, the reference to flattened list
+        will simply be returned.
+        """
+        missing_indices = list() # this contains all indices that are missing order_property
+        indices_dict = dict() # the key is order-variable value
+        index = 0
+        for result in flattened_list:
+            if order_variable not in result:
+                missing_indices.append(index)
+            else:
+                if result[order_variable] not in indices_dict:
+                    indices_dict[result[order_variable]] = list()
+                indices_dict[result[order_variable]].append(index)
+            index += 1
+        if not indices_dict:
+            return flattened_list
+        if sort_order == 'asc':
+            sort_keys = indices_dict.keys()
+            sort_keys.sort()
+        elif sort_order == 'desc':
+            sort_keys = indices_dict.keys()
+            sort_keys.sort(reverse = True)
+        else:
+            raise Exception('Unknown sort order')
+
+        sort_indices = []
+        for key in sort_keys:
+            sort_indices += indices_dict[key]
+        sort_indices += missing_indices
+
+        return [flattened_list[i] for i in sort_indices]    # let's be pythonic for a change
+
+
+
+
+    @staticmethod
+    def _flatten(list_of_results):
+        """
+        Each inner list in list_of_results will be flattened into atomic values, so that the output list
+        will only have atomic values.
+        :param list_of_results: A list of dictionaries, where each value in the dictionary must reference an atomic
+        value or a list (otherwise results are undefined)
+        :return: A   flattened list
+        """
+        output = []
+
+        for element in list_of_results:
+            output += ResultExtractors._flatten_dict(element)
+
+        return output
+
+    @staticmethod
+    def _flatten_dict(dictionary):
+        """
+        E.g. if input were {'a' : [1,2,3], 'b': [4, 5], 'c': 6}, the output would be
+        [{'a': 1, 'b':4, 'c':6},{'a': 2, 'b':5,'c':6},{'a': 3, 'b':4,'c':6},{'a': 1, 'b':5,'c':6},
+        {'a':2 , 'b':4,'c':6},{'a': 3, 'b':5,'c':6}] This example is derived from an actual test case.
+        :param dictionary: a dictionary with either atomic values or list values
+        :return: A list. See description for example output
+        """
+        total = 1
+        output = []
+        atomic_dict = {}
+        for key, value in dictionary.items():
+            if isinstance(value, list):
+                total *= len(value)
+            else:
+                atomic_dict[key] = value
+
+        if total == 1:
+            output.append(atomic_dict)
+            return output
+
+        for i in range(0, total):
+            output.append(atomic_dict.copy())
+
+        for key, value in dictionary.items():
+            if isinstance(value, list):
+                increment = len(value)
+                for j in range(0, increment):
+                    for i in range(j, total, increment):
+                        output[i][key] = value[j]
+        return output
+
+    @staticmethod
+    def _find_group_by(sparql_query):
+        """
+        The subtlety in this function is that it will return None if there is a group-by variable
+        but we don't need it as part of the results. This function is for internal use only.
+        :param sparql_query: The original sparql query, with parsed etc. as upper level keys
+        :return: a string representing the group-by variable (in original unmapped form) or None
+        """
+        if 'group-by' in sparql_query['parsed'] and 'group-variable' in sparql_query['parsed']['group-by']:
+            var = sparql_query['parsed']['group-by']['group-variable']
+            for select in sparql_query['parsed']['select']['variables']:
+                if select['type'] == 'simple' and select['variable'] == var:
+                    return var
+
+        return None
+
+    @staticmethod
+    def _find_order_by(sparql_query):
+        """
+        Finds the order-by variable
+        :param sparql_query: The original sparql query, with parsed etc. as upper level keys
+        :return: a string representing the order-by variable (in original unmapped form) or None
+        """
+        if 'group-by' in sparql_query['parsed'] and 'order-variable' in sparql_query['parsed']['group-by']:
+            return sparql_query['parsed']['group-by']['order-variable']
+        return None
+
+
+    @staticmethod
+    def _printers(select = None, group = None, groupConcatSelect = None, countSelect = None):
+        """
+        if verbose is true in one of the extractors in this class, this method should be called
+        :return:
+        """
+        pp = pprint.PrettyPrinter(indent=4)
+        if select:
+
+            print 'simple select extraction:'
+            PrintUtils.PrintUtils.printExtractedSimpleSelect(select)
+
+        if group:
+            print 'group:'
+            PrintUtils.PrintUtils.printGroupStatistics(group)
+
+        if groupConcatSelect:
+            print 'group concat select extraction:'
+            pp.pprint(groupConcatSelect)
+
+        if countSelect:
+            print 'count select extraction:'
+            pp.pprint(countSelect)
+
+#test = {'a' : [1,2,3], 'b': [4, 5], 'c': 6}
+#print(ResultExtractors._flatten_dict(test))
