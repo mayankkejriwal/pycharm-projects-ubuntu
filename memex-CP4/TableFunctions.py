@@ -94,13 +94,21 @@ def build_phone_match_clause(field, string):
     for char in string:
         if re.search("[^0-9]", char) is None:
             string1 += char
-    candidates = []
+    if 'raw' in field:  # no further processing; since this is not analyzed
+        tmp[field] = dict()
+        tmp[field]['query'] = string1
+        tmp[field]['boost'] = 3.0
+        answer['match'] = tmp
+        return answer
+    candidates = list()
     candidates.append(string1)
     if len(string1) > 10:
         candidates.append(string1[2:])
     if SparqlTranslator.SparqlTranslator._strip_initial_zeros(string1) != string1:
         candidates.append(SparqlTranslator.SparqlTranslator._strip_initial_zeros(string1))
-    tmp[field] = ' '.join(candidates)
+    tmp[field] = dict()
+    tmp[field]['query'] = ' '.join(candidates)
+    tmp[field]['boost'] = 3.0
     answer['match'] = tmp
     return answer
 
@@ -143,7 +151,7 @@ def build_phone_regexp_clause(field, string):
     for char in string:
         if re.search("[^0-9]", char) is None:
             string1 += char
-    tmp[field] = '.*'+string1
+    tmp[field] = '.*'+SparqlTranslator.SparqlTranslator._strip_initial_zeros(string1)
     answer['regexp'] = tmp
     return answer
 

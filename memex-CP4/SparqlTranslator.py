@@ -55,9 +55,7 @@ class SparqlTranslator:
 
         query = dict()
         query['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
-
         index =  'dig-memex-eval-02'
-        #index = 'pr-index-1'
         url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
         retrieved_frames = es.search(index= index, size = 1000, body = query) #we should set a big size

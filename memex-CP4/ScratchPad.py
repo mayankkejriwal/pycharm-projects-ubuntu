@@ -1,11 +1,21 @@
 import TableFunctions, codecs, json
 from elasticsearch import Elasticsearch
 import nltk
-import re
-"""
+import pprint
+from sqparser import SQParser
+#import sqparser
+#Various odds and ends
 
-Various odds and ends
-"""
+def _try_sparql_parser():
+    file_path = '/home/mayankkejriwal/Downloads/raw-queries-29July2016.txt'
+    with codecs.open(file_path, 'r', 'utf-8') as f:
+            raw_sparql_queries = json.loads(f.read())
+    str_input = raw_sparql_queries['Point Fact']['54']['sparql']
+    target_component = ''
+    result = SQParser.parse(str_input, target_component=target_component)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(result)
+    #print len(raw_sparql_queries['Aggregate'])
 
 def _try_nltk_grammar():
     """
@@ -56,7 +66,4 @@ def _bulkload_json_file(input_file):
 
 #path = '/home/mayankkejriwal/Downloads/dig-data/sample-datasets/escorts/'
 #_bulkload_json_file(path+'all-extractions-webpage-bulk-load.jl')
-#_try_nltk_grammar()
-separator = ','
-e = ['a','b','c']
-print separator.join(e)
+_try_sparql_parser()

@@ -4,6 +4,7 @@ from elasticsearch import Elasticsearch
 #import gensim
 import pprint, codecs, json
 import PrintUtils
+from sqparser import SQParser
 
 class ExecuteESQueries:
     """Anticipated starting point class. This is where a sparql query will be read in,
@@ -247,6 +248,7 @@ class ExecuteESQueries:
         return answer
 
     @staticmethod
+    @DeprecationWarning
     def _trial_v2_queries():
         """
         contains 2-level queries, and has the same capabilities as translatePointFactQueries_v2.
@@ -257,7 +259,8 @@ class ExecuteESQueries:
         with codecs.open(sparql_stuff_path+'all-sparql-queries-27July2016.txt', 'r', 'utf-8') as f:
             sparql_queries = json.loads(f.read())
 
-        sparql_query = sparql_queries['Aggregate']['1595']
+        sparql_query = sparql_queries['PointFact']['54']
+        #index = 'dig-extractions'
         index =  'dig-memex-eval-02'
         #index = 'pr-index-1'
         url_localhost = "http://52.42.180.215:9200/"
@@ -300,4 +303,59 @@ class ExecuteESQueries:
             print 'Results from ResultExtractors:'
             pp.pprint(results)
 
-ExecuteESQueries._trial_v2_queries()
+    @staticmethod
+    def trial_v3_queries(raw_query_file, ads_table_file):
+        """
+        integrates 2-level queries, and can accommodate raw_query_files
+        """
+        results = None
+
+        with codecs.open(raw_query_file, 'r', 'utf-8') as f:
+            raw_sparql_queries = json.loads(f.read())
+
+        sparql_query = SQParser.parse(raw_sparql_queries['Point Fact']['54']['sparql'], target_component = '')
+        #index = 'dig-extractions'
+        index =  'dig-memex-eval-02'
+        #index = 'pr-index-1'
+        url_localhost = "http://52.42.180.215:9200/"
+        es = Elasticsearch(url_localhost)
+        query = {}
+        translatedDS = SparqlTranslator.SparqlTranslator.translateQueries(sparql_query,ads_table_file, 0)
+        query['query'] = translatedDS['query']
+        pp = pprint.PrettyPrinter(indent=4)
+        print 'level 0 query:'
+        pp.pprint(query)
+        retrieved_frames = es.search(index= index, size = 10, body = query)
+        if not retrieved_frames['hits']['hits']:
+            del query
+            del retrieved_frames
+            del translatedDS
+            query = {}
+            translatedDS = SparqlTranslator.SparqlTranslator.translateQueries(sparql_query,ads_table_file,1)
+            query['query'] = translatedDS['query']
+            #print translatedDS
+            retrieved_frames = es.search(index = index, size = 10, body = query)
+            print 'level 1 query:'
+            pp.pprint(query)
+            if not retrieved_frames['hits']['hits']:
+                print 'no results'
+            else:
+                # pp.pprint(retrieved_frames['hits']['hits'][0])
+                print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
+                results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
+
+        else:
+            # pp.pprint(retrieved_frames['hits']['hits'][0])
+            print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
+            results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
+
+        if results:
+            print 'Top retrieved result is :'
+            pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+            print 'Results from ResultExtractors:'
+            pp.pprint(results)
+
+sparql_stuff_path = "/home/mayankkejriwal/Downloads/"
+ads_table = sparql_stuff_path+'adsTable-v1.jl'
+raw_sparql_queries = sparql_stuff_path+'raw-queries-29July2016.txt'
+ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)

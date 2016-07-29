@@ -59,7 +59,7 @@ class MappingTable:
             for v in value_list:
                 if property == 'phone' or v == 'seller.telephone.name':
                     tmp[v] = 'build_phone_match_clause'
-                    tmp['_all'] = 'build_phone_regexp_clause'
+                    tmp['_all'] = 'build_phone_match_clause'
                     tmp['url'] = 'build_phone_regexp_clause'
                 elif property == 'ad':
                     tmp[v] = 'build_term_clause'
