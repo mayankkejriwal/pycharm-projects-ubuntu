@@ -113,6 +113,20 @@ def build_phone_match_clause(field, string):
     return answer
 
 
+def build_email_match_clause(field, string):
+    """
+    Meant for email field. Will have and semantics, and be boosted.
+    The intent is that this dictionary should be embedded into a valid elasticsearch query.
+    """
+    answer = {}
+    tmp = {}
+    tmp[field] = dict()
+    tmp[field]['query'] = string
+    tmp[field]['boost'] = 3.0
+    tmp[field]['operator'] = 'and'
+    answer['match'] = tmp
+    return answer
+
 def build_gender_match_clause(field, string):
     """
     Meant for gender field. At present we do some minimal normalization. For example, 'trans' will get

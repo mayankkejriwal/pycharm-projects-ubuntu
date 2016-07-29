@@ -30,6 +30,34 @@ class SparqlTranslator:
                                                             mappingTableFile, conservativeLevel)
 
     @staticmethod
+    def translateToDisMaxQuery(sparqlDataStructure, mappingTableFile):
+        """
+        The function that should be called from ExecuteESQueries. Handles point fact, aggregate
+        and cluster queries.
+        :param sparqlDataStructure: Represents a point fact query (see Downloads/all-sparql-queries.txt for
+        an example of the data structure)
+        :param mappingTableFile: for now, the adsTable-v1.jl
+
+        :return:a dict with the 'query' field mapping to the elastic search query, and various dicts
+        (possibly after some processing)
+        """
+        #for posterity removed 'parsed' from sparqlDataStructure
+        if sparqlDataStructure['where']['type'].lower() == 'ad':
+            level0DS = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
+                                                                             mappingTableFile, 0)
+            level1query = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
+                                                                             mappingTableFile, 1)['query']
+            level0DS['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_dis_max_arbitrary(1.0,
+                                                            0.0, level0DS['query'], level1query)
+            return level0DS
+        elif sparqlDataStructure['where']['type'].lower() == 'cluster':
+            level0DS = SparqlTranslator.translateClusterQueries(sparqlDataStructure, mappingTableFile, 0)
+            level1query = SparqlTranslator.translateClusterQueries(sparqlDataStructure,mappingTableFile, 1)['query']
+            level0DS['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_dis_max_arbitrary(1.0,
+                                                            0.0, level0DS['query'], level1query)
+            return level0DS
+
+    @staticmethod
     def translateClusterQueries(sparqlDataStructure, mappingTableFile, conservativeLevel):
         """
         Handles cluster queries. First, we check for a seed constraint and run a simple bool query

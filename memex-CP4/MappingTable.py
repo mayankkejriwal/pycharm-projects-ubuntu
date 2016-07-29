@@ -49,7 +49,7 @@ class MappingTable:
                                    'cluster': ['seller.uri'],
                                    'seed': ['seller.telephone.name', 'seller.email.name']
                                  }
-        non_readability_props = ['number_of_individuals', 'ad', 'multiple_phone', 'cluster', 'phone', 'posting_date']
+        non_readability_props = ['number_of_individuals', 'ad', 'multiple_phone', 'cluster', 'phone', 'posting_date', 'email']
         onto_props_without_mapping = ['image_with_email', 'image_with_phone']
         for property, value_list in onto_props_with_mapping.iteritems():
             dict = {}
@@ -61,6 +61,9 @@ class MappingTable:
                     tmp[v] = 'build_phone_match_clause'
                     tmp['_all'] = 'build_phone_match_clause'
                     tmp['url'] = 'build_phone_regexp_clause'
+                elif v == 'email.name':
+                    tmp[v] = 'build_email_match_clause'
+                    tmp['_all'] = 'build_match_phrase_clause'
                 elif property == 'ad':
                     tmp[v] = 'build_term_clause'
                 elif '_count' in v:

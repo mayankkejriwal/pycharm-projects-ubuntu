@@ -313,42 +313,25 @@ class ExecuteESQueries:
         with codecs.open(raw_query_file, 'r', 'utf-8') as f:
             raw_sparql_queries = json.loads(f.read())
 
-        sparql_query = SQParser.parse(raw_sparql_queries['Point Fact']['54']['sparql'], target_component = '')
+        sparql_query = SQParser.parse(raw_sparql_queries['Cluster']['1633.1837']['sparql'], target_component = '')
         #index = 'dig-extractions'
         index =  'dig-memex-eval-02'
         #index = 'pr-index-1'
         url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
         query = {}
-        translatedDS = SparqlTranslator.SparqlTranslator.translateQueries(sparql_query,ads_table_file, 0)
+        translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file)
         query['query'] = translatedDS['query']
         pp = pprint.PrettyPrinter(indent=4)
         print 'level 0 query:'
         pp.pprint(query)
         retrieved_frames = es.search(index= index, size = 10, body = query)
         if not retrieved_frames['hits']['hits']:
-            del query
-            del retrieved_frames
-            del translatedDS
-            query = {}
-            translatedDS = SparqlTranslator.SparqlTranslator.translateQueries(sparql_query,ads_table_file,1)
-            query['query'] = translatedDS['query']
-            #print translatedDS
-            retrieved_frames = es.search(index = index, size = 10, body = query)
-            print 'level 1 query:'
-            pp.pprint(query)
-            if not retrieved_frames['hits']['hits']:
-                print 'no results'
-            else:
-                # pp.pprint(retrieved_frames['hits']['hits'][0])
-                print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
-                results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
-
+            print 'no results'
         else:
             # pp.pprint(retrieved_frames['hits']['hits'][0])
             print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
             results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
-
         if results:
             print 'Top retrieved result is :'
             pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])

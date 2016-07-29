@@ -34,6 +34,25 @@ class BuildCompoundESQueries:
         return BuildCompoundESQueries.build_bool_arbitrary(must)
 
     @staticmethod
+    def build_dis_max_arbitrary(boost, tie_breaker, *args):
+        """
+        boost and tie_breaker have usual elastic search semantics
+        :param boost:
+        :param tie_breaker:
+        :param args: each arg is a query that will go into the 'queries' list of dis_max
+        :return: a dis_max query
+        """
+        answer = dict()
+        if not args:
+            return None
+        answer['dis_max'] = dict()
+        answer['dis_max']['tie_breaker'] = tie_breaker
+        answer['dis_max']['boost'] = boost
+        answer['dis_max']['queries'] = args
+
+        return answer
+
+    @staticmethod
     def build_bool_arbitrary(must=None, must_not=None, should=None, filter=None):
         """Builds a bool query from the various parameters"""
         answer = {}
