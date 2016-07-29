@@ -191,8 +191,9 @@ class SparqlTranslator:
         (after some processing)
         """
         initialDS= SparqlTranslator._populate_list_set_data_structure(sparqlDataStructure, mappingTableFile)
-        # at present, do not distinguish between optional and nonoptional properties.
+        # do we distinguish between optional and nonoptional properties in terms of exists clauses?
         propertiesSet = initialDS['optionalPropertiesSet'].union(initialDS['nonOptionalPropertiesSet'])
+
         for pr in propertiesSet:
             initialDS['existsList'].append(TableFunctions.build_exists_clause(pr))
         filter_clauses = [BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(
@@ -238,10 +239,13 @@ class SparqlTranslator:
         # more ambitious with how we process simpleSelectDict
         for properties in initialDS['simpleSelectDict'].itervalues():
             properties.discard('readability_text')
+            properties.discard('_all')
         if 'group-variable' in initialDS['groupByDict']:
             initialDS['groupByDict']['group-variable'].discard('readability_text')
+            initialDS['groupByDict']['group-variable'].discard('_all')
         if 'order-variable' in initialDS['groupByDict']:
             initialDS['groupByDict']['order-variable'].discard('readability_text')
+            initialDS['groupByDict']['order-variable'].discard('_all')
 
     @staticmethod
     def _populate_inner_outer_data_structure(initialDS):
@@ -289,7 +293,7 @@ class SparqlTranslator:
 
         :return: A dictionary with the following fields: existsList, nonOptionalPropertiesSet,
         optionalPropertiesSet, optionalList, nonoptionalList, simpleSelectDict, countSelectDict,
-        groupConcatSelectDict, groupByDict, filterQueries
+        groupConcatSelectDict, groupByDict, filterQueries, bindQuery
 
         Each field (with variable as key)
         in {simple, count}SelectDict maps to a set of the 'properties' that the variable
@@ -303,6 +307,9 @@ class SparqlTranslator:
         groupByDict, at present, only contains a 'group-variable' field, mapped to the set of our properties.
 
         filterQueries is a list of boolean queries that should be embedded in a filter query eventually.
+
+        bindQuery is a bool query with filters. It must be satisfied for the non-optional predicates
+        in select to bind.
 
         We do not purge any text variables (e.g. readability_text) from any of the sets.
         """
@@ -452,7 +459,7 @@ class SparqlTranslator:
         answer['groupByDict'] = groupByDict
         answer['filterQueries'] = filterQueries
         answer['bindQuery'] = SparqlTranslator._computeBindFilter(sparqlDataStructure['parsed']['select']['variables'],
-                                                                  var_to_property, var_to_property_optional)
+                                                                  var_to_property)
         return answer
 
     @staticmethod
@@ -500,20 +507,19 @@ class SparqlTranslator:
         return list
 
     @staticmethod
-    def _mapVarsToProperties(variable, var_to_property, var_to_property_optional):
+    def _mapVarsToProperties(variable, *args):
         """
 
        :param variable: a variable string
-       :param var_to_property: A dictionary mapping variables to properties in our ontology
-            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
-            we treat them as two separate arguments for convenience
+       :param *args: Each arg is a dictionary mapping variables to properties in our ontology
+
         :return: a set of properties in our ontology that the variable maps to
         """
         properties = set()
-        if variable in var_to_property:
-            properties = properties.union(var_to_property[variable])
-        if variable in var_to_property_optional:
-            properties = properties.union(var_to_property_optional[variable])
+        for var_to_property in args:
+            if variable in var_to_property:
+                properties = properties.union(var_to_property[variable])
+
         return properties
 
     @staticmethod
@@ -556,7 +562,7 @@ class SparqlTranslator:
         return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
 
     @staticmethod
-    def _computeBindFilter(select_clauses,var_to_property, var_to_property_optional):
+    def _computeBindFilter(select_clauses,var_to_property):
         """
         This function guarantees that any query result retrieved will contain the 'select' bindings we want.
         The output is a filter-bool that should be merged into other bools. A query strategy function
@@ -564,19 +570,18 @@ class SparqlTranslator:
 
         :param select: A list of dictionaries corresponding to select clauses
         :param var_to_property: A dictionary mapping variables to properties in our ontology
-            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
-            we treat them as two separate arguments for convenience
+
         :return: A bool-filter query
         """
         filter = []
         for clause in select_clauses:
-            properties = SparqlTranslator._mapVarsToProperties(clause['variable'],var_to_property,
-                                                                var_to_property_optional)
+            properties = SparqlTranslator._mapVarsToProperties(clause['variable'],var_to_property)
             properties.discard('readability_text')
-            should = []
+            should = [] #careful; this is not the 'should' in a bool
             for property in properties:
                should.append(TableFunctions.build_exists_clause(property))
-            filter.append(BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = should))
+            if should:
+                filter.append(BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = should))
         return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = filter)
 
     @staticmethod

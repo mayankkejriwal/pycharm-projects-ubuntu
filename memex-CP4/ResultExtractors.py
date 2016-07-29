@@ -303,7 +303,7 @@ class ResultExtractors:
             if isinstance(value, list):
                 if len(value) > 1:
                     total *= len(value)
-                else:
+                elif len(value) == 1:
                     atomic_dict[key] = value[0]
             else:
                 atomic_dict[key] = value

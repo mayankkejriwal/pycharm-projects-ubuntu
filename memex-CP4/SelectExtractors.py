@@ -33,9 +33,9 @@ class SelectExtractors:
                     if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], v):
                         extracted_values[v] = ResultExtractors.ResultExtractors.\
                             get_property_from_source_frame(frame['_source'], v)
-                print extracted_values
+                #print extracted_values
                 cross_product = ResultExtractors.ResultExtractors._flatten_dict(extracted_values)
-                print cross_product
+                #print cross_product
                 tmp[key] = SelectExtractors._convert_cross_product(cross_product)
             answer.append(tmp)
         return answer
@@ -60,9 +60,10 @@ class SelectExtractors:
         answer = {}
 
         for var, properties in countSelectDict.items():
-            if len(properties) != 1:
-                string = var+" doesn't have exactly one mapped property in count-select!"
-                raise Exception(string)
+            #if len(properties) != 1:
+                properties = SelectExtractors._prune_properties_set_to_singleton(properties)
+                #string = var+" doesn't have exactly one mapped property in count-select!"
+                #raise Exception(string)
 
         for key, group in grouped_frames.items():
             count_vars = {}
@@ -93,11 +94,12 @@ class SelectExtractors:
             return None
 
         answer = {}
-        print groupConcatSelectDict
+        #print groupConcatSelectDict
         for var, properties in groupConcatSelectDict.items():
-            if len(properties['properties']) != 1:
-                string = var+" doesn't have exactly one mapped property in group-concat select!"
-                raise Exception(string)
+            #if len(properties['properties']) != 1:
+                properties['properties'] = SelectExtractors._prune_properties_set_to_singleton(properties['properties'])
+                #string = var+" doesn't have exactly one mapped property in group-concat select!"
+                #raise Exception(string)
 
         for key, group in grouped_frames.items():
             group_concat_vars = {}
@@ -109,6 +111,34 @@ class SelectExtractors:
             answer[key] = tmp
 
         return answer
+
+    @staticmethod
+    def _prune_properties_set_to_singleton(properties_set):
+        """
+        This method is currently predicated on heuristics, and in support of count and group-concat
+        :param properties_set: a non-empty set of properties
+        :return: Another set of properties, one that is guaranteed to contain exactly 1 element. The
+        set of properties returned will ALWAYS be a different reference than the one passed in, for safety.
+        """
+        if not properties_set:
+            raise Exception('We have an empty/non-existent properties-set to prune')
+        answer = set()
+        p = list(properties_set)
+        if len(p) == 1:
+            answer.add(p[0])
+            return answer
+        else:
+            # let the heuristics game begin
+            for property in p:
+                if 'raw' in property:
+                    answer.add(property) # return first 'raw' field
+                    return answer
+            for property in p:  # no raw fields encountered
+                if property == '_all' or '_text' in property:
+                    continue    # the text fields are not supposed to be in here to begin with, but...
+                else:
+                    answer.add(property) # return first 'non-text' field
+                    return answer
 
     @staticmethod
     def _convert_cross_product(cross_product_list):

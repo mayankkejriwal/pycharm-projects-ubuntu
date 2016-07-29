@@ -250,11 +250,12 @@ class ExecuteESQueries:
         contains 2-level queries, and has the same capabilities as translatePointFactQueries_v2.
         We expect to keep adding to this (a 'master' release, so to speak)
         """
+        results = None
         sparql_stuff_path = "/home/mayankkejriwal/Downloads/"
         with codecs.open(sparql_stuff_path+'all-sparql-queries-27July2016.txt', 'r', 'utf-8') as f:
             sparql_queries = json.loads(f.read())
 
-        sparql_query = sparql_queries['Aggregate']['88']
+        sparql_query = sparql_queries['Aggregate']['1595']
         index =  'dig-memex-eval-02'
         #index = 'pr-index-1'
         url_localhost = "http://52.42.180.215:9200/"
@@ -291,10 +292,11 @@ class ExecuteESQueries:
             print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
             results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
 
-        print 'Top retrieved result is :'
-        pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
-        print 'Results from ResultExtractors:'
-        pp.pprint(results)
+        if results:
+            print 'Top retrieved result is :'
+            pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+            print 'Results from ResultExtractors:'
+            pp.pprint(results)
 
 #path = '/home/mayankkejriwal/Downloads/'
 #ExecuteESQueries._trial_pedro_queries_v2()
