@@ -66,4 +66,4 @@ def _bulkload_json_file(input_file):
 
 #path = '/home/mayankkejriwal/Downloads/dig-data/sample-datasets/escorts/'
 #_bulkload_json_file(path+'all-extractions-webpage-bulk-load.jl')
-_try_sparql_parser()
+#_try_sparql_parser()

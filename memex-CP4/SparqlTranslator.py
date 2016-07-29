@@ -72,33 +72,35 @@ class SparqlTranslator:
         """
         seed_constraint = SparqlTranslator._find_seed_constraint(sparqlDataStructure)
         should = []
-        should.append(TableFunctions.build_term_clause('seller.telephone.name.raw', seed_constraint))
-        should.append(TableFunctions.build_term_clause('seller.email.name.raw', seed_constraint))
+        should.append(TableFunctions.build_term_clause('telephone.name', seed_constraint))
+        should.append(TableFunctions.build_term_clause('email.name', seed_constraint))
 
         #this is a very simple heuristic: use with caution. In essence, we strip the first 0 iff we're
         #reasonably sure this is not an email address
         if '@' not in seed_constraint:
             seed_constraint1 = SparqlTranslator._strip_initial_zeros(seed_constraint)
             if seed_constraint1 != seed_constraint:
-                should.append(TableFunctions.build_term_clause('seller.telephone.name.raw', seed_constraint1))
+                should.append(TableFunctions.build_term_clause('telephone.name', seed_constraint1))
 
         query = dict()
         query['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
+        print query
         index =  'dig-memex-eval-02'
         url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
-        retrieved_frames = es.search(index= index, size = 1000, body = query) #we should set a big size
+        retrieved_frames = es.search(index= index, doc_type = 'seller', size = 1000, body = query) #we should set a big size
         #print(retrieved_frames['hits']['hits'][0]['_source'])
-
-        seller_uris = SparqlTranslator._extract_seller_uris(retrieved_frames)
-        seller_should = []
-        for uri in seller_uris:
-            seller_should.append(TableFunctions.build_term_clause('seller.uri', uri))
-        seller_bool = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = seller_should)
         translatedDS = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                                  mappingTableFile, conservativeLevel)
-        merge_bool = BuildCompoundESQueries.BuildCompoundESQueries.mergeBools(translatedDS['query'], seller_bool)
-        translatedDS['query'] = merge_bool
+        if retrieved_frames:
+            seller_uris = SparqlTranslator._extract_seller_uris(retrieved_frames)
+            seller_should = []
+            for uri in seller_uris:
+                seller_should.append(TableFunctions.build_term_clause('seller.uri', uri))
+            seller_bool = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = seller_should)
+            seller_bool = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = [seller_bool])
+            merge_bool = BuildCompoundESQueries.BuildCompoundESQueries.mergeBools(translatedDS['query'], seller_bool)
+            translatedDS['query'] = merge_bool
 
         return translatedDS
 
@@ -128,8 +130,7 @@ class SparqlTranslator:
         """
         seller_uris = []
         for frame in retrieved_frames['hits']['hits']:
-            if 'seller' in frame['_source'] and 'uri' in frame['_source']['seller']:
-                seller_uris.append(frame['_source']['seller']['uri'])
+            seller_uris.append(frame['_source']['uri'])
 
         return seller_uris
 
@@ -181,7 +182,7 @@ class SparqlTranslator:
                                  build_bool_arbitrary(should = innerOuterDS['innerOptional']))
 
         # right now, no distinction between nonoptional and optional triples.
-        print initialDS['filterQueries']
+        #print initialDS['filterQueries']
         where_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
             build_bool_arbitrary(should = innerOuterDS['outerNonOptional'], filter = initialDS['filterQueries'])
         must_bool = BuildCompoundESQueries.BuildCompoundESQueries.\

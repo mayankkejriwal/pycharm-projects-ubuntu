@@ -323,9 +323,9 @@ class ExecuteESQueries:
         translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file)
         query['query'] = translatedDS['query']
         pp = pprint.PrettyPrinter(indent=4)
-        print 'level 0 query:'
+        print 'query:'
         pp.pprint(query)
-        retrieved_frames = es.search(index= index, size = 10, body = query)
+        retrieved_frames = es.search(index= index, doc_type='webpage', size = 10, body = query)
         if not retrieved_frames['hits']['hits']:
             print 'no results'
         else:
