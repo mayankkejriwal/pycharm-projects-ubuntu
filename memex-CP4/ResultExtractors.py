@@ -36,7 +36,10 @@ class ResultExtractors:
                     order_var_list = list(translated_query_data_structure['groupByDict']['order-variable'])
                     sort_order = translated_query_data_structure['groupByDict']['sorted-order']
                     if len(order_var_list) != 1:
-                        raise Exception('not exactly one mapping for order-variable!')
+                        order_var_list = list(SelectExtractors.SelectExtractors.
+                                              _prune_properties_set_to_singleton
+                                              (translated_query_data_structure['groupByDict']['order-variable']))
+                        # raise Exception('not exactly one mapping for order-variable!')
                     order_by_property = order_var_list[0]
                     #print order_by_property
                     #print retrieved_frames['hits']['hits'][0]['_source'][order_by_property]

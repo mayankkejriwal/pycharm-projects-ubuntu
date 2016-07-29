@@ -61,7 +61,7 @@ class SelectExtractors:
 
         for var, properties in countSelectDict.items():
             #if len(properties) != 1:
-                properties = SelectExtractors._prune_properties_set_to_singleton(properties)
+                countSelectDict[var] = SelectExtractors._prune_properties_set_to_singleton(properties)
                 #string = var+" doesn't have exactly one mapped property in count-select!"
                 #raise Exception(string)
 

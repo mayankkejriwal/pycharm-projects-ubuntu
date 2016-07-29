@@ -497,7 +497,7 @@ class SparqlTranslator:
         list = []
         for triple in triples:
             if triple[1] not in mappingTable:
-                print('Error! Unmapped Ontology Property: ',triple[1])
+                raise Exception('Error! Unmapped Ontology Property: ',triple[1])
             elif triple[2][0] == '?':
                 continue
             else:

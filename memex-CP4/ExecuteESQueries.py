@@ -96,6 +96,7 @@ class ExecuteESQueries:
         PrintUtils.PrintUtils.printField(retrieved_frames['hits']['hits'], 'identifier')
 
     @staticmethod
+    @DeprecationWarning
     def _trial_pedro_queries_v2():
         """
         To try things out, test scenarios
@@ -216,6 +217,7 @@ class ExecuteESQueries:
         print('top 10 results : ',top10)
 
     @staticmethod
+    @DeprecationWarning
     def _eval(identifiers, cdr):
         """
         """
@@ -298,6 +300,4 @@ class ExecuteESQueries:
             print 'Results from ResultExtractors:'
             pp.pprint(results)
 
-#path = '/home/mayankkejriwal/Downloads/'
-#ExecuteESQueries._trial_pedro_queries_v2()
 ExecuteESQueries._trial_v2_queries()
