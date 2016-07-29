@@ -21,10 +21,11 @@ class SparqlTranslator:
         :return:a dict with the 'query' field mapping to the elastic search query, and various dicts
         (possibly after some processing)
         """
-        if sparqlDataStructure['parsed']['where']['type'].lower() == 'ad':
+        #for posterity removed 'parsed' from sparqlDataStructure
+        if sparqlDataStructure['where']['type'].lower() == 'ad':
             return SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                              mappingTableFile, conservativeLevel)
-        elif sparqlDataStructure['parsed']['where']['type'].lower() == 'cluster':
+        elif sparqlDataStructure['where']['type'].lower() == 'cluster':
             return SparqlTranslator.translateClusterQueries(sparqlDataStructure,
                                                             mappingTableFile, conservativeLevel)
 
@@ -111,7 +112,8 @@ class SparqlTranslator:
         :param sparqlDataStructure: The original sparql query
         :return: The seed constraint. If no seed is found, an exception will be thrown.
         """
-        for clause in sparqlDataStructure['parsed']['where']['clauses']:
+        # remove 'parsed'
+        for clause in sparqlDataStructure['where']['clauses']:
             if 'predicate' not in clause:
                 continue
             elif clause['predicate'] == 'seed':
@@ -322,14 +324,15 @@ class SparqlTranslator:
         groupConcatSelectDict = {}
         groupByDict = {}
         type_var = None
-        if 'type' in sparqlDataStructure['parsed']['where'] and 'variable' in sparqlDataStructure['parsed']['where']:
-                type_var = sparqlDataStructure['parsed']['where']['variable']
-                if sparqlDataStructure['parsed']['where']['type'].lower() == 'ad':
+        #remove 'parsed'
+        if 'type' in sparqlDataStructure['where'] and 'variable' in sparqlDataStructure['where']:
+                type_var = sparqlDataStructure['where']['variable']
+                if sparqlDataStructure['where']['type'].lower() == 'ad':
                     var_to_property[type_var] = ['identifier']
-                elif sparqlDataStructure['parsed']['where']['type'].lower() == 'cluster':
+                elif sparqlDataStructure['where']['type'].lower() == 'cluster':
                     var_to_property[type_var] = ['seller.uri']
 
-        for clause in sparqlDataStructure['parsed']['where']['clauses']:
+        for clause in sparqlDataStructure['where']['clauses']:
             tmp = []
             if 'variable' in clause:
 
@@ -353,8 +356,8 @@ class SparqlTranslator:
                 else:
                     whereTriples.append(tmp)
 
-        if 'filters' in sparqlDataStructure['parsed']['where']:
-            for clause_expr in sparqlDataStructure['parsed']['where']['filters']:
+        if 'filters' in sparqlDataStructure['where']:
+            for clause_expr in sparqlDataStructure['where']['filters']:
                 filterQueries.append(SparqlTranslator._translateFilterClauseToBool(clause_expr,
                                                 var_to_property, var_to_property_optional))
 
@@ -372,9 +375,9 @@ class SparqlTranslator:
             for v in list_of_properties:
                 optionalPropertiesSet.add(v)
 
-        if 'group-by' in sparqlDataStructure['parsed']:
-            if 'group-variable' in sparqlDataStructure['parsed']['group-by']:
-                var = sparqlDataStructure['parsed']['group-by']['group-variable']
+        if 'group-by' in sparqlDataStructure:
+            if 'group-variable' in sparqlDataStructure['group-by']:
+                var = sparqlDataStructure['group-by']['group-variable']
                 if var in var_to_property:
                     groupByDict['group-variable'] = set(var_to_property[var])
                 elif var in var_to_property_optional:
@@ -383,8 +386,8 @@ class SparqlTranslator:
                     groupByDict['group-variable'] = set(['identifier'])
                 else:
                     raise Exception('Unmapped group-variable in group-by')
-            if 'order-variable' in sparqlDataStructure['parsed']['group-by']:
-                var = sparqlDataStructure['parsed']['group-by']['order-variable']
+            if 'order-variable' in sparqlDataStructure['group-by']:
+                var = sparqlDataStructure['group-by']['order-variable']
                 if var in var_to_property:
                     groupByDict['order-variable'] = set(var_to_property[var])
                 elif var in var_to_property_optional:
@@ -396,15 +399,15 @@ class SparqlTranslator:
                 else:
                     raise Exception('Unmapped order-variable in group-by')
                 #we should only check for limit if there's an order-variable
-                if 'limit' in sparqlDataStructure['parsed']['group-by'] and sparqlDataStructure['parsed']['group-by']['limit'] >= 1:
-                    groupByDict['limit'] = sparqlDataStructure['parsed']['group-by']['limit']
+                if 'limit' in sparqlDataStructure['group-by'] and sparqlDataStructure['group-by']['limit'] >= 1:
+                    groupByDict['limit'] = sparqlDataStructure['group-by']['limit']
                 #sorted order will always be there if order-variable is there.
-                if 'sorted-order' in sparqlDataStructure['parsed']['group-by']:
-                    groupByDict['sorted-order'] = sparqlDataStructure['parsed']['group-by']['sorted-order']
+                if 'sorted-order' in sparqlDataStructure['group-by']:
+                    groupByDict['sorted-order'] = sparqlDataStructure['group-by']['sorted-order']
                 else:
                     groupByDict['sorted-order'] = 'asc' #the default, if nothing is specified
 
-        for vars in sparqlDataStructure['parsed']['select']['variables']:
+        for vars in sparqlDataStructure['select']['variables']:
             if vars['type'] == 'group-concat':
                 var = vars['variable']
                 dependent_var = vars['dependent-variable']
@@ -456,7 +459,7 @@ class SparqlTranslator:
         answer['groupConcatSelectDict'] = groupConcatSelectDict
         answer['groupByDict'] = groupByDict
         answer['filterQueries'] = filterQueries
-        answer['bindQuery'] = SparqlTranslator._computeBindFilter(sparqlDataStructure['parsed']['select']['variables'],
+        answer['bindQuery'] = SparqlTranslator._computeBindFilter(sparqlDataStructure['select']['variables'],
                                                                   var_to_property)
         return answer
 
@@ -468,7 +471,8 @@ class SparqlTranslator:
         :param sparqlDataStructure: checks if ?ads is a dependent-variable in the select clause
         :return: True or False
         """
-        for vars in sparqlDataStructure['parsed']['select']['variables']:
+        # remove 'parsed' from sparqlDataStructure
+        for vars in sparqlDataStructure['select']['variables']:
             if 'dependent-variable' in vars:
                 if vars['dependent-variable'] == var:
                     return True

@@ -331,12 +331,13 @@ class ResultExtractors:
         """
         The subtlety in this function is that it will return None if there is a group-by variable
         but we don't need it as part of the results. This function is for internal use only.
-        :param sparql_query: The original sparql query, with parsed etc. as upper level keys
+        :param sparql_query: The original sparql query, as produced by sqparser
         :return: a string representing the group-by variable (in original unmapped form) or None
         """
-        if 'group-by' in sparql_query['parsed'] and 'group-variable' in sparql_query['parsed']['group-by']:
-            var = sparql_query['parsed']['group-by']['group-variable']
-            for select in sparql_query['parsed']['select']['variables']:
+        # for posterity, I'm changing sparql_query['parsed'] to sparql_query to be compatible with sqparser
+        if 'group-by' in sparql_query and 'group-variable' in sparql_query['group-by']:
+            var = sparql_query['group-by']['group-variable']
+            for select in sparql_query['select']['variables']:
                 if select['type'] == 'simple' and select['variable'] == var:
                     return var
 
@@ -346,11 +347,12 @@ class ResultExtractors:
     def _find_order_by(sparql_query):
         """
         Finds the order-by variable
-        :param sparql_query: The original sparql query, with parsed etc. as upper level keys
+        :param sparql_query: The original sparql query, as produced by sqparser
         :return: a string representing the order-by variable (in original unmapped form) or None
         """
-        if 'group-by' in sparql_query['parsed'] and 'order-variable' in sparql_query['parsed']['group-by']:
-            return sparql_query['parsed']['group-by']['order-variable']
+        # for posterity, I'm changing sparql_query['parsed'] to sparql_query to be compatible with sqparser
+        if 'group-by' in sparql_query and 'order-variable' in sparql_query['group-by']:
+            return sparql_query['group-by']['order-variable']
         return None
 
     @staticmethod
