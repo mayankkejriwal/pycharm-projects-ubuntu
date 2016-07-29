@@ -27,9 +27,9 @@ class MappingTable:
         The dat is 1/19/2016
         """
         ads_table = []
-        text_props = ['readability_text']
-        onto_props_with_mapping = {'phone':['telephone.name'], 'email': ['email.name'],
-                                   'posting_date':['dateCreated'],
+        text_props = ['readability_text', '_all']
+        onto_props_with_mapping = {'phone':['telephone.name', 'telephone.name.raw'], 'email': ['email.name', 'email.name.raw'],
+                                   'posting_date':['inferlink_date'],
                                    'price':['price'], 'location':['addressLocality'],
                                    'name':['name'],
                                    'ethnicity':['ethnicity'],
@@ -38,49 +38,56 @@ class MappingTable:
                                    'business_type':['business_type'],
                                    'business_name':['business_name'], 'services':['serviceType'],
                                    'business': ['business_name', 'physical_address'],
-                                   'physical_address': ['physical_address'],
+                                   'physical_address': ['streetAddress'],
                                    'gender':['gender'], 'top_level_domain':['top_level_domain'],
                                    'obfuscation':['telephone.isObfuscated', 'email.isObfuscated'],
                                    'age':['age'], 'hyperlink:':['relatedLink'], 'drug_use':['drug_use'],
                                    'review_site':['review_site'], 'review_id':['review_id'],
                                    'number_of_individuals':['name_count'],
                                    'ad': ['identifier'],
-                                   'multiple_phone': ['telephone_count']
+                                   'multiple_phone': ['telephone_count'],
+                                   'cluster': ['seller.uri'],
+                                   'seed': ['seller.telephone.name', 'seller.email.name']
                                  }
-        non_readability_props = ['number_of_individuals', 'ad', 'multiple_phone']
-        # onto_props_without_mapping = ['multiple_phone']
+        non_readability_props = ['number_of_individuals', 'ad', 'multiple_phone', 'cluster', 'phone', 'posting_date']
+        onto_props_without_mapping = ['image_with_email', 'image_with_phone']
         for property, value_list in onto_props_with_mapping.iteritems():
             dict = {}
             dict['onto_prop'] = property
             mappings = []
             tmp = {}
             for v in value_list:
-                if property == 'phone':
+                if property == 'phone' or v == 'seller.telephone.name':
                     tmp[v] = 'build_phone_match_clause'
+                    tmp['_all'] = 'build_phone_regexp_clause'
+                    tmp['url'] = 'build_phone_regexp_clause'
                 elif property == 'ad':
                     tmp[v] = 'build_term_clause'
+                elif '_count' in v:
+                    tmp[v] = 'build_count_match_clause'
+                elif property == 'gender':
+                    tmp[v] = 'build_gender_match_clause'
+                elif property == 'posting_date':
+                    tmp[v] = 'build_match_phrase_clause'
                 else:
                     tmp[v] = 'build_match_clause'
             if property not in non_readability_props:
-                for v in text_props:
-                    if property == 'phone':
-                        tmp[v] = 'build_phone_match_clause_inner'
-                    else:
-                        tmp[v] = 'build_match_clause_inner'
+                for v in text_props:    # will overwrite for seller.telephone.name
+                    tmp[v] = 'build_match_clause_inner'
             mappings.append(tmp)
             dict['mappings'] = mappings
             ads_table.append(dict)
 
-        # for property in onto_props_without_mapping:
-        #     dict = {}
-        #     dict['onto_prop'] = property
-        #     mappings = []
-        #     tmp = {}
-        #     for v in text_props:
-        #         tmp[v] = 'build_match_clause_inner'
-        #     mappings.append(tmp)
-        #     dict['mappings'] = mappings
-        #     ads_table.append(dict)
+        for property in onto_props_without_mapping:
+            dict = {}
+            dict['onto_prop'] = property
+            mappings = []
+            tmp = {}
+            for v in text_props:
+                tmp[v] = 'build_match_clause_inner'
+            mappings.append(tmp)
+            dict['mappings'] = mappings
+            ads_table.append(dict)
 
         if output_file:
             file = codecs.open(output_file, 'w', 'utf-8')

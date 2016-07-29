@@ -39,7 +39,6 @@ class ExecuteESQueries:
         #print('Number of retrieved frames ',len(retrieved_frames))
         PrintUtils.PrintUtils.printItemOfferedFieldFromOfferFrames(retrieved_frames['hits']['hits'], 'age')
 
-
     @staticmethod
     @DeprecationWarning
     def _trial_pedro_queries_v1():
@@ -69,7 +68,6 @@ class ExecuteESQueries:
         #pp.pprint(retrieved_frames)
         print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
         PrintUtils.PrintUtils.printField(retrieved_frames['hits']['hits'], 'identifier')
-
 
     @staticmethod
     @DeprecationWarning
@@ -253,12 +251,13 @@ class ExecuteESQueries:
         We expect to keep adding to this (a 'master' release, so to speak)
         """
         sparql_stuff_path = "/home/mayankkejriwal/Downloads/"
-        with codecs.open(sparql_stuff_path+'test-sparql-25July2016.txt', 'r', 'utf-8') as f:
+        with codecs.open(sparql_stuff_path+'all-sparql-queries-27July2016.txt', 'r', 'utf-8') as f:
             sparql_queries = json.loads(f.read())
 
-        sparql_query = sparql_queries['Point Fact']['test_4']
-
-        url_localhost = "http://localhost:9200/"
+        sparql_query = sparql_queries['Aggregate']['88']
+        index =  'dig-memex-eval-02'
+        #index = 'pr-index-1'
+        url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
         query = {}
         translatedDS = SparqlTranslator.SparqlTranslator.translateQueries(sparql_query,
@@ -267,7 +266,7 @@ class ExecuteESQueries:
         pp = pprint.PrettyPrinter(indent=4)
         print 'level 0 query:'
         pp.pprint(query)
-        retrieved_frames = es.search(index='pr-index-1', size = 10, body = query)
+        retrieved_frames = es.search(index= index, size = 10, body = query)
         if not retrieved_frames['hits']['hits']:
             del query
             del retrieved_frames
@@ -277,7 +276,7 @@ class ExecuteESQueries:
                                                             sparql_stuff_path+'adsTable-v1.jl', 1)
             query['query'] = translatedDS['query']
             #print translatedDS
-            retrieved_frames = es.search(index='pr-index-1', size = 10, body = query)
+            retrieved_frames = es.search(index = index, size = 10, body = query)
             print 'level 1 query:'
             pp.pprint(query)
             if not retrieved_frames['hits']['hits']:

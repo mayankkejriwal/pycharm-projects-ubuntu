@@ -38,6 +38,8 @@ class ResultExtractors:
                     if len(order_var_list) != 1:
                         raise Exception('not exactly one mapping for order-variable!')
                     order_by_property = order_var_list[0]
+                    #print order_by_property
+                    #print retrieved_frames['hits']['hits'][0]['_source'][order_by_property]
 
         if translated_query_data_structure['simpleSelectDict'] and not group_by_var:
             select = SelectExtractors.SelectExtractors.extractSimpleSelect(retrieved_frames['hits']['hits'],
@@ -45,8 +47,9 @@ class ResultExtractors:
             if order_by_var:
                 for i in range(0, len(retrieved_frames['hits']['hits'])):
                     if order_by_var not in select[i]:
-                        prop = ResultExtractors._get_property_from_source_frame(
+                        prop = ResultExtractors.get_property_from_source_frame(
                                          retrieved_frames['hits']['hits'][i]['_source'],order_by_property)
+                        #print prop
                         if prop is not None:
                             select[i][order_by_var] = prop
                     else:
@@ -95,6 +98,7 @@ class ResultExtractors:
             flattened_list = ResultExtractors._flatten(unflattened_dict.values())
 
         if order_by_var:
+            #print order_by_var
             flattened_list = ResultExtractors._order_flattened_list(flattened_list,order_by_var, sort_order)
 
             if not is_order_var_in_select: # this must be nested to distinguish between None and False
@@ -111,29 +115,114 @@ class ResultExtractors:
         return flattened_list
 
     @staticmethod
-    def _get_property_from_source_frame(source_frame, property):
+    def is_property_in_source_frame(source_frame, property):
         """
-        Be careful. The property could be dot-delimited.
-        :param source_frame: A source frame
-        :param property: a property in the source frame
-        :return: Either the property value, or None if it doesn't exist in the frame
+        In the frame, only one list is expected while navigating the property, if any. If a list is encountered,
+        only one member needs to have the property
+        :param source_frame: a source frame
+        :param property: (possibly dot limited) property in our ontology
+        :return: True or False
         """
-
-        if '.' not in property:
-            if property in source_frame:
-                return source_frame
-            else:
-                return None
-        else:
+        if '.' in property:
             l = re.split('\.',property)
             # print l
             tmp = source_frame
-            for element in l:
-                if element not in tmp:
+            for j in range(0,len(l)):
+                element = l[j]
+                if isinstance(tmp, list):
+                    for i in range(0, len(tmp)):
+                        k = tmp[i]
+
+                        for m in range(j, len(l)):
+                            inner_element = l[m]
+                            if inner_element in k:
+                                k = k[inner_element]
+                            else:
+                                k = None
+                                break
+                        if k:
+                            return True
+                    return False
+                elif element not in tmp:
+                    return False
+                else:
+                    tmp = tmp[element]
+            if tmp:
+                return True
+        else:
+            if property in source_frame:
+                return True
+
+    @staticmethod
+    def get_property_from_source_frame(source_frame, property):
+        """
+        Be careful. The property could be dot-delimited.See my note on the 'is' version of this function.
+        :param source_frame: A source frame
+        :param property: a property in the source frame
+        :return: Either the property value (always a list of homogeneous atomic values), or None if
+        property doesn't exist in the frame
+        """
+
+        if '.' in property:
+            l = re.split('\.',property)
+            # print l
+            tmp = source_frame
+            for j in range(0,len(l)):
+                element = l[j]
+                if isinstance(tmp, list):
+                    answer = []
+                    for i in range(0, len(tmp)):
+                        k = tmp[i]
+
+                        for m in range(j, len(l)):
+                            inner_element = l[m]
+                            if inner_element in k:
+                                k = k[inner_element]
+                            else:
+                                k = None
+                                break
+                        if k:
+                            if isinstance(k, list):
+                                answer += k
+                            else:
+                                answer.append(k)
+                    if answer:
+                        return answer
+                    else:
+                        return None
+                elif element not in tmp:
                     return None
                 else:
                     tmp = tmp[element]
-            return tmp
+            if tmp:
+                if isinstance(tmp, list):
+                    return tmp
+                else:
+                    return [tmp]
+
+        else:
+            if property in source_frame:
+                if isinstance(source_frame[property], list):
+                    return source_frame[property]
+                else:
+                    return [source_frame[property]]
+
+        # I am backing up this piece of code in case things go seriously wrong with the modified code.
+        # if '.' not in property:
+        #     if property in source_frame:
+        #         return source_frame[property]
+        #     else:
+        #         return None
+        # else:
+        #     l = re.split('\.',property)
+        #     # print l
+        #     tmp = source_frame
+        #     for element in l:
+        #         if element not in tmp:
+        #             return None
+        #         else:
+        #             tmp = tmp[element]
+        #     return tmp
 
     @staticmethod
     def _order_flattened_list(flattened_list, order_variable, sort_order):
@@ -155,6 +244,7 @@ class ResultExtractors:
             if order_variable not in result:
                 missing_indices.append(index)
             else:
+                #print result
                 if result[order_variable] not in indices_dict:
                     indices_dict[result[order_variable]] = list()
                 indices_dict[result[order_variable]].append(index)
@@ -176,9 +266,6 @@ class ResultExtractors:
         sort_indices += missing_indices
 
         return [flattened_list[i] for i in sort_indices]    # let's be pythonic for a change
-
-
-
 
     @staticmethod
     def _flatten(list_of_results):
@@ -208,9 +295,16 @@ class ResultExtractors:
         total = 1
         output = []
         atomic_dict = {}
+
+        if not dictionary:
+            return output
+
         for key, value in dictionary.items():
             if isinstance(value, list):
-                total *= len(value)
+                if len(value) > 1:
+                    total *= len(value)
+                else:
+                    atomic_dict[key] = value[0]
             else:
                 atomic_dict[key] = value
 
@@ -255,7 +349,6 @@ class ResultExtractors:
         if 'group-by' in sparql_query['parsed'] and 'order-variable' in sparql_query['parsed']['group-by']:
             return sparql_query['parsed']['group-by']['order-variable']
         return None
-
 
     @staticmethod
     def _printers(select = None, group = None, groupConcatSelect = None, countSelect = None):

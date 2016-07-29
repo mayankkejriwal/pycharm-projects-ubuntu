@@ -20,7 +20,7 @@ class Grouper:
             if group_variable in element['_source']:
                 val = element['_source'][group_variable]
                 # at present val must be a string or list
-                if isinstance(val, six.string_types):
+                if isinstance(val, six.string_types) or isinstance(val, int) or isinstance(val, long):
                     Grouper._add_key_value_to_dict(val, element['_source'], answer)
                 elif isinstance(val, list):
                     for atom in val:

@@ -1,4 +1,5 @@
 import codecs, json, TableFunctions, MappingTable, BuildCompoundESQueries
+from elasticsearch import Elasticsearch
 
 class SparqlTranslator:
     """
@@ -6,75 +7,6 @@ class SparqlTranslator:
     parses them into an elastic search query. Data structures may evolve and returned
     ES query are expected to become more complex as time goes on.
     """
-
-    @DeprecationWarning
-    @staticmethod
-    def translatePointFactQueries_v1(sparqlDataStructure, mappingTableFile):
-        """
-
-        :param sparqlDataStructure: Represents a point fact query (see Downloads/sparql-queries.txt for
-        an example; see Downloads/sparql-data-structure.txt for an example of the data structure itself)
-        :param mappingTableFile: for now, the adsTable-v1.jl
-        :return:the elastic search query as a dict
-        """
-        #mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
-        optionalTriples = []
-        whereTriples = [] #non-optional
-        for clause in sparqlDataStructure['clauses']:
-            tmp = []
-            if 'variable' in clause:
-                continue
-            else:
-                tmp.append('subject')
-                tmp.append(clause['predicate'])
-                tmp.append(clause['constraint'])
-
-            if 'isOptional' in clause and clause['isOptional']:
-                optionalTriples.append(tmp)
-            else:
-                whereTriples.append(tmp)
-
-        whereList = SparqlTranslator._translateTriplesToList(whereTriples, mappingTableFile)
-        optionalList = SparqlTranslator._translateTriplesToList(optionalTriples, mappingTableFile)
-
-        outerWhere = []
-        innerWhere = []
-        outerOptional = []
-        innerOptional = []
-
-        for match in whereList:
-            if 'meta' in match:
-                if 'inner' in match['meta']:
-
-                    del(match['meta'])
-
-                    innerWhere.append(match)
-            else:
-                outerWhere.append(match)
-
-        for match in optionalList:
-            if 'meta' in match:
-                if 'inner' in match['meta']:
-                    del(match['meta'])
-
-                    innerOptional.append(match)
-            else:
-                outerOptional.append(match)
-        if innerWhere:
-            outerWhere.append(BuildCompoundESQueries.BuildCompoundESQueries.
-                              build_bool_arbitrary(should = innerWhere))
-        if innerOptional:
-            outerOptional.append(BuildCompoundESQueries.BuildCompoundESQueries.
-                                 build_bool_arbitrary(should = innerOptional))
-
-
-        where_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
-            build_bool_arbitrary(should = outerWhere)
-
-        optional_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
-            build_bool_arbitrary(should = outerOptional)
-        return BuildCompoundESQueries.BuildCompoundESQueries.\
-            mergeBools(where_bool, optional_bool)
 
     @staticmethod
     def translateQueries(sparqlDataStructure, mappingTableFile, conservativeLevel):
@@ -109,6 +41,39 @@ class SparqlTranslator:
         :return: a dict with the 'query' field mapping to the elastic search query, and various dicts
         (possibly after some processing)
         """
+        seed_constraint = SparqlTranslator._find_seed_constraint(sparqlDataStructure)
+        should = []
+        should.append(TableFunctions.build_term_clause('seller.telephone.name.raw', seed_constraint))
+        should.append(TableFunctions.build_term_clause('seller.email.name.raw', seed_constraint))
+
+        #this is a very simple heuristic: use with caution. In essence, we strip the first 0 iff we're
+        #reasonably sure this is not an email address
+        if '@' not in seed_constraint:
+            seed_constraint1 = SparqlTranslator._strip_initial_zeros(seed_constraint)
+            if seed_constraint1 != seed_constraint:
+                should.append(TableFunctions.build_term_clause('seller.telephone.name.raw', seed_constraint1))
+
+        query = dict()
+        query['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
+
+        index =  'dig-memex-eval-02'
+        #index = 'pr-index-1'
+        url_localhost = "http://52.42.180.215:9200/"
+        es = Elasticsearch(url_localhost)
+        retrieved_frames = es.search(index= index, size = 1000, body = query) #we should set a big size
+        #print(retrieved_frames['hits']['hits'][0]['_source'])
+
+        seller_uris = SparqlTranslator._extract_seller_uris(retrieved_frames)
+        seller_should = []
+        for uri in seller_uris:
+            seller_should.append(TableFunctions.build_term_clause('seller.uri', uri))
+        seller_bool = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = seller_should)
+        translatedDS = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
+                                                                                 mappingTableFile, conservativeLevel)
+        merge_bool = BuildCompoundESQueries.BuildCompoundESQueries.mergeBools(translatedDS['query'], seller_bool)
+        translatedDS['query'] = merge_bool
+
+        return translatedDS
 
     @staticmethod
     def translatePointFactAndAggregateQueries_v2(sparqlDataStructure, mappingTableFile, conservativeLevel):
@@ -125,6 +90,35 @@ class SparqlTranslator:
             return SparqlTranslator._translatePointFactAndAggregateQueries_v2_level0(sparqlDataStructure, mappingTableFile)
         elif conservativeLevel == 1:
             return SparqlTranslator._translatePointFactAndAggregateQueries_v2_level1(sparqlDataStructure, mappingTableFile)
+
+    @staticmethod
+    def _extract_seller_uris(retrieved_frames):
+        """
+
+        :param retrieved_frames: The frames retrieved by running the first query as part of the cluster query
+        execution strategy
+        :return: a list of seller_uris
+        """
+        seller_uris = []
+        for frame in retrieved_frames['hits']['hits']:
+            if 'seller' in frame['_source'] and 'uri' in frame['_source']['seller']:
+                seller_uris.append(frame['_source']['seller']['uri'])
+
+        return seller_uris
+
+    @staticmethod
+    def _find_seed_constraint(sparqlDataStructure):
+        """
+        This function should only be called from translateClusterQueries
+        :param sparqlDataStructure: The original sparql query
+        :return: The seed constraint. If no seed is found, an exception will be thrown.
+        """
+        for clause in sparqlDataStructure['parsed']['where']['clauses']:
+            if 'predicate' not in clause:
+                continue
+            elif clause['predicate'] == 'seed':
+                return clause['constraint']
+        raise Exception('No seed found')
 
     @staticmethod
     def _translatePointFactAndAggregateQueries_v2_level0(sparqlDataStructure, mappingTableFile):
@@ -159,6 +153,7 @@ class SparqlTranslator:
                                  build_bool_arbitrary(should = innerOuterDS['innerOptional']))
 
         # right now, no distinction between nonoptional and optional triples.
+        print initialDS['filterQueries']
         where_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
             build_bool_arbitrary(should = innerOuterDS['outerNonOptional'], filter = initialDS['filterQueries'])
         must_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
@@ -322,10 +317,12 @@ class SparqlTranslator:
         groupConcatSelectDict = {}
         groupByDict = {}
         type_var = None
-        if 'type' in sparqlDataStructure['parsed']['where'] and 'variable' in sparqlDataStructure['parsed']['where']\
-                    and sparqlDataStructure['parsed']['where']['type'].lower() == 'ad':
-            type_var = sparqlDataStructure['parsed']['where']['variable']
-        var_to_property[type_var] = ['identifier']
+        if 'type' in sparqlDataStructure['parsed']['where'] and 'variable' in sparqlDataStructure['parsed']['where']:
+                type_var = sparqlDataStructure['parsed']['where']['variable']
+                if sparqlDataStructure['parsed']['where']['type'].lower() == 'ad':
+                    var_to_property[type_var] = ['identifier']
+                elif sparqlDataStructure['parsed']['where']['type'].lower() == 'cluster':
+                    var_to_property[type_var] = ['seller.uri']
 
         for clause in sparqlDataStructure['parsed']['where']['clauses']:
             tmp = []
@@ -351,10 +348,10 @@ class SparqlTranslator:
                 else:
                     whereTriples.append(tmp)
 
-            if 'filters' in sparqlDataStructure['parsed']:
-                for clause_expr in sparqlDataStructure['parsed']['filters']:
-                    filterQueries.append(SparqlTranslator._translateFilterClauseToBool(clause_expr,
-                                                    var_to_property, var_to_property_optional))
+        if 'filters' in sparqlDataStructure['parsed']['where']:
+            for clause_expr in sparqlDataStructure['parsed']['where']['filters']:
+                filterQueries.append(SparqlTranslator._translateFilterClauseToBool(clause_expr,
+                                                var_to_property, var_to_property_optional))
 
         #print var_to_property
         nonOptionalList = SparqlTranslator._translateTriplesToList(whereTriples, mappingTableFile)
@@ -472,6 +469,160 @@ class SparqlTranslator:
                     return True
         return False
 
+    @staticmethod
+    def _translateTriplesToList(triples, mappingTableFile):
+        """
+        
+
+        Attributes:
+            whereTriples: a list, where each element is a list of three strings. Each inner list
+                represents a triple. The second element always has a special meaning, and will be mapped.
+                At present, we ignore the first element. If the third element
+                begins with a question mark, it is a variable (and at present, we ignore it) 
+                otherwise it is a string
+                that will go into the elasticsearch query.
+            mappingTable: This is a mapping table file. 
+            
+        Returns:
+                The list
+        """
+        mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
+        list = []
+        for triple in triples:
+            if triple[1] not in mappingTable:
+                print('Error! Unmapped Ontology Property: ',triple[1])
+            elif triple[2][0] == '?':
+                continue
+            else:
+                for mapping in mappingTable[triple[1]]:
+                    for k, v in mapping.items():
+                        list.append(getattr(TableFunctions, v)(k, triple[2]))
+        return list
+
+    @staticmethod
+    def _mapVarsToProperties(variable, var_to_property, var_to_property_optional):
+        """
+
+       :param variable: a variable string
+       :param var_to_property: A dictionary mapping variables to properties in our ontology
+            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
+            we treat them as two separate arguments for convenience
+        :return: a set of properties in our ontology that the variable maps to
+        """
+        properties = set()
+        if variable in var_to_property:
+            properties = properties.union(var_to_property[variable])
+        if variable in var_to_property_optional:
+            properties = properties.union(var_to_property_optional[variable])
+        return properties
+
+    @staticmethod
+    def _useFilterTripleToFormShouldQuery(tripleDict, var_to_property, var_to_property_optional):
+        """
+        Modifies should. called by _translateFilterClauseToBool.
+        :param tripleDict: A filter triple dictionary
+        :param should: a list
+        :return: a bool query with only 'should' non-empty
+        """
+        should = []
+        if 'operator' in tripleDict:    #we have a 'constraint' triple
+                properties = SparqlTranslator._mapVarsToProperties(tripleDict['variable'], var_to_property,
+                                                                  var_to_property_optional)
+                if not properties:
+                    raise Exception('No mapping for variable in filter!')
+                operator = tripleDict['operator']
+                for property in properties:
+                    if operator == '>' or operator == '>=' or operator == '<=' or operator == '<':
+                        should.append(
+                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
+                            (must = [TableFunctions.build_range_clause(property, operator, tripleDict['constraint'])]))
+                    elif operator == '=':
+                        should.append(
+                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
+                        (must = [TableFunctions.build_match_clause(property, tripleDict['constraint'])]))
+                    elif operator == '!=':
+                        should.append(
+                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
+                            (must_not = [TableFunctions.build_match_clause(property, tripleDict['constraint'])]))
+        else:
+                properties = SparqlTranslator._mapVarsToProperties(tripleDict['bind'], var_to_property,
+                                                                  var_to_property_optional)
+                if not properties:
+                    raise Exception('No mapping for variable in filter!')
+                for property in properties:
+                    should.append(
+                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
+                            (must = [TableFunctions.build_exists_clause(property)]))
+        return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
+
+    @staticmethod
+    def _computeBindFilter(select_clauses,var_to_property, var_to_property_optional):
+        """
+        This function guarantees that any query result retrieved will contain the 'select' bindings we want.
+        The output is a filter-bool that should be merged into other bools. A query strategy function
+        should call this directly.
+
+        :param select: A list of dictionaries corresponding to select clauses
+        :param var_to_property: A dictionary mapping variables to properties in our ontology
+            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
+            we treat them as two separate arguments for convenience
+        :return: A bool-filter query
+        """
+        filter = []
+        for clause in select_clauses:
+            properties = SparqlTranslator._mapVarsToProperties(clause['variable'],var_to_property,
+                                                                var_to_property_optional)
+            properties.discard('readability_text')
+            should = []
+            for property in properties:
+               should.append(TableFunctions.build_exists_clause(property))
+            filter.append(BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = should))
+        return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = filter)
+
+    @staticmethod
+    def _strip_initial_zeros(string):
+        count = 0
+        for i in range(0, len(string)):
+            if string[i] == '0':
+                count += 1
+            else:
+                break
+        return string[count:]
+
+    @staticmethod
+    def _translateFilterClauseToBool(filterClause, var_to_property, var_to_property_optional):
+        """
+
+
+        Attributes:
+            :param filterClause: a clause which either contains one of the following:
+                (1) a 'constraint' triple, e.g. ?nationality = 'Indian'
+                (2) a 'bind' triple e.g. ?nationality
+                Or a combination of the above using boolean operators ('or' and 'and')
+            :param var_to_property: A dictionary mapping variables to properties in our ontology
+            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
+            we treat them as two separate arguments for convenience
+
+        Returns:
+                A bool query (WITHOUT filters or must_nots) that should be nested AS a filter in another bool
+        """
+
+        #There will be no filters
+        if len(filterClause)< 2 and 'operator' in filterClause:
+            raise Exception('Operator present in filter clause with fewer than 2 clauses')
+
+        queries = []
+        for tripleDict in filterClause['clauses']:
+            queries.append(SparqlTranslator._useFilterTripleToFormShouldQuery(tripleDict, var_to_property,
+                                                                              var_to_property_optional))
+        #print queries
+        if 'operator' not in filterClause:
+            return queries[0]
+        elif filterClause['operator'][0] == 'and':
+            return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(must = queries)
+        elif filterClause['operator'][0] == 'or':
+            return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = queries)
+
     @DeprecationWarning
     @staticmethod
     def translateReadabilityTextToQuery(whereTriples, mappingTableFile):
@@ -538,7 +689,6 @@ class SparqlTranslator:
                                                                                   should = should,
                                                                                   filter = filter_bool)
 
-
     @DeprecationWarning
     @staticmethod
     def translateFilterWhereToBool(whereTriples, filterTriples, mappingTableFile):
@@ -578,152 +728,71 @@ class SparqlTranslator:
                                                                             must_not = filter_bool_must_not))
         return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(must = must, filter = filter_bool)
 
-
-
-
+    @DeprecationWarning
     @staticmethod
-    def _translateTriplesToList(triples, mappingTableFile):
+    def translatePointFactQueries_v1(sparqlDataStructure, mappingTableFile):
         """
-        
 
-        Attributes:
-            whereTriples: a list, where each element is a list of three strings. Each inner list
-                represents a triple. The second element always has a special meaning, and will be mapped.
-                At present, we ignore the first element. If the third element
-                begins with a question mark, it is a variable (and at present, we ignore it) 
-                otherwise it is a string
-                that will go into the elasticsearch query.
-            mappingTable: This is a mapping table file. 
-            
-        Returns:
-                The list
+        :param sparqlDataStructure: Represents a point fact query (see Downloads/sparql-queries.txt for
+        an example; see Downloads/sparql-data-structure.txt for an example of the data structure itself)
+        :param mappingTableFile: for now, the adsTable-v1.jl
+        :return:the elastic search query as a dict
         """
-        mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
-        list = []
-        for triple in triples:
-            if triple[1] not in mappingTable:
-                print('Error! Unmapped Ontology Property: ',triple[1])
-            elif triple[2][0] == '?':
+        #mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
+        optionalTriples = []
+        whereTriples = [] #non-optional
+        for clause in sparqlDataStructure['clauses']:
+            tmp = []
+            if 'variable' in clause:
                 continue
             else:
-                for mapping in mappingTable[triple[1]]:
-                    for k, v in mapping.items():
-                        list.append(getattr(TableFunctions, v)(k, triple[2]))
-        return list
+                tmp.append('subject')
+                tmp.append(clause['predicate'])
+                tmp.append(clause['constraint'])
+
+            if 'isOptional' in clause and clause['isOptional']:
+                optionalTriples.append(tmp)
+            else:
+                whereTriples.append(tmp)
+
+        whereList = SparqlTranslator._translateTriplesToList(whereTriples, mappingTableFile)
+        optionalList = SparqlTranslator._translateTriplesToList(optionalTriples, mappingTableFile)
+
+        outerWhere = []
+        innerWhere = []
+        outerOptional = []
+        innerOptional = []
+
+        for match in whereList:
+            if 'meta' in match:
+                if 'inner' in match['meta']:
+
+                    del(match['meta'])
+
+                    innerWhere.append(match)
+            else:
+                outerWhere.append(match)
+
+        for match in optionalList:
+            if 'meta' in match:
+                if 'inner' in match['meta']:
+                    del(match['meta'])
+
+                    innerOptional.append(match)
+            else:
+                outerOptional.append(match)
+        if innerWhere:
+            outerWhere.append(BuildCompoundESQueries.BuildCompoundESQueries.
+                              build_bool_arbitrary(should = innerWhere))
+        if innerOptional:
+            outerOptional.append(BuildCompoundESQueries.BuildCompoundESQueries.
+                                 build_bool_arbitrary(should = innerOptional))
 
 
-    @staticmethod
-    def _mapVarsToProperties(variable, var_to_property, var_to_property_optional):
-        """
+        where_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
+            build_bool_arbitrary(should = outerWhere)
 
-       :param variable: a variable string
-       :param var_to_property: A dictionary mapping variables to properties in our ontology
-            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
-            we treat them as two separate arguments for convenience
-        :return: a set of properties in our ontology that the variable maps to
-        """
-        properties = set()
-        if variable in var_to_property:
-            properties = properties.union(var_to_property[variable])
-        if variable in var_to_property_optional:
-            properties = properties.union(var_to_property_optional[variable])
-        return properties
-
-
-    @staticmethod
-    def _useFilterTripleToFormShouldQuery(tripleDict, var_to_property, var_to_property_optional):
-        """
-        Modifies should. called by _translateFilterClauseToBool.
-        :param tripleDict: A filter triple dictionary
-        :param should: a list
-        :return: a bool query with only 'should' non-empty
-        """
-        should = []
-        if 'operator' in tripleDict:    #we have a 'constraint' triple
-                properties = SparqlTranslator._mapVarsToProperties(tripleDict['variable'], var_to_property,
-                                                                  var_to_property_optional)
-                if not properties:
-                    raise Exception('No mapping for variable in filter!')
-                operator = tripleDict['operator']
-                for property in properties:
-                    if operator == '>' or operator == '>=' or operator == '<=' or operator == '<':
-                        should.append(
-                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
-                            (must = [TableFunctions.build_range_clause(property, operator, tripleDict['constraint'])]))
-                    elif operator == '=':
-                        should.append(
-                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
-                        (must = [TableFunctions.build_match_clause(property, tripleDict['constraint'])]))
-                    elif operator == '!=':
-                        should.append(
-                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
-                            (must_not = [TableFunctions.build_match_clause(property, tripleDict['constraint'])]))
-        else:
-                properties = SparqlTranslator._mapVarsToProperties(tripleDict['bind'], var_to_property,
-                                                                  var_to_property_optional)
-                if not properties:
-                    raise Exception('No mapping for variable in filter!')
-                for property in properties:
-                    should.append(
-                            BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary
-                            (must = [TableFunctions.build_exists_clause(property)]))
-        return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
-
-
-    @staticmethod
-    def _computeBindFilter(select_clauses,var_to_property, var_to_property_optional):
-        """
-        This function guarantees that any query result retrieved will contain the 'select' bindings we want.
-        The output is a filter-bool that should be merged into other bools. A query strategy function
-        should call this directly.
-
-        :param select: A list of dictionaries corresponding to select clauses
-        :param var_to_property: A dictionary mapping variables to properties in our ontology
-            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
-            we treat them as two separate arguments for convenience
-        :return: A bool-filter query
-        """
-        filter = []
-        for clause in select_clauses:
-            properties = SparqlTranslator._mapVarsToProperties(clause['variable'],var_to_property,
-                                                                var_to_property_optional)
-            properties.discard('readability_text')
-            should = []
-            for property in properties:
-               should.append(TableFunctions.build_exists_clause(property))
-            filter.append(BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = should))
-        return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = filter)
-
-
-    @staticmethod
-    def _translateFilterClauseToBool(filterClause, var_to_property, var_to_property_optional):
-        """
-
-
-        Attributes:
-            :param filterClause: a clause which either contains one of the following:
-                (1) a 'constraint' triple, e.g. ?nationality = 'Indian'
-                (2) a 'bind' triple e.g. ?nationality
-                Or a combination of the above using boolean operators ('or' and 'and')
-            :param var_to_property: A dictionary mapping variables to properties in our ontology
-            :param var_to_property_optional: same as the above. Because of the way we set up these dictionaries
-            we treat them as two separate arguments for convenience
-
-        Returns:
-                A bool query (WITHOUT filters or must_nots) that should be nested AS a filter in another bool
-        """
-
-        #There will be no filters
-        if len(filterClause)< 2 and 'operator' in filterClause:
-            raise Exception('Operator present in filter clause with fewer than 2 clauses')
-
-        for tripleDict in filterClause['clauses']:
-            queries = []
-            queries.append(SparqlTranslator._useFilterTripleToFormShouldQuery(tripleDict, var_to_property,
-                                                                              var_to_property_optional))
-        if not 'operator' in filterClause:
-            return queries[0]
-        elif filterClause['operator'] == 'and':
-            return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(must = queries)
-        elif filterClause['operator'] == 'or':
-            return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = queries)
+        optional_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
+            build_bool_arbitrary(should = outerOptional)
+        return BuildCompoundESQueries.BuildCompoundESQueries.\
+            mergeBools(where_bool, optional_bool)

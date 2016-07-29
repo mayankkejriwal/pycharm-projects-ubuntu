@@ -1,4 +1,4 @@
-import re, six
+import re, six, ResultExtractors
 
 class SelectExtractors:
     """
@@ -24,12 +24,19 @@ class SelectExtractors:
             tmp = {}
             for key, val in simpleSelectDict.items():
                 if len(val) != 1:
-                    #at present, this is the right strategy. In future, we should figure
-                    #out a way to 'combine' the various val properties
-                    raise Exception('postprocess simpleSelectDict! List does not meet specs')
+                    new_val = SelectExtractors._prune_property_set(val)
+                else:
+                    new_val = list(val)
 
-                if list(val)[0] in frame['_source']:
-                    tmp[key] = (frame['_source'][list(val)[0]])
+                extracted_values = dict()
+                for v in new_val:
+                    if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], v):
+                        extracted_values[v] = ResultExtractors.ResultExtractors.\
+                            get_property_from_source_frame(frame['_source'], v)
+                print extracted_values
+                cross_product = ResultExtractors.ResultExtractors._flatten_dict(extracted_values)
+                print cross_product
+                tmp[key] = SelectExtractors._convert_cross_product(cross_product)
             answer.append(tmp)
         return answer
 
@@ -104,6 +111,20 @@ class SelectExtractors:
         return answer
 
     @staticmethod
+    def _convert_cross_product(cross_product_list):
+        """
+
+        :param cross_product_list: List of flattened dictionaries
+        :return: A list of strings. Each string is a space-delimited concatenation of the values in each dict.
+        """
+        answer = []
+        for k in cross_product_list:
+            for key, val in k.items():
+                k[key] = str(val)
+            answer.append(' '.join(k.values()))
+        return answer
+
+    @staticmethod
     def _init_count_vars(count_vars, countSelectDict):
         """
         Modifies count_vars
@@ -175,7 +196,6 @@ class SelectExtractors:
                 q = ds['group_concat_list']
             ds['group_concat_string'] = ds['separator'].join(q)
 
-
     @staticmethod
     def _update_count_vars(count_vars, group):
         """
@@ -198,7 +218,6 @@ class SelectExtractors:
 
                     ds['count'] += count
 
-
     @staticmethod
     def _parseXSDIntegerLiteral(str):
         """
@@ -210,3 +229,21 @@ class SelectExtractors:
         if l[3]=='xsd:integer':
             return int(l[1])
 
+    @staticmethod
+    def _prune_property_set(set_of_properties):
+        """
+        The 'pruning' must be rule-based at the moment.
+        :param set_of_properties:
+        :return: A list of pruned properties
+        """
+        answer = []
+        for property in set_of_properties:
+            if property in ['readability_text', '_all']: # sync this list with text_props in MappingTable
+                continue
+            elif 'raw' in property:
+                continue
+            elif property == 'url' and 'telephone.name' in set_of_properties:
+                continue
+            else:
+                answer.append(property)
+        return answer
