@@ -312,10 +312,11 @@ class ExecuteESQueries:
 
         with codecs.open(raw_query_file, 'r', 'utf-8') as f:
             raw_sparql_queries = json.loads(f.read())
-
-        sparql_query = SQParser.parse(raw_sparql_queries['Cluster']['1633.1837']['sparql'], target_component = '')
+        raw_query = raw_sparql_queries['Point Fact']['22']['sparql']
+        print raw_query
+        sparql_query = SQParser.parse(raw_query, target_component = '')
         #index = 'dig-extractions'
-        index =  'dig-memex-eval-02'
+        index =  'dig'
         #index = 'pr-index-1'
         url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
@@ -323,9 +324,9 @@ class ExecuteESQueries:
         translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file)
         query['query'] = translatedDS['query']
         pp = pprint.PrettyPrinter(indent=4)
-        print 'query:'
-        pp.pprint(query)
-        retrieved_frames = es.search(index= index, doc_type='webpage', size = 10, body = query)
+        # print 'query:'
+        # pp.pprint(query)
+        retrieved_frames = es.search(index= index, doc_type='webpage', size = 1000, body = query)
         if not retrieved_frames['hits']['hits']:
             print 'no results'
         else:

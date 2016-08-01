@@ -25,7 +25,7 @@ class ResultExtractors:
 
         group_by_var = ResultExtractors._find_group_by(original_sparql_query)
         order_by_var = ResultExtractors._find_order_by(original_sparql_query)
-        order_by_property = None
+        order_by_properties = None  # a list of properties
         sort_order = None
         is_order_var_in_select = False
         flattened_list = None   #this is the list that must be processed for orders and limits
@@ -36,13 +36,11 @@ class ResultExtractors:
                     order_var_list = list(translated_query_data_structure['groupByDict']['order-variable'])
                     sort_order = translated_query_data_structure['groupByDict']['sorted-order']
                     if len(order_var_list) != 1:
-                        order_var_list = list(SelectExtractors.SelectExtractors.
-                                              _prune_properties_set_to_singleton
-                                              (translated_query_data_structure['groupByDict']['order-variable']))
-                        # raise Exception('not exactly one mapping for order-variable!')
-                    order_by_property = order_var_list[0]
-                    #print order_by_property
-                    #print retrieved_frames['hits']['hits'][0]['_source'][order_by_property]
+                        order_var_list = SelectExtractors.SelectExtractors.\
+                                _prune_property_set(translated_query_data_structure['groupByDict']['order-variable'])
+
+                    order_by_properties = order_var_list
+
 
         if translated_query_data_structure['simpleSelectDict'] and not group_by_var:
             select = SelectExtractors.SelectExtractors.extractSimpleSelect(retrieved_frames['hits']['hits'],
@@ -50,10 +48,14 @@ class ResultExtractors:
             if order_by_var:
                 for i in range(0, len(retrieved_frames['hits']['hits'])):
                     if order_by_var not in select[i]:
-                        prop = ResultExtractors.get_property_from_source_frame(
+                        prop = []
+                        for order_by_property in order_by_properties:
+                            p = ResultExtractors.get_property_from_source_frame(
                                          retrieved_frames['hits']['hits'][i]['_source'],order_by_property)
-                        #print prop
-                        if prop is not None:
+                            if p is not None:
+                                prop += p
+
+                        if prop:
                             select[i][order_by_var] = prop
                     else:
                         is_order_var_in_select = True

@@ -127,6 +127,7 @@ def build_email_match_clause(field, string):
     answer['match'] = tmp
     return answer
 
+
 def build_gender_match_clause(field, string):
     """
     Meant for gender field. At present we do some minimal normalization. For example, 'trans' will get
