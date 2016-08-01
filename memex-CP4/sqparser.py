@@ -2,7 +2,7 @@
 # @Author: ZwEin
 # @Date:   2016-07-19 19:16:31
 # @Last Modified by:   ZwEin
-# @Last Modified time: 2016-07-26 11:36:21
+# @Last Modified time: 2016-08-01 13:18:11
 
 
 """
@@ -105,7 +105,7 @@ re_brackets_least_m = re.compile(r'(?<=\[).*?(?=\])')
 re_brackets_most_s = re.compile(r'(?<=\().*(?=\))')
 re_brackets_least_s = re.compile(r'(?<=\().*?(?=\))')
 
-re_variable = re.compile(r'(?<=[\(\b\s])\?[\-_a-zA-Z]+(?=[\)\b\s\\Z]|$)') # I added the extra slash before the Z to avoid compile error
+re_variable = re.compile(r'(?<=[\(\b\s])\?[\-_a-zA-Z]+(?=[\)\b\s\\Z]|$)')
 
 # keyword
 reg_outer = r'(?:'+r'|'.join(SQ_OUTER_KEYWORDS)+r').*?(?='+r'|'.join(SQ_OUTER_KEYWORDS)+r'|\s*$)'
@@ -115,7 +115,7 @@ re_inner = re.compile(reg_inner)
 
 re_keyword = re.compile(r'^[a-zA-Z]+\b')
 
-# operator 
+# operator
 reg_outer_operator = r'(?:'+r'|'.join(SQ_OUTER_OPERATOR)+r').*?(?='+r'|'.join(SQ_OUTER_OPERATOR)+r'|\s*$)'
 re_outer_operator = re.compile(reg_outer_operator)
 re_outer_operator_split = re.compile(r'['+r''.join(SQ_OUTER_OPERATOR)+r']')
@@ -126,8 +126,9 @@ re_inner_operator = re.compile(reg_inner_operator)
 # statement
 # re_statement_split = re.compile(r'[;\.]')
 re_statement_split = re.compile(r'.*?(?=;|\s\.\s)')
-re_statement_inner_keyword = re.compile(r'(?:'+r'|'.join(SQ_INNER_KEYWORDS)+r')\s*?[\{\(](?:\(.*?\)|[\'\s\w!\"#\$%&()\*+\,-\./\:;<\=>\?@[\]\^_`{|}~])+?[\}\)]')
+re_statement_inner_keyword = re.compile(r'(?:'+r'|'.join(SQ_INNER_KEYWORDS)+r')\s*?[\{\(](?:\(.*\)|[\'\s\w!\"#\$%&()\*+\,-\./\:;<\=>\?@[\]\^_`{|}~])+?[\}\)]')  # (?:\(.*\) # need to check () pairs
 re_statement_others = re.compile(r'.*?(?=;|\s\.\s?)')
+re_statement_others_last = re.compile(r'(?<=;|\.)[^;\.]*?(?=$)')
 re_statement_a = re.compile(r'(?<=[a-zA-Z])\s+?\ba\b\s+?(?=[:a-zA-Z])')
 # re_statement_a_split = re.compile(r'(?<=[a-zA-Z])\s+?\ba\b\s+?(?=[a-zA-Z])')
 re_statement_variable = re.compile(r'(?:^|\s|\b])\?[a-zA-Z]+\b')
@@ -219,7 +220,7 @@ class SQParser(object):
         SQ_FUNCTION_COUNT: __sqf_func_count,
         SQ_FUNCTION_GROUP_CONCAT: __sqf_func_group_concat
     }
-    
+
     ####################################################
     #   Outer Component Functions
     ####################################################
@@ -240,7 +241,7 @@ class SQParser(object):
 
         # print variable_fileds
         for variable_filed in variable_fileds:
-            # variables in function 
+            # variables in function
             # print variable_filed
             is_func = False
             for func_name in SQ_FUNCTIONS:
@@ -252,21 +253,41 @@ class SQParser(object):
 
             if not is_func:
                 ans['variables'].append({'variable': variable_filed.strip(), 'type': 'simple'})
-            
-        
+
+
 
         parent_ans.setdefault(SQ_KEYWORD_SELECT.lower(), ans)
 
     def __cp_func_where(parent_ans, text):
         ans = {}
         # print '__cp_func_where', text
-
+        # print text.encode('utf-8')
+        # find all inner keyworkd
         statements = [_.strip() for _ in re_statement_inner_keyword.findall(text)]
         # print statements
         for statement in statements:
             text = text.replace(statement, '')
-        statements += [_.strip() for _ in re_statement_others.findall(text) if _.strip() != '']
+
+        # print text.encode('utf-8')
+        statements += [_.strip() for _ in re_statement_others.findall(text) if _.strip() != '' and _.strip() != '.']
+
+        for statement in statements:
+            text = text.replace(statement, '')
+
+        if re_statement_others_last.search(text):
+            last = re_statement_others_last.search(text).group(0).strip()
+            # print 'last', last
+            if last != '':
+                statements.append(last)
+
+        # print re_statement_others_last.findall(text)[0].strip()
+
+
+        # text = text.replace('.', '').replace(';', '').strip()
+        # statements.append(text)
         # print statements
+
+        # print re_statement_others.findall(text)
         # statements = re_statement_split.split(text)
         # statements = [_.strip() for _ in re_statement_split.findall(text) if _ != '']
         for statement in statements:
@@ -274,7 +295,7 @@ class SQParser(object):
             SQParser.parse_statement(ans, statement.strip())
         parent_ans.setdefault(SQ_KEYWORD_WHERE.lower(), ans)
         # return ans
-    
+
     def __cp_func_order(parent_ans, text):
         parent_ans.setdefault(SQ_EXT_GOL, {})
         parent_ans[SQ_EXT_GOL][SQ_EXT_ORDER_VARIABLE] = re_variable.search(text).group(0).strip()
@@ -319,10 +340,11 @@ class SQParser(object):
         component = [_.strip() for _ in re_outer_operator_split.split(text) if _ != '']
 
         subc_rtn = SQParser.parse_subcomponents(component)
+        # print subc_rtn
         if len(subc_rtn) > 0:
             ans.setdefault(SQ_EXT_CLAUSES, [])
             ans[SQ_EXT_CLAUSES] += subc_rtn
-            
+
         # content = re_statement_content.search(text).group(0).strip()
         # print component
         return ans
@@ -359,8 +381,9 @@ class SQParser(object):
         # constraint = re_statement_qpr_constaint.search(text).group(0).strip()
         predicate = text[0]
         constraint = text[1]
-        
-        constraint = constraint[1:-1] if '\'' in constraint else constraint
+
+        constraint = constraint.replace('\'', '')
+        # constraint = constraint[1:-1] if '\'' in constraint else constraint
         ans[SQ_EXT_PREDICATE] = predicate
         ans.setdefault(SQ_EXT_OPTIONAL_FLAG, False)
         if '?' in constraint:
@@ -404,31 +427,35 @@ class SQParser(object):
             ans[SQ_EXT_CLAUSES].append(SQParser.parse_content(content))
 
     @staticmethod
-    def parse_inner_operator(text):
+    def parse_inner_operator(op_name, text):
+        def clean_item_content(text):
+            return text.replace('\'', '').strip()
+
         ans = {}
-        items = text.strip().split(' ')
-        ans.setdefault(SQ_EXT_VARIABLE, items[0])
-        ans.setdefault(SQ_EXT_OPERATOR, items[1])
-        ans.setdefault(SQ_EXT_CONSTAINT, items[2])
+        kv = text.strip().split(op_name)
+
+        ans.setdefault(SQ_EXT_VARIABLE, clean_item_content(kv[0]))
+        ans.setdefault(SQ_EXT_OPERATOR, op_name)
+        ans.setdefault(SQ_EXT_CONSTAINT, clean_item_content(kv[1]))
         return ans
 
     @staticmethod
     def parse_subcomponent(text):
         # print text
         # functions or condition statement
-        
+
         # handle functions
         for func_name in SQ_FUNCTIONS:
             if func_name in text:
                 return SQParser.SQ_FUNCTIONS_FUNC[func_name](text)
-
+        # print SQ_INNER_OPERATOR
         # else handle conditions
         for op_name in SQ_INNER_OPERATOR:
             if op_name in text:
-                return SQParser.parse_inner_operator(text)
+                return SQParser.parse_inner_operator(op_name, text)
 
         exception_handler('Sparql Format Error')
-         
+
 
 
     @staticmethod
@@ -451,9 +478,10 @@ class SQParser(object):
 
     @staticmethod
     def parse(text, target_component=None):
+        # print text
         components = {re_keyword.match(_).group(0).strip():re_brackets_most_b.search(_).group(0).strip() if re_brackets_most_b.search(_) else _ for _ in re_outer.findall(text)}
         # print components
-        
+
         # if target_component:
         #     t = components[target_component]
         #     print t
@@ -471,15 +499,15 @@ class SQParser(object):
             # lines = file_handler.readlines()
             json_obj = json.load(file_handler)
             # contents = []
-            # if has_title: 
+            # if has_title:
             #     for value in json_obj.values():
             #         for (k, v) in value.iteritems():
             #             contents.append(v['sparql'])
             # else:
             #     for (k, v) in json_obj.iteritems():
             #         contents.append(v['sparql'])
-            
-            if has_title: 
+
+            if has_title:
                 for value in json_obj.values():
                     for (k, v) in value.iteritems():
                         value[k]['parsed'] = SQParser.parse(v['sparql'], target_component=target_component)
@@ -500,9 +528,9 @@ if __name__ == '__main__':
 
     """
     text = "PREFIX qpr: <http://istresearch.com/qpr> SELECT ?cluster ?ad WHERE { ?cluster a qpr:cluster ; qpr:seed '5105124396' ; qpr:ad ?ad . OPTIONAL { ?ad qpr:image_with_phone ?iwp } OPTIONAL { ?ad qpr:image_with_email ?iwe } FILTER(bound(?iwp) || bound(?iwe) || ?bt = 'Spa') }"
-    
+
     SQParser.parse(text)
-    
+
 
     # import sys
     # import argparse
@@ -539,7 +567,6 @@ if __name__ == '__main__':
     else:
         SQParser.parse_sq_json(input_file, output_path=output_file, target_component=target_component, has_title=has_title)
 
-    
 
 
 

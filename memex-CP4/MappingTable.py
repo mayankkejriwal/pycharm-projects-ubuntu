@@ -37,7 +37,7 @@ class MappingTable:
                                    'hair_color':['hairColor'], 'nationality':['nationality'],
                                    'business_type':['business_type'],
                                    'business_name':['business_name'], 'services':['serviceType'],
-                                   'business': ['business_name', 'physical_address'],
+                                   'business': ['streetAddress'],
                                    'physical_address': ['streetAddress'],
                                    'gender':['gender'], 'top_level_domain':['top_level_domain'],
                                    'obfuscation':['telephone.isObfuscated', 'email.isObfuscated'],
@@ -100,6 +100,7 @@ class MappingTable:
             file.close()
 
     @staticmethod
+    @DeprecationWarning
     def buildOfferTableFromScratch(output_file = None):
         """
         Note that the table logic is hard-coded in this function. Ideally, there should be one
@@ -136,6 +137,7 @@ class MappingTable:
             file.close()
 
     @staticmethod
+    @DeprecationWarning
     def buildJustReadabilityTextTableFromScratch(output_file = None):
         """
         Note that the table logic is hard-coded in this function. Ideally, there should be one
@@ -173,6 +175,7 @@ class MappingTable:
             file.close()
 
     @staticmethod
+    @DeprecationWarning
     def buildJustInferlinkTextTableFromScratch(output_file = None):
         """
         Note that the table logic is hard-coded in this function. Ideally, there should be one

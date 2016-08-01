@@ -312,9 +312,11 @@ class ExecuteESQueries:
 
         with codecs.open(raw_query_file, 'r', 'utf-8') as f:
             raw_sparql_queries = json.loads(f.read())
-        raw_query = raw_sparql_queries['Point Fact']['22']['sparql']
-        print raw_query
+        raw_query = raw_sparql_queries['Aggregate']['1592']['sparql']
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(raw_query)
         sparql_query = SQParser.parse(raw_query, target_component = '')
+        # pp.pprint(sparql_query)
         #index = 'dig-extractions'
         index =  'dig'
         #index = 'pr-index-1'
@@ -323,10 +325,10 @@ class ExecuteESQueries:
         query = {}
         translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file)
         query['query'] = translatedDS['query']
-        pp = pprint.PrettyPrinter(indent=4)
+
         # print 'query:'
-        # pp.pprint(query)
-        retrieved_frames = es.search(index= index, doc_type='webpage', size = 1000, body = query)
+        pp.pprint(query)
+        retrieved_frames = es.search(index= index, doc_type='webpage', size = 10, body = query)
         if not retrieved_frames['hits']['hits']:
             print 'no results'
         else:

@@ -448,7 +448,7 @@ class SparqlTranslator:
                 elif var == type_var:
                     tmp['properties'] = set(['identifier'])
                 else:
-                    raise Exception('Unmapped variable in group-concat select')
+                    raise Exception(var+' :Unmapped variable in group-concat select')
                 tmp['distinct'] = vars['distinct']
                 tmp['separator'] = vars['separator']
                 groupConcatSelectDict[dependent_var] = tmp
@@ -462,7 +462,7 @@ class SparqlTranslator:
                 elif var == type_var:
                     countSelectDict[dependent_var] = set(['identifier'])
                 else:
-                    raise Exception('Unmapped variable in count select')
+                    raise Exception(var+' :Unmapped variable in count select')
             elif vars['type'] == 'simple':
                 var = vars['variable']
                 if var in var_to_property:
@@ -472,7 +472,7 @@ class SparqlTranslator:
                 elif var == type_var:
                     simpleSelectDict[var] = set(['identifier'])
                 else:
-                    raise Exception('Unmapped variable in simple select')
+                    raise Exception(var+' :Unmapped variable in simple select')
             else:
                 raise Exception('Bad select type')
 
