@@ -30,13 +30,15 @@ class SparqlTranslator:
                                                             mappingTableFile, conservativeLevel)
 
     @staticmethod
-    def translateToDisMaxQuery(sparqlDataStructure, mappingTableFile):
+    def translateToDisMaxQuery(sparqlDataStructure, mappingTableFile, isAggregate):
         """
         The function that should be called from ExecuteESQueries. Handles point fact, aggregate
         and cluster queries.
         :param sparqlDataStructure: Represents a point fact query (see Downloads/all-sparql-queries.txt for
         an example of the data structure)
         :param mappingTableFile: for now, the adsTable-v1.jl
+        :param isAggregate: if True, the optional strategy is switched OFF (since for aggregate queries,
+        we would want them to be); if False, we will use the strategy.
 
         :return:a dict with the 'query' field mapping to the elastic search query, and various dicts
         (possibly after some processing)
@@ -47,6 +49,10 @@ class SparqlTranslator:
                                                                              mappingTableFile, 0)
             level1query = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                              mappingTableFile, 1)['query']
+            if isAggregate:
+                level0DS['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_dis_max_arbitrary(1.0,
+                                                            0.0, level0DS['query'], level1query)
+                return level0DS
             level2query = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                              mappingTableFile, 2)['query']
 
@@ -56,6 +62,10 @@ class SparqlTranslator:
         elif sparqlDataStructure['where']['type'].lower() == 'cluster':
             level0DS = SparqlTranslator.translateClusterQueries(sparqlDataStructure, mappingTableFile, 0)
             level1query = SparqlTranslator.translateClusterQueries(sparqlDataStructure,mappingTableFile, 1)['query']
+            if isAggregate:
+                level0DS['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_dis_max_arbitrary(1.0,
+                                                            0.0, level0DS['query'], level1query)
+                return level0DS
             level2query = SparqlTranslator.translateClusterQueries(sparqlDataStructure,mappingTableFile, 2)['query']
 
             level0DS['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_dis_max_arbitrary(1.0,
@@ -89,11 +99,11 @@ class SparqlTranslator:
 
         query = dict()
         query['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
-        print query
-        index =  'dig'
+        # print query
+        index =  'dig-gt'
         url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
-        retrieved_frames = es.search(index= index, doc_type = 'seller', size = 1000, body = query) #we should set a big size
+        retrieved_frames = es.search(index= index, doc_type = 'seller', size = 10000, body = query) #we should set a big size
         #print(retrieved_frames['hits']['hits'][0]['_source'])
         translatedDS = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                                  mappingTableFile, conservativeLevel)

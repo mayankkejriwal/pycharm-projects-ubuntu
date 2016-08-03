@@ -29,14 +29,14 @@ class MappingTable:
         ads_table = []
         text_props = ['readability_text', '_all']
         onto_props_with_mapping = {'phone':['telephone.name', 'telephone.name.raw'], 'email': ['email.name', 'email.name.raw'],
-                                   'posting_date':['inferlink_date', 'readability_date'],
+                                   'posting_date':['inferlink_date', 'readability_date', 'high_recall_readability_date'],
                                    'price':['price'], 'location':['addressLocality'],
                                    'name':['name'],
                                    'ethnicity':['ethnicity'],
                                    'eye_color':['eyeColor'], 'title':['title'],
                                    'hair_color':['hairColor'], 'nationality':['nationality'],
                                    'business_type':['business_type'],
-                                   'business_name':['business_name'], 'services':['serviceType'],
+                                   'business_name':['streetAddress'], 'services':['serviceType'],
                                    'business': ['streetAddress'],
                                    'physical_address': ['streetAddress'],
                                    'gender':['gender'], 'top_level_domain':['top_level_domain'],

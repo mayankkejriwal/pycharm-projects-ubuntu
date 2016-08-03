@@ -5,6 +5,9 @@ from elasticsearch import Elasticsearch
 import pprint, codecs, json
 import PrintUtils
 from sqparser import SQParser
+from os import listdir
+from os.path import isfile, join
+import TableFunctions
 
 class ExecuteESQueries:
     """Anticipated starting point class. This is where a sparql query will be read in,
@@ -247,6 +250,7 @@ class ExecuteESQueries:
         answer.append(top10)
         return answer
 
+    @DeprecationWarning
     @staticmethod
     def _trial_v2_queries():
         """
@@ -258,7 +262,7 @@ class ExecuteESQueries:
         raw_query_file = sparql_stuff_path+'raw-queries-copy.txt'
         with codecs.open(raw_query_file, 'r', 'utf-8') as f:
             raw_sparql_queries = json.loads(f.read())
-        raw_query = raw_sparql_queries['Point Fact']['30']['sparql']
+        raw_query = raw_sparql_queries['Cluster']['1636.1818']['sparql']
         pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(raw_query)
         sparql_query = SQParser.parse(raw_query, target_component = '')
@@ -327,6 +331,24 @@ class ExecuteESQueries:
         return answer
 
     @staticmethod
+    def _all_minus_incomplete_frames(all_frames, incomplete_frames):
+        """
+
+        :param all_frames: The list of all frames
+        :param incomplete_frames: A list of frames that must not be included in answer
+        :return: A new list of frames
+        """
+        answer = list()
+        identifiers_set = set()
+        for frame in incomplete_frames:
+            #answer.append(frame)
+            identifiers_set.add(frame['_source']['identifier'])
+        for frame in all_frames:
+            if frame['_source']['identifier'] not in identifiers_set:
+                answer.append(frame)
+        return answer
+
+    @staticmethod
     def trial_v3_queries(raw_query_file, ads_table_file):
         """
         integrates 2-level queries, and can accommodate raw_query_files
@@ -335,7 +357,7 @@ class ExecuteESQueries:
 
         with codecs.open(raw_query_file, 'r', 'utf-8') as f:
             raw_sparql_queries = json.loads(f.read())
-        raw_query = raw_sparql_queries['Point Fact']['24']['sparql']
+        raw_query = raw_sparql_queries['Cluster']['1636.1818']['sparql']
         pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(raw_query)
         sparql_query = SQParser.parse(raw_query, target_component = '')
@@ -346,7 +368,7 @@ class ExecuteESQueries:
         url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
         query = {}
-        translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file)
+        translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file, False)
         query['query'] = translatedDS['query']
 
         # print 'query:'
@@ -365,9 +387,229 @@ class ExecuteESQueries:
             pp.pprint(ExecuteESQueries._wrap_results_isd_format(results, '41'))
             #pp.pprint(results)
 
-root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
-ads_table = root_path+'adsTable-v1.jl'
-#ExecuteESQueries._parse_raw_queries(root_path+'raw-queries.txt', root_path+'parsed-queries.txt')
-#ExecuteESQueries._trial_v2_queries()
-raw_sparql_queries = root_path+'raw-queries-ground-truth.txt'
-ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)
+    @staticmethod
+    def August3_2016__pointfactexecution():
+        """
+        Make sure to use the correct raw-queries file and index. Also, hash/hash-out the call to 'fill_out_frames'
+        based on whether you want ALL results from the index to be included in the list. This entire set of methods
+        should be moved or deprecated after the evaluations finish the week of Aug. 1, 2016
+        """
+        root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+        ads_table_file = root_path+'adsTable-v1.jl'
+        raw_query_file = root_path+'raw-queries-ground-truth.txt'
+        results = None
+        with codecs.open(raw_query_file, 'r', 'utf-8') as f:
+            raw_sparql_queries = json.loads(f.read())
+        url_localhost = "http://52.42.180.215:9200/"
+        es = Elasticsearch(url_localhost)
+        index =  'dig-gt'
+        #hash out the next three lines if we don't want to do the 'filling out'
+        match_all_query = dict()
+        match_all_query['query']=TableFunctions.build_match_all_query()
+        all_frames = es.search(index= index, doc_type='webpage', size = 10000, body = match_all_query)
+        keys = sorted(raw_sparql_queries['Point Fact'].keys())
+        for k in keys:
+            # if int(k)<82:
+            #     continue
+            print k
+            v = raw_sparql_queries['Point Fact'][k]
+            raw_query = v['sparql']
+            pp = pprint.PrettyPrinter(indent=4)
+            #pp.pprint(raw_query)
+            sparql_query = SQParser.parse(raw_query, target_component = '')
+            # pp.pprint(sparql_query)
+            query = {}
+            translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file, False)
+            query['query'] = translatedDS['query']
+            #pp.pprint(query)
+            retrieved_frames = es.search(index= index, doc_type='webpage', size = 10000, body = query)
+
+            if not retrieved_frames['hits']['hits']:
+                print 'no results'
+             #   continue   #unhash both these lines if we don't fill out, and hash the following if
+            #else:
+            if True:
+                # pp.pprint(retrieved_frames['hits']['hits'][0])
+                print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
+                results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
+                #hash out the next four lines if we don't want to do the 'filling out'
+                extra_frames = {'hits':{}}
+                extra_frames['hits']['hits'] = ExecuteESQueries._all_minus_incomplete_frames\
+                    (all_frames['hits']['hits'], retrieved_frames['hits']['hits'])
+                extra_results = ResultExtractors.ResultExtractors.standard_extractor(extra_frames,translatedDS, sparql_query)
+                results += extra_results
+            if results:
+                #print 'Top retrieved result is :'
+                #pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+                #print 'Results from ResultExtractors:'
+                bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
+                #pp.pprint(results)
+                output_file = root_path+'PointFact/'+k+'.txt'
+                file = codecs.open(output_file, 'w', 'utf-8')
+                json.dump(bindings_dict, file)
+                file.close()
+
+    @staticmethod
+    def August3_2016__clusterexecution():
+        """
+        see pointfactexecution for warnings
+        """
+        root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+        ads_table_file = root_path+'adsTable-v1.jl'
+        raw_query_file = root_path+'raw-queries-ground-truth.txt'
+        results = None
+
+        with codecs.open(raw_query_file, 'r', 'utf-8') as f:
+            raw_sparql_queries = json.loads(f.read())
+        url_localhost = "http://52.42.180.215:9200/"
+        es = Elasticsearch(url_localhost)
+        index =  'dig-gt'
+        #hash out the next three lines if we don't want to do the 'filling out'
+        match_all_query = dict()
+        match_all_query['query']=TableFunctions.build_match_all_query()
+        all_frames = es.search(index= index, doc_type='webpage', size = 10000, body = match_all_query)
+        keys = sorted(raw_sparql_queries['Cluster'].keys())
+        for k in keys:
+            # if k < '1701.1891':
+            #     continue
+            print k
+            v = raw_sparql_queries['Cluster'][k]
+            raw_query = v['sparql']
+            pp = pprint.PrettyPrinter(indent=4)
+            #pp.pprint(raw_query)
+            sparql_query = SQParser.parse(raw_query, target_component = '')
+            # pp.pprint(sparql_query)
+            query = {}
+            translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file, False)
+            query['query'] = translatedDS['query']
+            # print 'query:'
+            pp.pprint(query)
+            retrieved_frames = es.search(index= index, doc_type='webpage', size = 10000, body = query)
+            if not retrieved_frames['hits']['hits']:
+                print 'no results'
+             #   continue   #unhash both these lines if we don't fill out, and hash the following if
+            #else:
+            if True:
+                # pp.pprint(retrieved_frames['hits']['hits'][0])
+                print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
+                results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
+                #hash out the next four lines if we don't want to do the 'filling out'
+                extra_frames = {'hits':{}}
+                extra_frames['hits']['hits'] = ExecuteESQueries._all_minus_incomplete_frames\
+                    (all_frames['hits']['hits'], retrieved_frames['hits']['hits'])
+                extra_results = ResultExtractors.ResultExtractors.standard_extractor(extra_frames,translatedDS, sparql_query)
+                results += extra_results
+            if results:
+                #print 'Top retrieved result is :'
+                #pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+                #print 'Results from ResultExtractors:'
+                bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
+                #pp.pprint(results)
+                output_file = root_path+'Cluster/'+k+'.txt'
+                file = codecs.open(output_file, 'w', 'utf-8')
+                json.dump(bindings_dict, file)
+                file.close()
+
+    @staticmethod
+    def August3_2016__aggregateexecution():
+        """
+        see pointfactexecution for warnings
+        """
+        root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+        ads_table_file = root_path+'adsTable-v1.jl'
+        raw_query_file = root_path+'raw-queries-ground-truth.txt'
+        results = None
+        url_localhost = "http://52.42.180.215:9200/"
+        es = Elasticsearch(url_localhost)
+        index =  'dig-gt'
+        #hash out the next three lines if we don't want to do the 'filling out'
+        match_all_query = dict()
+        match_all_query['query']=TableFunctions.build_match_all_query()
+        all_frames = es.search(index= index, doc_type='webpage', size = 10000, body = match_all_query)
+        with codecs.open(raw_query_file, 'r', 'utf-8') as f:
+            raw_sparql_queries = json.loads(f.read())
+
+        keys = sorted(raw_sparql_queries['Aggregate'].keys())
+        for k in keys:
+            #if int(k) > 1519:
+             #   continue
+            print k
+            v = raw_sparql_queries['Aggregate'][k]
+            raw_query = v['sparql']
+            pp = pprint.PrettyPrinter(indent=4)
+            #pp.pprint(raw_query)
+            sparql_query = SQParser.parse(raw_query, target_component = '')
+            #pp.pprint(sparql_query)
+            query = {}
+            translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query,ads_table_file, True)
+            query['query'] = translatedDS['query']
+            # print 'query:'
+            #pp.pprint(query)
+            retrieved_frames = es.search(index= index, doc_type='webpage', size = 10000, body = query)
+            if not retrieved_frames['hits']['hits']:
+                print 'no results'
+             #   continue   #unhash both these lines if we don't fill out, and hash the following if
+            #else:
+            if True:
+                # pp.pprint(retrieved_frames['hits']['hits'][0])
+                print('Number of retrieved frames ',len(retrieved_frames['hits']['hits']))
+                results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames,translatedDS, sparql_query)
+                #hash out the next four lines if we don't want to do the 'filling out'
+                extra_frames = {'hits':{}}
+                extra_frames['hits']['hits'] = ExecuteESQueries._all_minus_incomplete_frames\
+                    (all_frames['hits']['hits'], retrieved_frames['hits']['hits'])
+                extra_results = ResultExtractors.ResultExtractors.standard_extractor(extra_frames,translatedDS, sparql_query)
+                results += extra_results
+            if results:
+                #print 'Top retrieved result is :'
+                #pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+                #print 'Results from ResultExtractors:'
+                bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
+                #pp.pprint(results)
+                output_file = root_path+'Aggregate/'+k+'.txt'
+                file = codecs.open(output_file, 'w', 'utf-8')
+                json.dump(bindings_dict, file)
+                file.close()
+
+    @staticmethod
+    def _append_path_to_list(list_of_files, path_prefix):
+        answer = list()
+        for f in list_of_files:
+            answer.append(path_prefix+f)
+        return answer
+
+    @staticmethod
+    def August3_2016__compilesubmissionfile():
+        path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+        pointfact_files = ExecuteESQueries._append_path_to_list(
+            [f for f in listdir(path+'PointFact/') if isfile(join(path+'PointFact/', f))], path+'PointFact/')
+        aggregate_files = ExecuteESQueries._append_path_to_list(
+            [f for f in listdir(path+'Aggregate/') if isfile(join(path+'Aggregate/', f))], path+'Aggregate/')
+        cluster_files = ExecuteESQueries._append_path_to_list(
+            [f for f in listdir(path+'Cluster/') if isfile(join(path+'Cluster/', f))], path+'Cluster/')
+        files = pointfact_files+aggregate_files+cluster_files
+        output_file = codecs.open(path+'usc-isi-submissionOnGroundTruth-highrecallextr-cp4.json', 'w', 'utf-8')
+        output_file.write('[\n')
+        for i in range(0, len(files)-1):
+            input_file = files[i]
+            with codecs.open(input_file, 'r', 'utf-8') as f:
+                answer = json.loads(f.read())
+                json.dump(answer, output_file)
+                output_file.write(',\n')
+
+        input_file = files[len(files)-1]
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            answer = json.loads(f.read())
+            json.dump(answer, output_file)
+            output_file.write('\n')
+        output_file.write(']')
+        output_file.close()
+
+
+ExecuteESQueries.August3_2016__compilesubmissionfile()
+# root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+# ads_table = root_path+'adsTable-v1.jl'
+# #ExecuteESQueries._parse_raw_queries(root_path+'raw-queries.txt', root_path+'parsed-queries.txt')
+# #ExecuteESQueries._trial_v2_queries()
+# raw_sparql_queries = root_path+'raw-queries-ground-truth.txt'
+# ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)
