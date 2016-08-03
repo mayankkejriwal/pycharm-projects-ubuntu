@@ -47,14 +47,19 @@ class SparqlTranslator:
                                                                              mappingTableFile, 0)
             level1query = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                              mappingTableFile, 1)['query']
+            level2query = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
+                                                                             mappingTableFile, 2)['query']
+
             level0DS['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_dis_max_arbitrary(1.0,
-                                                            0.0, level0DS['query'], level1query)
+                                                            0.0, level0DS['query'], level1query, level2query)
             return level0DS
         elif sparqlDataStructure['where']['type'].lower() == 'cluster':
             level0DS = SparqlTranslator.translateClusterQueries(sparqlDataStructure, mappingTableFile, 0)
             level1query = SparqlTranslator.translateClusterQueries(sparqlDataStructure,mappingTableFile, 1)['query']
+            level2query = SparqlTranslator.translateClusterQueries(sparqlDataStructure,mappingTableFile, 2)['query']
+
             level0DS['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_dis_max_arbitrary(1.0,
-                                                            0.0, level0DS['query'], level1query)
+                                                            0.0, level0DS['query'], level1query, level2query)
             return level0DS
 
     @staticmethod
@@ -119,6 +124,8 @@ class SparqlTranslator:
             return SparqlTranslator._translatePointFactAndAggregateQueries_v2_level0(sparqlDataStructure, mappingTableFile)
         elif conservativeLevel == 1:
             return SparqlTranslator._translatePointFactAndAggregateQueries_v2_level1(sparqlDataStructure, mappingTableFile)
+        elif conservativeLevel == 2:
+            return SparqlTranslator._translatePointFactAndAggregateQueries_v2_level2(sparqlDataStructure, mappingTableFile)
 
     @staticmethod
     def _extract_seller_uris(retrieved_frames):
@@ -219,6 +226,57 @@ class SparqlTranslator:
         :return: a dict with the 'query' field mapping to the elastic search query, and various dicts
         (after some processing)
         """
+        initialDS= SparqlTranslator._populate_list_set_data_structure(sparqlDataStructure, mappingTableFile)
+        # do we distinguish between optional and nonoptional properties in terms of exists clauses?
+        propertiesSet = initialDS['optionalPropertiesSet'].union(initialDS['nonOptionalPropertiesSet'])
+
+        for pr in propertiesSet:
+            initialDS['existsList'].append(TableFunctions.build_exists_clause(pr))
+        filter_clauses = [BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(
+                should = initialDS['existsList'])]
+        innerOuterDS = SparqlTranslator._populate_inner_outer_data_structure(initialDS)
+        if innerOuterDS['innerNonOptional']:
+            innerOuterDS['outerNonOptional'].append(BuildCompoundESQueries.BuildCompoundESQueries.
+                              build_bool_arbitrary(should = innerOuterDS['innerNonOptional']))
+        if innerOuterDS['innerOptional']:
+            innerOuterDS['outerOptional'].append(BuildCompoundESQueries.BuildCompoundESQueries.
+                                 build_bool_arbitrary(should = innerOuterDS['innerOptional']))
+        # right now, no distinction between nonoptional and optional triples.
+        where_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
+            build_bool_arbitrary(should = innerOuterDS['outerNonOptional'], filter = initialDS['filterQueries'])
+        must_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
+            build_bool_arbitrary(must = [where_bool])
+        optional_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
+            build_bool_arbitrary(should = innerOuterDS['outerOptional'], filter = filter_clauses)
+        #We want to ensure we have all the bindings we need; hence, the must_bool.
+        merge_bool = BuildCompoundESQueries.BuildCompoundESQueries.\
+            mergeBools(where_bool, optional_bool, must_bool, initialDS['bindQuery'])
+
+        #postprocess initialDS
+        SparqlTranslator._postprocess_initialDS_v1(initialDS)
+
+        #populate answer data structure
+        answer = {}
+        answer['query'] = merge_bool
+        answer['simpleSelectDict'] = initialDS['simpleSelectDict']
+        answer['groupByDict'] = initialDS['groupByDict']
+        answer['countSelectDict'] = initialDS['countSelectDict']
+        answer['groupConcatSelectDict'] = initialDS['groupConcatSelectDict']
+        return answer
+
+    @staticmethod
+    def _translatePointFactAndAggregateQueries_v2_level2(sparqlDataStructure, mappingTableFile):
+        """
+        Level 2 does the same thing as level 1 except we make all variables except ad and cluster
+        optional. This is so we are not prevented from returning a relevant answer even if
+        some bindings are missing. There's just a one-line difference technically
+        :param sparqlDataStructure: Represents a point fact query (see Downloads/all-sparql-queries.txt for
+        an example of the data structure)
+        :param mappingTableFile: for now, the adsTable-v1.jl
+        :return: a dict with the 'query' field mapping to the elastic search query, and various dicts
+        (after some processing)
+        """
+        SparqlTranslator._turn_on_optional_variables(sparqlDataStructure) # diff. between level 1 and 2
         initialDS= SparqlTranslator._populate_list_set_data_structure(sparqlDataStructure, mappingTableFile)
         # do we distinguish between optional and nonoptional properties in terms of exists clauses?
         propertiesSet = initialDS['optionalPropertiesSet'].union(initialDS['nonOptionalPropertiesSet'])
@@ -658,6 +716,19 @@ class SparqlTranslator:
             return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(must = queries)
         elif filterClause['operator'][0] == 'or':
             return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = queries)
+
+    @staticmethod
+    def _turn_on_optional_variables(sparqlDataStructure):
+        """
+        Modifies sparqlDataStructure. Systematically goes through the where clause, and whenever it sees
+        a 'variable' key, will turn
+        :param sparqlDataStructure:
+        :return:
+        """
+        for dictionary in sparqlDataStructure['where']['clauses']:
+            if 'variable' in dictionary and dictionary['predicate'] != 'ad':
+                #print dictionary
+                dictionary['isOptional'] = True
 
     @DeprecationWarning
     @staticmethod

@@ -150,7 +150,10 @@ class SelectExtractors:
         answer = []
         for k in cross_product_list:
             for key, val in k.items():
-                k[key] = str(val)
+               if isinstance(val, six.string_types):
+                    k[key] = val
+               else:
+                    k[key] = str(val)
             answer.append(' '.join(k.values()))
         return answer
 

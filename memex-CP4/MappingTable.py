@@ -212,4 +212,4 @@ class MappingTable:
                 file.write('\n')
             file.close()
 
-#MappingTable.buildAdsTable_v1('/home/mayankkejriwal/Downloads/adsTable-v1.jl')
+#MappingTable.buildAdsTable_v1('/home/mayankkejriwal/Downloads/memex-cp4/adsTable-v1.jl')

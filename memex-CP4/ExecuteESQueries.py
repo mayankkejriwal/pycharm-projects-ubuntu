@@ -248,20 +248,22 @@ class ExecuteESQueries:
         return answer
 
     @staticmethod
-    @DeprecationWarning
     def _trial_v2_queries():
         """
         contains 2-level queries, and has the same capabilities as translatePointFactQueries_v2.
         We expect to keep adding to this (a 'master' release, so to speak)
         """
         results = None
-        sparql_stuff_path = "/home/mayankkejriwal/Downloads/"
-        with codecs.open(sparql_stuff_path+'all-sparql-queries-27July2016.txt', 'r', 'utf-8') as f:
-            sparql_queries = json.loads(f.read())
-
-        sparql_query = sparql_queries['PointFact']['54']
+        sparql_stuff_path = '/home/mayankkejriwal/Downloads/'
+        raw_query_file = sparql_stuff_path+'raw-queries-copy.txt'
+        with codecs.open(raw_query_file, 'r', 'utf-8') as f:
+            raw_sparql_queries = json.loads(f.read())
+        raw_query = raw_sparql_queries['Point Fact']['30']['sparql']
+        pp = pprint.PrettyPrinter(indent=4)
+        #pp.pprint(raw_query)
+        sparql_query = SQParser.parse(raw_query, target_component = '')
         #index = 'dig-extractions'
-        index =  'dig-memex-eval-02'
+        index =  'dig'
         #index = 'pr-index-1'
         url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(url_localhost)
@@ -304,6 +306,27 @@ class ExecuteESQueries:
             pp.pprint(results)
 
     @staticmethod
+    def _parse_raw_queries(raw_queries_file, output_file):
+        with codecs.open(raw_queries_file, 'r', 'utf-8') as f:
+            raw_sparql_queries = json.loads(f.read())
+        for aggregate in raw_sparql_queries['Aggregate'].itervalues():
+            aggregate['parsed'] = SQParser.parse(aggregate['sparql'], target_component = '')
+        for cluster in raw_sparql_queries['Cluster'].itervalues():
+            cluster['parsed'] = SQParser.parse(cluster['sparql'], target_component = '')
+        for pointfact in raw_sparql_queries['Point Fact'].itervalues():
+            pointfact['parsed'] = SQParser.parse(pointfact['sparql'], target_component = '')
+        file = codecs.open(output_file, 'w', 'utf-8')
+        json.dump(raw_sparql_queries, file, indent = 4)
+        file.close()
+
+    @staticmethod
+    def _wrap_results_isd_format(resultExtractions, question_id):
+        answer = dict()
+        answer['question_id'] = question_id
+        answer['answers'] = resultExtractions
+        return answer
+
+    @staticmethod
     def trial_v3_queries(raw_query_file, ads_table_file):
         """
         integrates 2-level queries, and can accommodate raw_query_files
@@ -312,9 +335,9 @@ class ExecuteESQueries:
 
         with codecs.open(raw_query_file, 'r', 'utf-8') as f:
             raw_sparql_queries = json.loads(f.read())
-        raw_query = raw_sparql_queries['Aggregate']['1592']['sparql']
+        raw_query = raw_sparql_queries['Point Fact']['24']['sparql']
         pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(raw_query)
+        #pp.pprint(raw_query)
         sparql_query = SQParser.parse(raw_query, target_component = '')
         # pp.pprint(sparql_query)
         #index = 'dig-extractions'
@@ -339,9 +362,12 @@ class ExecuteESQueries:
             print 'Top retrieved result is :'
             pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
             print 'Results from ResultExtractors:'
-            pp.pprint(results)
+            pp.pprint(ExecuteESQueries._wrap_results_isd_format(results, '41'))
+            #pp.pprint(results)
 
-sparql_stuff_path = "/home/mayankkejriwal/Downloads/"
-ads_table = sparql_stuff_path+'adsTable-v1.jl'
-raw_sparql_queries = sparql_stuff_path+'raw-queries-29July2016.txt'
+root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+ads_table = root_path+'adsTable-v1.jl'
+#ExecuteESQueries._parse_raw_queries(root_path+'raw-queries.txt', root_path+'parsed-queries.txt')
+#ExecuteESQueries._trial_v2_queries()
+raw_sparql_queries = root_path+'raw-queries-ground-truth.txt'
 ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)
