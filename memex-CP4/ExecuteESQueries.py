@@ -357,7 +357,7 @@ class ExecuteESQueries:
 
         with codecs.open(raw_query_file, 'r', 'utf-8') as f:
             raw_sparql_queries = json.loads(f.read())
-        raw_query = raw_sparql_queries['Cluster']['1636.1818']['sparql']
+        raw_query = raw_sparql_queries['Point Fact']['61']['sparql']
         pp = pprint.PrettyPrinter(indent=4)
         #pp.pprint(raw_query)
         sparql_query = SQParser.parse(raw_query, target_component = '')
@@ -606,10 +606,10 @@ class ExecuteESQueries:
         output_file.close()
 
 
-ExecuteESQueries.August3_2016__compilesubmissionfile()
-# root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
-# ads_table = root_path+'adsTable-v1.jl'
+#ExecuteESQueries.August3_2016__compilesubmissionfile()
+root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+ads_table = root_path+'adsTable-v1.jl'
 # #ExecuteESQueries._parse_raw_queries(root_path+'raw-queries.txt', root_path+'parsed-queries.txt')
 # #ExecuteESQueries._trial_v2_queries()
-# raw_sparql_queries = root_path+'raw-queries-ground-truth.txt'
-# ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)
+raw_sparql_queries = root_path+'raw-queries-ground-truth.txt'
+ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)
