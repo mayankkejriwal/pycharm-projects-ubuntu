@@ -37,3 +37,21 @@ def build_term_clause(field, string):
     tmp[field] = string
     answer['term'] = tmp
     return answer
+
+
+def build_match_clause(field, string):
+    """
+    Best demonstrated by example. Suppose field = 'itemOffered.name' and string = 'jasmine',
+    the function will return a dictionary d:
+    d = {
+         "match":   {
+            "itemOffered.name" : "jasmine"
+            }
+        }
+    The intent is that this dictionary should be embedded into a valid elasticsearch query.
+    """
+    answer = {}
+    tmp = {}
+    tmp[field] = string
+    answer['match'] = tmp
+    return answer
