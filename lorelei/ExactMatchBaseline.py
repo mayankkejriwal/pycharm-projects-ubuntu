@@ -38,5 +38,5 @@ def baseline(records_file, output_file):
             out.write('\n')
     out.close()
 
-path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-baseline(path+'record_dump_50000.json', path+'exactMatchOnRecordDump50000.json')
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# baseline(path+'record_dump_50000.json', path+'exactMatchOnRecordDump50000.json')

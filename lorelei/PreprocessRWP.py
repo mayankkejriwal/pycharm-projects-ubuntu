@@ -7,6 +7,41 @@ Time to do some preprocessing on the (json) files in ReliefWebProcessed.
 """
 
 
+def _extract_obj_fields_into_answer(obj, answer):
+    """
+    Modifies answer. obj is the 'full' object, 'answer' is what will be written out.
+    :param obj:
+    :param answer:
+    :return: None
+    """
+    answer['uuid'] = obj['uuid']
+    if 'situationFrame' in obj and 'type' in obj['situationFrame']:
+        answer['situationFrame.type'] = obj['situationFrame']['type']
+    else:
+        answer['situationFrame.type'] = None
+
+    if 'situationFrame' in obj and 'entities' in obj['situationFrame']:
+        answer['situationFrame.entities'] = obj['situationFrame']['entities']
+    else:
+        answer['situationFrame.entities'] = None
+
+    if 'loreleiJSONMapping' in obj and 'topics' in obj['loreleiJSONMapping']:
+        answer['loreleiJSONMapping.topics'] = obj['loreleiJSONMapping']['topics']
+    else:
+        answer['loreleiJSONMapping.topics'] = None
+
+    if 'loreleiJSONMapping' in obj and 'wordcloud' in obj['loreleiJSONMapping']:
+        answer['loreleiJSONMapping.wordcloud'] = obj['loreleiJSONMapping']['wordcloud']
+    else:
+        answer['loreleiJSONMapping.wordcloud'] = None
+
+    if 'loreleiJSONMapping' in obj and 'sourcedata' in obj['loreleiJSONMapping']\
+            and 'theme' in obj['loreleiJSONMapping']['sourcedata']:
+        answer['loreleiJSONMapping.sourcedata.theme'] = obj['loreleiJSONMapping']['sourcedata']['theme']
+    else:
+        answer['loreleiJSONMapping.sourcedata.theme'] = None
+
+
 def condenseRWP(input_folder, output_file):
     """
     Following fields are extracted:
@@ -28,39 +63,39 @@ def condenseRWP(input_folder, output_file):
         answer = dict()
         with codecs.open(f, 'r', 'utf-8') as openFile:
             obj = json.load(openFile)
-
-        answer['uuid'] = obj['uuid']
-
-        if 'situationFrame' in obj and 'type' in obj['situationFrame']:
-            answer['situationFrame.type'] = obj['situationFrame']['type']
-        else:
-            answer['situationFrame.type'] = None
-
-        if 'situationFrame' in obj and 'entities' in obj['situationFrame']:
-            answer['situationFrame.entities'] = obj['situationFrame']['entities']
-        else:
-            answer['situationFrame.entities'] = None
-
-        if 'loreleiJSONMapping' in obj and 'topics' in obj['loreleiJSONMapping']:
-            answer['loreleiJSONMapping.topics'] = obj['loreleiJSONMapping']['topics']
-        else:
-            answer['loreleiJSONMapping.topics'] = None
-
-        if 'loreleiJSONMapping' in obj and 'wordcloud' in obj['loreleiJSONMapping']:
-            answer['loreleiJSONMapping.wordcloud'] = obj['loreleiJSONMapping']['wordcloud']
-        else:
-            answer['loreleiJSONMapping.wordcloud'] = None
-
-        if 'loreleiJSONMapping' in obj and 'sourcedata' in obj['loreleiJSONMapping']\
-                and 'theme' in obj['loreleiJSONMapping']['sourcedata']:
-            answer['loreleiJSONMapping.sourcedata.theme'] = obj['loreleiJSONMapping']['sourcedata']['theme']
-        else:
-            answer['loreleiJSONMapping.sourcedata.theme'] = None
-
+        _extract_obj_fields_into_answer(obj, answer)
         json.dump(answer, out)
         out.write('\n')
     out.close()
 
-path = '/home/mayankkejriwal/Downloads/lorelei/'
-condenseRWP(path+'reliefWebProcessed/', path+'reliefWebProcessed-prepped/preprocessed-objects.json')
+
+def condenseWCJaccard(WCJaccard_file, output_file):
+    """
+    We will take a WCJaccard cluster file as input, and output a condensed file that contains only those instances
+    :return: None
+    """
+    written_uuids = set()
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(WCJaccard_file, 'r', 'utf-8') as f:
+        for line in f:
+            big_obj = json.loads(line)
+            subject_obj = big_obj['subject']
+            if subject_obj['uuid'] not in written_uuids:
+                answer = dict()
+                _extract_obj_fields_into_answer(subject_obj, answer)
+                json.dump(answer, out)
+                out.write('\n')
+                written_uuids.add(subject_obj['uuid'])
+            for ranked_obj in big_obj['ranked_list']:
+                if ranked_obj['uuid'] not in written_uuids:
+                    answer = dict()
+                    _extract_obj_fields_into_answer(ranked_obj, answer)
+                    json.dump(answer, out)
+                    out.write('\n')
+                    written_uuids.add(ranked_obj['uuid'])
+    out.close()
+
+
+# path = '/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
+# condenseWCJaccard(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-condensed.json')
 

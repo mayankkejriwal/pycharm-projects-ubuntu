@@ -127,7 +127,7 @@ def _l2_norm_on_word_vecs(word_vectors_obj):
         word_vectors_obj[k] = new_vec
 
 
-def build_random_index_vectors(input_file, output_file, context_file, is_input_context = True, d=3000, non_zero_ratio=0.05):
+def build_random_index_vectors(input_file, output_file, context_file, is_input_context = True, d=250, non_zero_ratio=0.01):
     """
     At present, I've designed this for the condensed file in reliefWebProcessed. We use the random
     indexing procedure outlined in  http://eprints.sics.se/221/1/RI_intro.pdf Current preprocessing
@@ -234,4 +234,4 @@ def build_random_index_vectors(input_file, output_file, context_file, is_input_c
 
 #print _generate_random_sparse_vector(20, 0.05)
 # path = '/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
-# build_random_index_vectors(path+'condensed-objects.json', path+'word-vecs.json', path+'context-vecs.txt')
+# build_random_index_vectors(path+'WCjaccard-10-10-condensed.json', path+'doc-vecs-wcjaccard-250d.json', path+'context-vecs-250d.txt', is_input_context=True)

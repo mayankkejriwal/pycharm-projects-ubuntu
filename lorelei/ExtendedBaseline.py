@@ -182,6 +182,6 @@ def _generate_aliases(key):
 
 #print re.split('\.| ','u.')
 #print generate_aliases('united states of america')
-path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-extended_baseline_v1(path+'exactMatchOnRecordDump50000.json', path+'tokenSubsetOnExactMatch50000.json')
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# extended_baseline_v1(path+'exactMatchOnRecordDump50000.json', path+'tokenSubsetOnExactMatch50000.json')
 #print 'united states' > 'z'
