@@ -96,6 +96,22 @@ def condenseWCJaccard(WCJaccard_file, output_file):
     out.close()
 
 
+def build_reference_uuids_file(WCJaccard_file, output_file):
+    """
+
+    :param WCJaccard_file:
+    :param output_file
+    :return: None
+    """
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(WCJaccard_file, 'r', 'utf-8') as f:
+        for line in f:
+            big_obj = json.loads(line)
+            out.write(big_obj['subject']['uuid'])
+            out.write('\n')
+    out.close()
+
+
 # path = '/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
-# condenseWCJaccard(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-condensed.json')
+# build_reference_uuids_file(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-reference-uuids.txt')
 
