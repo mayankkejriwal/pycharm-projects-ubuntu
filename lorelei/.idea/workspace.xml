@@ -21,13 +21,14 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ExactMatchBaseline.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="ExactMatchBaseline.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="41" column="82" selection-start-line="40" selection-start-column="2" selection-end-line="41" selection-end-column="82" />
+            <state vertical-scroll-proportion="0.6607539">
+              <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
+                <element signature="e#294#1334#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -64,7 +65,7 @@
         <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="237" column="59" selection-start-line="237" selection-start-column="59" selection-end-line="237" selection-end-column="59" />
+              <caret line="154" column="70" selection-start-line="154" selection-start-column="70" selection-end-line="154" selection-end-column="70" />
               <folding>
                 <element signature="e#445#664#0" expanded="false" />
                 <element signature="e#445#561#1" expanded="false" />
@@ -75,45 +76,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="JaccardOnWordCloudBaseline.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JaccardOnWordCloudBaseline.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="80" column="77" selection-start-line="80" selection-start-column="77" selection-end-line="80" selection-end-column="77" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Analysis.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Analysis.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="75" column="2" selection-start-line="75" selection-start-column="2" selection-end-line="75" selection-end-column="2" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="TestRandomIndexing.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
               <caret line="112" column="20" selection-start-line="112" selection-start-column="20" selection-end-line="112" selection-end-column="20" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ClusteringAnalyses.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/ClusteringAnalyses.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7364341">
-              <caret line="74" column="0" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -135,14 +102,14 @@
       <list>
         <option value="$PROJECT_DIR$/ESQueryBuilders.py" />
         <option value="$PROJECT_DIR$/ESQueryExecution.py" />
-        <option value="$PROJECT_DIR$/ExactMatchBaseline.py" />
         <option value="$PROJECT_DIR$/ExtendedBaseline.py" />
         <option value="$PROJECT_DIR$/PreprocessRWP.py" />
         <option value="$PROJECT_DIR$/Analysis.py" />
         <option value="$PROJECT_DIR$/JaccardOnWordCloudBaseline.py" />
-        <option value="$PROJECT_DIR$/RandomIndexing.py" />
         <option value="$PROJECT_DIR$/TestRandomIndexing.py" />
         <option value="$PROJECT_DIR$/ClusteringAnalyses.py" />
+        <option value="$PROJECT_DIR$/RandomIndexing.py" />
+        <option value="$PROJECT_DIR$/ExactMatchBaseline.py" />
       </list>
     </option>
   </component>
@@ -177,7 +144,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -198,29 +164,14 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$USER_HOME$" />
+    <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/mayankkejriwal/PycharmProjects/lorelei/PreprocessRWP.py" />
   </component>
-  <component name="RunManager" selected="Python.ClusteringAnalyses">
-    <configuration default="false" name="PreprocessRWP" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="lorelei" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PreprocessRWP.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="Python.ExactMatchBaseline">
     <configuration default="false" name="RandomIndexing" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -285,6 +236,23 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="lorelei" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ClusteringAnalyses.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="ExactMatchBaseline" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="lorelei" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ExactMatchBaseline.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -412,19 +380,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
-      <item index="1" class="java.lang.String" itemvalue="Python.RandomIndexing" />
-      <item index="2" class="java.lang.String" itemvalue="Python.Analysis" />
-      <item index="3" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
-      <item index="4" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
+      <item index="0" class="java.lang.String" itemvalue="Python.RandomIndexing" />
+      <item index="1" class="java.lang.String" itemvalue="Python.Analysis" />
+      <item index="2" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
+      <item index="3" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
+      <item index="4" class="java.lang.String" itemvalue="Python.ExactMatchBaseline" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
-        <item index="1" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
-        <item index="2" class="java.lang.String" itemvalue="Python.RandomIndexing" />
-        <item index="3" class="java.lang.String" itemvalue="Python.Analysis" />
-        <item index="4" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
+        <item index="0" class="java.lang.String" itemvalue="Python.ExactMatchBaseline" />
+        <item index="1" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
+        <item index="2" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
+        <item index="3" class="java.lang.String" itemvalue="Python.RandomIndexing" />
+        <item index="4" class="java.lang.String" itemvalue="Python.Analysis" />
       </list>
     </recent_temporary>
   </component>
@@ -439,7 +407,7 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22156085" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39940828" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19378698" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28994083" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -465,17 +433,120 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="3" />
+      <option name="time" value="4" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="75" column="2" selection-start-line="75" selection-start-column="2" selection-end-line="75" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="112" column="20" selection-start-line="112" selection-start-column="20" selection-end-line="112" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ClusteringAnalyses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="41" column="82" selection-start-line="40" selection-start-column="2" selection-end-line="41" selection-end-column="82" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExtendedBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="185" column="105" selection-start-line="184" selection-start-column="2" selection-end-line="185" selection-end-column="105" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#2100#2507#0" expanded="false" />
+            <element signature="e#3764#5453#0" expanded="false" />
+            <marker date="1471991573731" expanded="true" signature="5761:6049" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="80" column="38" selection-start-line="80" selection-start-column="12" selection-end-line="80" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="237" column="59" selection-start-line="237" selection-start-column="59" selection-end-line="237" selection-end-column="59" />
+          <folding>
+            <element signature="e#445#664#0" expanded="false" />
+            <element signature="e#445#561#1" expanded="false" />
+            <element signature="e#752#988#0" expanded="false" />
+            <element signature="e#1469#1705#1" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JaccardOnWordCloudBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="80" column="77" selection-start-line="80" selection-start-column="77" selection-end-line="80" selection-end-column="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="75" column="2" selection-start-line="75" selection-start-column="2" selection-end-line="75" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="112" column="20" selection-start-line="112" selection-start-column="20" selection-end-line="112" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ClusteringAnalyses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="41" column="82" selection-start-line="40" selection-start-column="2" selection-end-line="41" selection-end-column="82" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -520,7 +591,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="77" column="0" selection-start-line="77" selection-start-column="0" selection-end-line="77" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -538,9 +608,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="44" column="116" selection-start-line="43" selection-start-column="2" selection-end-line="44" selection-end-column="116" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -550,6 +617,7 @@
           <caret line="41" column="79" selection-start-line="41" selection-start-column="40" selection-end-line="41" selection-end-column="79" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -606,6 +674,7 @@
           <caret line="41" column="79" selection-start-line="41" selection-start-column="40" selection-end-line="41" selection-end-column="79" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -659,6 +728,7 @@
           <caret line="37" column="27" selection-start-line="36" selection-start-column="12" selection-end-line="37" selection-end-column="27" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -703,6 +773,7 @@
           <caret line="41" column="78" selection-start-line="41" selection-start-column="46" selection-end-line="41" selection-end-column="78" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -734,6 +805,7 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -786,48 +858,31 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="41" column="82" selection-start-line="40" selection-start-column="2" selection-end-line="41" selection-end-column="82" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Analysis.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="75" column="2" selection-start-line="75" selection-start-column="2" selection-end-line="75" selection-end-column="2" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
+    <entry file="file://$PROJECT_DIR$/ClusteringAnalyses.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="80" column="38" selection-start-line="80" selection-start-column="12" selection-end-line="80" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.32921174">
+          <caret line="54" column="56" selection-start-line="52" selection-start-column="7" selection-end-line="54" selection-end-column="56" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/JaccardOnWordCloudBaseline.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="0.7897991">
           <caret line="80" column="77" selection-start-line="80" selection-start-column="77" selection-end-line="80" selection-end-column="77" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="237" column="59" selection-start-line="237" selection-start-column="59" selection-end-line="237" selection-end-column="59" />
+          <caret line="154" column="70" selection-start-line="154" selection-start-column="70" selection-end-line="154" selection-end-column="70" />
           <folding>
             <element signature="e#445#664#0" expanded="false" />
             <element signature="e#445#561#1" expanded="false" />
@@ -847,12 +902,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ClusteringAnalyses.py">
+    <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7364341">
-          <caret line="74" column="0" selection-start-line="74" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="80" column="38" selection-start-line="80" selection-start-column="12" selection-end-line="80" selection-end-column="38" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6607539">
+          <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>

@@ -127,7 +127,8 @@ def _l2_norm_on_word_vecs(word_vectors_obj):
         word_vectors_obj[k] = new_vec
 
 
-def build_random_index_vectors(input_file, output_file, context_file, is_input_context = True, d=250, non_zero_ratio=0.01):
+def build_random_index_vectors(input_file, output_file, context_file, is_input_context = True, d=250,
+                               non_zero_ratio=0.01, absolute_ignore_freq=120):
     """
     At present, I've designed this for the condensed file in reliefWebProcessed. We use the random
     indexing procedure outlined in  http://eprints.sics.se/221/1/RI_intro.pdf Current preprocessing
@@ -151,6 +152,7 @@ def build_random_index_vectors(input_file, output_file, context_file, is_input_c
     :param d: the dimensionality of the random index vectors
     :param non_zero_ratio: the ratio of +1s and also -1s, that we distribute randomly through each vector.
     The fraction of 0's in each vector will be (1-2*ratio)
+    :param absolute_ignore_freq: we ignore words that occur in more number of contexts than this.
     :return: None
     """
     # first, let's use input_file to write out output_context_file.
@@ -183,7 +185,7 @@ def build_random_index_vectors(input_file, output_file, context_file, is_input_c
             #         word_vectors_obj[word] = list(context_vec)  # must be a deep copy!
             #     word_vectors_obj[word] = [x + y for x, y in zip(word_vectors_obj[word], context_vec)]
             # _l2_norm_on_word_vecs(word_vectors_obj)
-    _remove_high_freq_words(word_uuids_obj, freq=120)# freq must be absolute
+    _remove_high_freq_words(word_uuids_obj, freq=absolute_ignore_freq)# freq must be absolute
     valid_words = set(word_uuids_obj.keys())
     out = codecs.open(output_file, 'w', 'utf-8')
     count = 0
