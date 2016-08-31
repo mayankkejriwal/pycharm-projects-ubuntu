@@ -73,7 +73,37 @@ class Analysis:
                             print('translatedText: '+ records[uuid]['loreleiJSONMapping']['translatedText'])
 
 
+    @staticmethod
+    def find_seeds_in_ebola_data(ebola_records, seeds_file):
+        """
+        Take one of two files (ebola_data/{freetown,westafrica}-uuids.txt and a records file and
+        locate the objects containing the uuids. We want to be sure they all exist.If some uuid
+        does not exist, it will print out that uuid.
+        :param ebola_records:
+        :param seeds_file:
+        :return: None
+        """
+        #let's read in all those uuids first
+        uuids = set()
+        with codecs.open(seeds_file, 'r', 'utf-8') as f:
+            for line in f:
+                uuids.add(line[:-1])    # to get rid of the newline at the end
+
+        with codecs.open(ebola_records, 'r', 'utf-8') as f:
+            for line in f:
+                uuid = json.loads(line)['uuid']
+                if uuid in uuids:
+                    uuids.discard(uuid)
+
+        if not uuids:
+            print 'all uuids found'
+        else:
+            print 'these uuids not found:',
+            print uuids
+
+
 # Analysis.countNumUniqueWordsInRWPWordClouds('/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed/')
 # path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# Analysis.find_seeds_in_ebola_data(path+'ebolaXFer.json', path+'westafrica-uuids.txt')
 # Analysis.analyzeExactMatchBaseline(path+'record_dump_50000.json', path+'exactMatchOnRecordDump50000.json',
 #                 ['california', 'ca'])

@@ -6,6 +6,7 @@ from sqparser import SQParser
 #import sqparser
 #Various odds and ends
 
+
 def _try_sparql_parser():
     file_path = '/home/mayankkejriwal/Downloads/raw-queries-29July2016.txt'
     with codecs.open(file_path, 'r', 'utf-8') as f:
@@ -16,6 +17,7 @@ def _try_sparql_parser():
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(result)
     #print len(raw_sparql_queries['Aggregate'])
+
 
 def _try_nltk_grammar():
     """
@@ -31,7 +33,6 @@ def _try_nltk_grammar():
         print(tree)
 
 
-
 def _run_localhost_query():
     """
     I want to make sure that we can run elasticsearch queries on the localhost
@@ -44,6 +45,7 @@ def _run_localhost_query():
     es = Elasticsearch(url_localhost)
     retrieved_frames = es.search(index='megacorp', size = 10, body = query)
     print(retrieved_frames)
+
 
 def _bulkload_json_file(input_file):
     """

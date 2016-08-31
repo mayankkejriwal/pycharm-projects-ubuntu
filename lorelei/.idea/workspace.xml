@@ -21,14 +21,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="ExactMatchBaseline.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ExactMatchBaseline.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6607539">
-              <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="74" column="77" selection-start-line="74" selection-start-column="77" selection-end-line="74" selection-end-column="77" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#294#1334#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WordCloudPreprocessor.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/WordCloudPreprocessor.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Analysis.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Analysis.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="106" column="87" selection-start-line="106" selection-start-column="87" selection-end-line="106" selection-end-column="87" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#241#1009#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -38,7 +61,7 @@
         <entry file="file://$PROJECT_DIR$/ExtendedBaseline.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="185" column="105" selection-start-line="184" selection-start-column="2" selection-end-line="185" selection-end-column="105" />
+              <caret line="171" column="17" selection-start-line="171" selection-start-column="17" selection-end-line="171" selection-end-column="17" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#2100#2507#0" expanded="false" />
@@ -53,7 +76,7 @@
         <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="80" column="38" selection-start-line="80" selection-start-column="12" selection-end-line="80" selection-end-column="38" />
+              <caret line="115" column="54" selection-start-line="114" selection-start-column="2" selection-end-line="115" selection-end-column="54" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -61,12 +84,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RandomIndexing.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="RandomIndexing.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="154" column="70" selection-start-line="154" selection-start-column="70" selection-end-line="154" selection-end-column="70" />
+            <state vertical-scroll-proportion="0.3984375">
+              <caret line="42" column="43" selection-start-line="42" selection-start-column="43" selection-end-line="42" selection-end-column="43" />
               <folding>
+                <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#445#664#0" expanded="false" />
                 <element signature="e#445#561#1" expanded="false" />
                 <element signature="e#752#988#0" expanded="false" />
@@ -103,13 +127,14 @@
         <option value="$PROJECT_DIR$/ESQueryBuilders.py" />
         <option value="$PROJECT_DIR$/ESQueryExecution.py" />
         <option value="$PROJECT_DIR$/ExtendedBaseline.py" />
-        <option value="$PROJECT_DIR$/PreprocessRWP.py" />
-        <option value="$PROJECT_DIR$/Analysis.py" />
         <option value="$PROJECT_DIR$/JaccardOnWordCloudBaseline.py" />
         <option value="$PROJECT_DIR$/TestRandomIndexing.py" />
         <option value="$PROJECT_DIR$/ClusteringAnalyses.py" />
         <option value="$PROJECT_DIR$/RandomIndexing.py" />
         <option value="$PROJECT_DIR$/ExactMatchBaseline.py" />
+        <option value="$PROJECT_DIR$/WordCloudPreprocessor.py" />
+        <option value="$PROJECT_DIR$/PreprocessRWP.py" />
+        <option value="$PROJECT_DIR$/Analysis.py" />
       </list>
     </option>
   </component>
@@ -171,24 +196,7 @@
     <property name="last_opened_file_path" value="$USER_HOME$" />
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/mayankkejriwal/PycharmProjects/lorelei/PreprocessRWP.py" />
   </component>
-  <component name="RunManager" selected="Python.ExactMatchBaseline">
-    <configuration default="false" name="RandomIndexing" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="lorelei" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/RandomIndexing.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="Python.Analysis">
     <configuration default="false" name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -253,6 +261,23 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="lorelei" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ExactMatchBaseline.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="PreprocessRWP" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="lorelei" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PreprocessRWP.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -380,19 +405,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.RandomIndexing" />
-      <item index="1" class="java.lang.String" itemvalue="Python.Analysis" />
-      <item index="2" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
-      <item index="3" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
-      <item index="4" class="java.lang.String" itemvalue="Python.ExactMatchBaseline" />
+      <item index="0" class="java.lang.String" itemvalue="Python.Analysis" />
+      <item index="1" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
+      <item index="2" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
+      <item index="3" class="java.lang.String" itemvalue="Python.ExactMatchBaseline" />
+      <item index="4" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.ExactMatchBaseline" />
-        <item index="1" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
-        <item index="2" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
-        <item index="3" class="java.lang.String" itemvalue="Python.RandomIndexing" />
-        <item index="4" class="java.lang.String" itemvalue="Python.Analysis" />
+        <item index="0" class="java.lang.String" itemvalue="Python.Analysis" />
+        <item index="1" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
+        <item index="2" class="java.lang.String" itemvalue="Python.ExactMatchBaseline" />
+        <item index="3" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
+        <item index="4" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
       </list>
     </recent_temporary>
   </component>
@@ -407,17 +432,17 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22156085" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39940828" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28994083" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20833333" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -438,13 +463,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Analysis.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="75" column="2" selection-start-line="75" selection-start-column="2" selection-end-line="75" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -501,6 +519,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="237" column="59" selection-start-line="237" selection-start-column="59" selection-end-line="237" selection-end-column="59" />
           <folding>
+            <element signature="e#0#11#0" expanded="true" />
             <element signature="e#445#664#0" expanded="false" />
             <element signature="e#445#561#1" expanded="false" />
             <element signature="e#752#988#0" expanded="false" />
@@ -520,6 +539,10 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="75" column="2" selection-start-line="75" selection-start-column="2" selection-end-line="75" selection-end-column="2" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#241#1009#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -579,6 +602,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="236" column="103" selection-start-line="236" selection-start-column="29" selection-end-line="236" selection-end-column="103" />
           <folding>
+            <element signature="e#0#11#0" expanded="true" />
             <element signature="e#445#664#0" expanded="false" />
             <element signature="e#445#561#1" expanded="false" />
             <element signature="e#752#988#0" expanded="false" />
@@ -650,6 +674,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+            <element signature="e#0#11#0" expanded="true" />
             <element signature="e#445#664#0" expanded="false" />
             <element signature="e#445#561#1" expanded="false" />
             <element signature="e#752#988#0" expanded="false" />
@@ -707,6 +732,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+            <element signature="e#0#11#0" expanded="true" />
             <element signature="e#445#664#0" expanded="false" />
             <element signature="e#445#561#1" expanded="false" />
             <element signature="e#752#988#0" expanded="false" />
@@ -845,26 +871,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ExtendedBaseline.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="185" column="105" selection-start-line="184" selection-start-column="2" selection-end-line="185" selection-end-column="105" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#2100#2507#0" expanded="false" />
-            <element signature="e#3764#5453#0" expanded="false" />
-            <marker date="1471991573731" expanded="true" signature="5761:6049" placeholder="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Analysis.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="75" column="2" selection-start-line="75" selection-start-column="2" selection-end-line="75" selection-end-column="2" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ClusteringAnalyses.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.32921174">
@@ -879,19 +885,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="154" column="70" selection-start-line="154" selection-start-column="70" selection-end-line="154" selection-end-column="70" />
-          <folding>
-            <element signature="e#445#664#0" expanded="false" />
-            <element signature="e#445#561#1" expanded="false" />
-            <element signature="e#752#988#0" expanded="false" />
-            <element signature="e#1469#1705#1" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -902,23 +895,69 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="74" column="77" selection-start-line="74" selection-start-column="77" selection-end-line="74" selection-end-column="77" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WordCloudPreprocessor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="80" column="38" selection-start-line="80" selection-start-column="12" selection-end-line="80" selection-end-column="38" />
+          <caret line="115" column="54" selection-start-line="114" selection-start-column="2" selection-end-line="115" selection-end-column="54" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
+    <entry file="file://$PROJECT_DIR$/Analysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6607539">
-          <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="106" column="87" selection-start-line="106" selection-start-column="87" selection-end-line="106" selection-end-column="87" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#241#1009#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExtendedBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="171" column="17" selection-start-line="171" selection-start-column="17" selection-end-line="171" selection-end-column="17" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#294#1334#0" expanded="false" />
+            <element signature="e#2100#2507#0" expanded="false" />
+            <element signature="e#3764#5453#0" expanded="false" />
+            <marker date="1471991573731" expanded="true" signature="5761:6049" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3984375">
+          <caret line="42" column="43" selection-start-line="42" selection-start-column="43" selection-end-line="42" selection-end-column="43" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#445#664#0" expanded="false" />
+            <element signature="e#445#561#1" expanded="false" />
+            <element signature="e#752#988#0" expanded="false" />
+            <element signature="e#1469#1705#1" expanded="false" />
           </folding>
         </state>
       </provider>

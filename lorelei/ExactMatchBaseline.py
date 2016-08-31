@@ -72,5 +72,5 @@ def baselineRWP(records_file, output_file):
     out.close()
 
 
-path = '/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
-baselineRWP(path+'condensed-objects.json', path+'exactMatchOnRWPEntities.json')
+# path = '/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
+# baselineRWP(path+'condensed-objects.json', path+'exactMatchOnRWPEntities.json')

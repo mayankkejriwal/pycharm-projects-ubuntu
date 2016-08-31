@@ -79,10 +79,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ExecuteESQueries.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ExecuteESQueries.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ExecuteESQueries.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.496136">
+            <state vertical-scroll-proportion="0.0">
               <caret line="76" column="23" selection-start-line="76" selection-start-column="23" selection-end-line="76" selection-end-column="23" />
               <folding>
                 <element signature="e#0#68#0" expanded="true" />
@@ -150,6 +150,28 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="ScratchPad.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ScratchPad.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ClusterGroundTruth.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/ClusterGroundTruth.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.5517774">
+              <caret line="21" column="26" selection-start-line="21" selection-start-column="26" selection-end-line="21" selection-end-column="26" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="ResultExtractors.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ResultExtractors.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -185,7 +207,6 @@
         <option value="$PROJECT_DIR$/PrintUtils.py" />
         <option value="$PROJECT_DIR$/Grouper.py" />
         <option value="$PROJECT_DIR$/BuildCompoundESQueries.py" />
-        <option value="$PROJECT_DIR$/ScratchPad.py" />
         <option value="$PROJECT_DIR$/ResultExtractors.py" />
         <option value="$PROJECT_DIR$/sqparser.py" />
         <option value="$PROJECT_DIR$/TableFunctions.py" />
@@ -194,6 +215,8 @@
         <option value="$PROJECT_DIR$/MappingAnalyses.py" />
         <option value="$PROJECT_DIR$/SparqlTranslator.py" />
         <option value="$PROJECT_DIR$/ExecuteESQueries.py" />
+        <option value="$PROJECT_DIR$/ScratchPad.py" />
+        <option value="$PROJECT_DIR$/ClusterGroundTruth.py" />
       </list>
     </option>
   </component>
@@ -528,13 +551,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/ScratchPad.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="60" column="17" selection-start-line="60" selection-start-column="17" selection-end-line="60" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/MappingTable.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1053,13 +1069,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ScratchPad.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.812652">
-          <caret line="68" column="1" selection-start-line="68" selection-start-column="1" selection-end-line="68" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/env1/lib/python2.7/re.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1078,24 +1087,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.53613055">
           <caret line="27" column="38" selection-start-line="27" selection-start-column="16" selection-end-line="27" selection-end-column="38" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/SelectExtractors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="160" column="25" selection-start-line="160" selection-start-column="25" selection-end-line="160" selection-end-column="25" />
-          <folding>
-            <element signature="e#389#1831#0" expanded="false" />
-            <element signature="e#1920#3469#0" expanded="false" />
-            <element signature="e#3570#5136#0" expanded="false" />
-            <element signature="e#5224#6443#0" expanded="false" />
-            <element signature="e#7110#7896#0" expanded="false" />
-            <element signature="e#7999#9075#0" expanded="false" />
-            <element signature="e#9164#10545#0" expanded="false" />
-            <element signature="e#10620#11673#0" expanded="false" />
-            <element signature="e#11739#11971#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1190,7 +1181,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/ExecuteESQueries.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.496136">
+        <state vertical-scroll-proportion="0.0">
           <caret line="76" column="23" selection-start-line="76" selection-start-column="23" selection-end-line="76" selection-end-column="23" />
           <folding>
             <element signature="e#0#68#0" expanded="true" />
@@ -1210,6 +1201,42 @@
             <element signature="e#14887#15434#0" expanded="false" />
             <element signature="e#15520#15607#1" expanded="false" />
             <element signature="e#27022#27132#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SelectExtractors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="160" column="25" selection-start-line="160" selection-start-column="25" selection-end-line="160" selection-end-column="25" />
+          <folding>
+            <element signature="e#389#1831#0" expanded="false" />
+            <element signature="e#1920#3469#0" expanded="false" />
+            <element signature="e#3570#5136#0" expanded="false" />
+            <element signature="e#5224#6443#0" expanded="false" />
+            <element signature="e#7110#7896#0" expanded="false" />
+            <element signature="e#7999#9075#0" expanded="false" />
+            <element signature="e#9164#10545#0" expanded="false" />
+            <element signature="e#10620#11673#0" expanded="false" />
+            <element signature="e#11739#11971#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ScratchPad.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ClusterGroundTruth.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5517774">
+          <caret line="21" column="26" selection-start-line="21" selection-start-column="26" selection-end-line="21" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>

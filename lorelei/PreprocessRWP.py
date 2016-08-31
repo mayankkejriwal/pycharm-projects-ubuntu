@@ -3,7 +3,7 @@ import codecs
 import json
 
 """
-Time to do some preprocessing on the (json) files in ReliefWebProcessed.
+Time to do some preprocessing on the (json) files in ReliefWebProcessed|ebola_data/ebolaXFer.
 """
 
 
@@ -112,6 +112,7 @@ def build_reference_uuids_file(WCJaccard_file, output_file):
     out.close()
 
 
-# path = '/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# condenseRWP(path+'ebolaXFer/',path+'ebolaXFer.json')
 # build_reference_uuids_file(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-reference-uuids.txt')
 
