@@ -116,23 +116,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TextPreprocessors.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="78" column="38" selection-start-line="75" selection-start-column="8" selection-end-line="78" selection-end-column="38" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TextAnalyses.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="TextAnalyses.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.75886524">
-              <caret line="22" column="38" selection-start-line="22" selection-start-column="38" selection-end-line="22" selection-end-column="38" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="75" column="68" selection-start-line="75" selection-start-column="43" selection-end-line="75" selection-end-column="68" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -140,11 +128,25 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FieldAnalyses.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
+      <file leaf-file-name="RandomIndexer.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="31" column="70" selection-start-line="31" selection-start-column="46" selection-end-line="31" selection-end-column="70" />
+              <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#26#0" expanded="true" />
+                <element signature="e#299#540#0" expanded="false" />
+                <element signature="e#627#1174#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="kNearestNeighbors.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.71561337">
+              <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -182,6 +184,8 @@
         <option value="$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py" />
       </list>
     </option>
   </component>
@@ -258,58 +262,7 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.TextPreprocessors">
-    <configuration default="false" name="ExecuteESQueries" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="memex-CP4" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ExecuteESQueries.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="MappingTable" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="memex-CP4" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MappingTable.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="MappingAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="memex-CP4" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MappingAnalyses.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
+  <component name="RunManager" selected="Python.kNearestNeighbors">
     <configuration default="false" name="FieldAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -340,6 +293,57 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="memex-CP4" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="TextAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="memex-CP4" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="RandomIndexer" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="memex-CP4" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="kNearestNeighbors" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="memex-CP4" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -467,19 +471,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.ExecuteESQueries" />
-      <item index="1" class="java.lang.String" itemvalue="Python.MappingTable" />
-      <item index="2" class="java.lang.String" itemvalue="Python.MappingAnalyses" />
-      <item index="3" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
-      <item index="4" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
+      <item index="0" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
+      <item index="1" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
+      <item index="2" class="java.lang.String" itemvalue="Python.TextAnalyses" />
+      <item index="3" class="java.lang.String" itemvalue="Python.RandomIndexer" />
+      <item index="4" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
-        <item index="1" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
-        <item index="2" class="java.lang.String" itemvalue="Python.ExecuteESQueries" />
-        <item index="3" class="java.lang.String" itemvalue="Python.MappingTable" />
-        <item index="4" class="java.lang.String" itemvalue="Python.MappingAnalyses" />
+        <item index="0" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
+        <item index="1" class="java.lang.String" itemvalue="Python.RandomIndexer" />
+        <item index="2" class="java.lang.String" itemvalue="Python.TextAnalyses" />
+        <item index="3" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
+        <item index="4" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
       </list>
     </recent_temporary>
   </component>
@@ -494,7 +498,7 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2037037" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39792898" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33136094" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1612426" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -525,36 +529,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="20" />
+      <option name="time" value="21" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/SelectExtractors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="52" column="28" selection-start-line="52" selection-start-column="28" selection-end-line="52" selection-end-column="28" />
-          <folding>
-            <element signature="e#389#1831#0" expanded="false" />
-            <element signature="e#1920#3469#0" expanded="false" />
-            <element signature="e#3570#5136#0" expanded="false" />
-            <element signature="e#5224#6443#0" expanded="false" />
-            <element signature="e#7110#7896#0" expanded="false" />
-            <element signature="e#7999#9075#0" expanded="false" />
-            <element signature="e#9164#10545#0" expanded="false" />
-            <element signature="e#10620#11673#0" expanded="false" />
-            <element signature="e#11739#11971#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ScratchPad.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="67" column="14" selection-start-line="67" selection-start-column="14" selection-end-line="67" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/MappingTable.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1112,14 +1091,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ScratchPad.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ExecuteESQueries.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1145,16 +1116,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="31" column="70" selection-start-line="31" selection-start-column="46" selection-end-line="31" selection-end-column="70" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/env1/local/lib/python2.7/site-packages/nltk/tokenize/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33161953">
@@ -1165,18 +1126,54 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.9239374">
+          <caret line="88" column="122" selection-start-line="87" selection-start-column="2" selection-end-line="88" selection-end-column="122" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ScratchPad.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="78" column="38" selection-start-line="75" selection-start-column="8" selection-end-line="78" selection-end-column="38" />
+          <caret line="8" column="0" selection-start-line="8" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.7718121">
+          <caret line="31" column="70" selection-start-line="31" selection-start-column="46" selection-end-line="31" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="75" column="68" selection-start-line="75" selection-start-column="43" selection-end-line="75" selection-end-column="68" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py">
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.75886524">
-          <caret line="22" column="38" selection-start-line="22" selection-start-column="38" selection-end-line="22" selection-end-column="38" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="75" column="0" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#26#0" expanded="true" />
+            <element signature="e#299#540#0" expanded="false" />
+            <element signature="e#627#1174#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.71561337">
+          <caret line="72" column="0" selection-start-line="72" selection-start-column="0" selection-end-line="72" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>

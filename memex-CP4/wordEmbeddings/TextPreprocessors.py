@@ -85,5 +85,5 @@ class TextPreprocessors:
         out.close()
 
 
-path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-TextPreprocessors.build_tokens_objects_from_readability(path+'ground-truth-corpus.json', path+'readability_tokens.json')
+# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# TextPreprocessors.build_tokens_objects_from_readability(path+'ground-truth-corpus.json', path+'readability_tokens.json')
