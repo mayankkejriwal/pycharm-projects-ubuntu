@@ -18,6 +18,4 @@ class ClusterGroundTruth:
         :param output_file:
         :return:
         """
-        with codecs.open(input_file, 'r', 'utf-8') as f:
-            for line in f:
-                pass
+        pass
