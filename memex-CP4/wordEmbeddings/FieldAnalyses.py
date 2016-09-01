@@ -4,7 +4,9 @@ import pprint
 import TextPreprocessors
 import kNearestNeighbors
 import math
-from decimal import *
+from sklearn.preprocessing import normalize
+import numpy as np
+import warnings
 
 class FieldAnalyses:
     """
@@ -23,23 +25,29 @@ class FieldAnalyses:
 
     @staticmethod
     def _l2_norm_on_vec(vec):
-        """
+        warnings.filterwarnings("ignore")
+        k = np.reshape(vec, (1,-1))
+        return normalize(k)[0]
 
-        :param vec:
-        :return: L2-normalized vector
-        """
-        total = Decimal(0.0)
-        new_vec = [0.0]*len(vec)
-        for element in vec:
-            total = total + Decimal(math.pow(element, 2))
-        print total
-        if total == 0.0:
-            return new_vec
-        total = Decimal(math.sqrt(total))
-        for i in range(0, len(vec)):
-            el = Decimal(vec[i]*1.0)/total
-            new_vec[i] = float(el)
-        return new_vec
+    # @staticmethod
+    # def _l2_norm_on_vec(vec):
+    #     """
+    #     This is the earlier implementation. I believe its still correct, but let's not use it.
+    #     :param vec:
+    #     :return: L2-normalized vector
+    #     """
+    #     total = Decimal(0.0)
+    #     new_vec = [0.0]*len(vec)
+    #     for element in vec:
+    #         total = total + Decimal(math.pow(element, 2))
+    #     print total
+    #     if total == 0.0:
+    #         return new_vec
+    #     total = Decimal(math.sqrt(total))
+    #     for i in range(0, len(vec)):
+    #         el = Decimal(vec[i]*1.0)/total
+    #         new_vec[i] = float(el)
+    #     return new_vec
 
     @staticmethod
     def _l2_norm(vec):
@@ -48,11 +56,11 @@ class FieldAnalyses:
         :param vec:
         :return:
         """
-        l2_norm = Decimal(0.0)
+        l2_norm = 0.0
         for element in vec:
-            l2_norm = l2_norm + Decimal(math.pow(element, 2))
+            l2_norm += math.pow(element, 2)
         print 'l2_norm : ',
-        print Decimal(math.sqrt(l2_norm))
+        print math.sqrt(l2_norm)
 
 
     @staticmethod
@@ -71,7 +79,7 @@ class FieldAnalyses:
             normalized_vectors_dict[k] = new_vec
             for i in range(0, len(new_vec)):
                 centroid[i] += (new_vec[i]/num)
-        return centroid
+        return FieldAnalyses._l2_norm_on_vec(centroid)
 
     @staticmethod
     def build_vector_set_for_attribute(embeddings_file, ground_truth_file, attribute):
@@ -125,4 +133,5 @@ centroid = FieldAnalyses.find_normalized_centroid_of_vectors(attribute_vecs)
 FieldAnalyses._l2_norm(centroid)
 
 # p = [1, 4, -5, 8]
-# FieldAnalyses._l2_norm(FieldAnalyses._l2_norm_on_vec(p))
+# (FieldAnalyses._l2_norm(FieldAnalyses._l2_norm_on_vec(p)))
+# print p

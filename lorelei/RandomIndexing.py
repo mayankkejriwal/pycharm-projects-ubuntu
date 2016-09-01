@@ -2,7 +2,9 @@ import json
 import codecs
 from random import shuffle
 import math
-
+from sklearn.preprocessing import normalize
+import numpy as np
+import warnings
 
 def _remove_high_freq_words(word_uuids_obj, freq):
     forbidden_words = set()
@@ -80,18 +82,9 @@ def _build_context_vectors(input_file, output_context_file, d=3000, non_zero_rat
 
 
 def _l2_norm_on_vec(vec):
-    """
-
-    :param vec:
-    :return: L2-normalized vector
-    """
-    total = 0
-    for element in vec:
-        total += (element*element)
-    if total == 0:
-        return [0.0]*len(vec)
-    new_vec = [math.sqrt(math.fabs(element)/total) for element in vec]
-    return new_vec
+    warnings.filterwarnings("ignore")
+    k = np.reshape(vec, (1,-1))
+    return normalize(k)[0]
 
 
 def _sum_context_vectors(uuids, context_vectors_obj):
@@ -119,11 +112,7 @@ def _l2_norm_on_word_vecs(word_vectors_obj):
     :return: None
     """
     for k, v in word_vectors_obj.items():
-        total = 0
-        for element in v:
-            total += (element*element)
-        new_vec = [math.sqrt(math.fabs(element)/total) for element in v]
-        word_vectors_obj[k] = new_vec
+      word_vectors_obj[k] = _l2_norm_on_vec(v)
 
 
 def build_random_index_vectors(input_file, output_file, context_file, is_input_context = True, d=250,
