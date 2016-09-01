@@ -1,43 +1,36 @@
 import codecs
 import json
 import math
+import SimFunctions
 
 
-def _extract_top_k(scored_results_dict, k, disable_k):
+def _extract_top_k(scored_results_dict, k, disable_k=False, reverse=True):
     count = 0
+    # print k
     results = list()
     scores = scored_results_dict.keys()
-    scores.sort(reverse=True)
+    scores.sort(reverse=reverse)
     for score in scores:
+        # print score
+        # print count
+        if count >= k:
+            break
         vals = scored_results_dict[score]
         if disable_k:
             results += vals
             continue
         if count + len(vals) <= k:
             results += vals
-            count += len(vals)
+            count = len(results)
         else:
             results += vals[0: k - count]
+            count = len(results)
+    # print results[0]
     return results
 
 
 def _compute_abs_cosine_sim(vector1, vector2):
-    if len(vector1) != len(vector2):
-        raise Exception
-    total1 = 0.0
-    total2 = 0.0
-    sim = 0.0
-    for i in range(0, len(vector1)):
-        sim += (vector1[i]*vector2[i])
-        total1 += (vector1[i]*vector1[i])
-        total2 += (vector2[i]*vector2[i])
-    total1 = math.sqrt(total1)
-    total2 = math.sqrt(total2)
-    if total1 == 0.0 or total2 == 0.0:
-        print 'divide by zero problem. Returning 0.0'
-        return 0.0
-    else:
-        return math.fabs(sim/(total1*total2))
+    return SimFunctions.SimFunctions.abs_cosine_sim(vector1, vector2)
 
 
 def _generate_scored_dict(unigram_embeddings, seed_token):

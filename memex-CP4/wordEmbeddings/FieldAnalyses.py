@@ -3,10 +3,14 @@ import json
 import pprint
 import TextPreprocessors
 import kNearestNeighbors
+from decimal import *
 import math
 from sklearn.preprocessing import normalize
 import numpy as np
 import warnings
+import SimFunctions
+import kNearestNeighbors
+
 
 class FieldAnalyses:
     """
@@ -29,25 +33,26 @@ class FieldAnalyses:
         k = np.reshape(vec, (1,-1))
         return normalize(k)[0]
 
-    # @staticmethod
-    # def _l2_norm_on_vec(vec):
-    #     """
-    #     This is the earlier implementation. I believe its still correct, but let's not use it.
-    #     :param vec:
-    #     :return: L2-normalized vector
-    #     """
-    #     total = Decimal(0.0)
-    #     new_vec = [0.0]*len(vec)
-    #     for element in vec:
-    #         total = total + Decimal(math.pow(element, 2))
-    #     print total
-    #     if total == 0.0:
-    #         return new_vec
-    #     total = Decimal(math.sqrt(total))
-    #     for i in range(0, len(vec)):
-    #         el = Decimal(vec[i]*1.0)/total
-    #         new_vec[i] = float(el)
-    #     return new_vec
+    @staticmethod
+    @DeprecationWarning
+    def _l2_norm_on_vec_old(vec):
+        """
+        This is the earlier, more primitive implementation. I believe its still correct, but let's not use it.
+        :param vec:
+        :return: L2-normalized vector
+        """
+        total = Decimal(0.0)
+        new_vec = [0.0]*len(vec)
+        for element in vec:
+            total = total + Decimal(math.pow(element, 2))
+        print total
+        if total == 0.0:
+            return new_vec
+        total = Decimal(math.sqrt(total))
+        for i in range(0, len(vec)):
+            el = Decimal(vec[i]*1.0)/total
+            new_vec[i] = float(el)
+        return new_vec
 
     @staticmethod
     def _l2_norm(vec):
@@ -62,9 +67,8 @@ class FieldAnalyses:
         print 'l2_norm : ',
         print math.sqrt(l2_norm)
 
-
     @staticmethod
-    def find_normalized_centroid_of_vectors(vectors_dict):
+    def _find_normalized_centroid_of_vectors(vectors_dict):
         """
         The first step is to build another dictionary that has l2-normalized vectors. Then we average that
         and return the result.
@@ -79,10 +83,10 @@ class FieldAnalyses:
             normalized_vectors_dict[k] = new_vec
             for i in range(0, len(new_vec)):
                 centroid[i] += (new_vec[i]/num)
-        return FieldAnalyses._l2_norm_on_vec(centroid)
+        return FieldAnalyses._l2_norm_on_vec(centroid)  # this step caused me more headache than it should have
 
     @staticmethod
-    def build_vector_set_for_attribute(embeddings_file, ground_truth_file, attribute):
+    def _build_vector_set_for_attribute(embeddings_file, ground_truth_file, attribute):
         """
 
         :param embeddings_file:
@@ -106,7 +110,6 @@ class FieldAnalyses:
         # print len(attribute_vectors)
         return attribute_vectors
 
-
     @staticmethod
     def print_fields_data_types(input_file):
         """
@@ -125,12 +128,66 @@ class FieldAnalyses:
                     fields[k].add(type(v))
         print pp.pprint(fields)
 
+    @staticmethod
+    def _k_centroid(score_dict, k, nearest):
+        """
+        :param score_dict: A key is a sim. score, and values are lists of items.
+        :param k:
+        :param nearest: If True, return k nearest, otherwise return k farthest
+        :return: a list of (at most) k values
+        """
+        return kNearestNeighbors._extract_top_k(scored_results_dict=score_dict, k=k, disable_k=False, reverse=nearest)
+
+    @staticmethod
+    def _reverse_dict(dictionary):
+        """
+        Turn keys into (lists of) values, and values into keys. Values must originally be primitive.
+        :param dictionary:
+        :return: Another dictionary
+        """
+        new_dict = dict()
+        for k, v in dictionary.items():
+            if v not in new_dict:
+                new_dict[v] = list()
+            new_dict[v].append(k)
+        return new_dict
+
+    @staticmethod
+    def centroid_analysis_on_attribute_cluster(embeddings_file, ground_truth_file, attribute, k=10):
+        """
+        Mean, std. dev and k-nearest and k-farthest vectors from centroid (if cluster is small, may overlap)
+        :param embeddings_file:
+        :param ground_truth_file:
+        :param attribute:
+        :param k:
+        :return: None
+        """
+        warnings.filterwarnings("ignore")
+        attribute_vecs = FieldAnalyses._build_vector_set_for_attribute(embeddings_file, ground_truth_file, attribute)
+        centroid = FieldAnalyses._find_normalized_centroid_of_vectors(attribute_vecs)
+        sim_dict = dict()
+        for key, val in attribute_vecs.items():
+            sim_dict[key] = SimFunctions.SimFunctions.abs_cosine_sim(val, centroid)
+        # print sim_dict.values()
+        print 'mean: ',
+        print np.mean(sim_dict.values())
+        print 'std. dev: ',
+        print np.std(sim_dict.values())
+        score_dict = FieldAnalyses._reverse_dict(sim_dict)
+        print 'k nearest values: ',
+        # print sim_dict['z']
+        # print sim_dict['vietnamese']
+        print FieldAnalyses._k_centroid(score_dict=score_dict, k=k, nearest=True)
+        print 'k farthest values: ',
+        print FieldAnalyses._k_centroid(score_dict=score_dict, k=k, nearest=False)
+
 
 path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-attribute_vecs = FieldAnalyses.build_vector_set_for_attribute(path+'unigram-embeddings.json',
-                                                              path+'ground-truth-corpus.json', 'ethnicity')
-centroid = FieldAnalyses.find_normalized_centroid_of_vectors(attribute_vecs)
-FieldAnalyses._l2_norm(centroid)
+FieldAnalyses.centroid_analysis_on_attribute_cluster(path+'unigram-embeddings.json', path+'ground-truth-corpus.json', 'eyeColor')
+# attribute_vecs = FieldAnalyses._build_vector_set_for_attribute(path+'unigram-embeddings.json',
+#                                                               path+'ground-truth-corpus.json', 'ethnicity')
+# centroid = FieldAnalyses._find_normalized_centroid_of_vectors(attribute_vecs)
+# FieldAnalyses._l2_norm(centroid)
 
 # p = [1, 4, -5, 8]
 # (FieldAnalyses._l2_norm(FieldAnalyses._l2_norm_on_vec(p)))
