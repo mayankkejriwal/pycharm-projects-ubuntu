@@ -34,16 +34,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="WordCloudPreprocessor.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/WordCloudPreprocessor.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="Analysis.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Analysis.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -84,37 +74,15 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RandomIndexing.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="RandomIndexing.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="17" column="39" selection-start-line="17" selection-start-column="39" selection-end-line="17" selection-end-column="39" />
+            <state vertical-scroll-proportion="0.4992272">
+              <caret line="93" column="18" selection-start-line="81" selection-start-column="0" selection-end-line="93" selection-end-column="18" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#445#561#1" expanded="false" />
                 <element signature="e#1469#1705#1" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="JaccardOnWordCloudBaseline.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/JaccardOnWordCloudBaseline.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="80" column="77" selection-start-line="80" selection-start-column="77" selection-end-line="80" selection-end-column="77" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TestRandomIndexing.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5795981">
-              <caret line="70" column="18" selection-start-line="55" selection-start-column="0" selection-end-line="70" selection-end-column="18" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -138,11 +106,11 @@
         <option value="$PROJECT_DIR$/JaccardOnWordCloudBaseline.py" />
         <option value="$PROJECT_DIR$/TestRandomIndexing.py" />
         <option value="$PROJECT_DIR$/ClusteringAnalyses.py" />
-        <option value="$PROJECT_DIR$/RandomIndexing.py" />
         <option value="$PROJECT_DIR$/ExactMatchBaseline.py" />
         <option value="$PROJECT_DIR$/WordCloudPreprocessor.py" />
         <option value="$PROJECT_DIR$/PreprocessRWP.py" />
         <option value="$PROJECT_DIR$/Analysis.py" />
+        <option value="$PROJECT_DIR$/RandomIndexing.py" />
       </list>
     </option>
   </component>
@@ -177,7 +145,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -198,6 +165,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -878,35 +846,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="74" column="77" selection-start-line="74" selection-start-column="77" selection-end-line="74" selection-end-column="77" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#294#1334#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/WordCloudPreprocessor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="115" column="54" selection-start-line="114" selection-start-column="2" selection-end-line="115" selection-end-column="54" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Analysis.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -931,32 +870,61 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
+    <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.4992272">
+          <caret line="19" column="31" selection-start-line="19" selection-start-column="31" selection-end-line="19" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="17" column="39" selection-start-line="17" selection-start-column="39" selection-end-line="17" selection-end-column="39" />
+          <caret line="115" column="54" selection-start-line="114" selection-start-column="2" selection-end-line="115" selection-end-column="54" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
-            <element signature="e#445#561#1" expanded="false" />
-            <element signature="e#1469#1705#1" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WordCloudPreprocessor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.1576507">
+          <caret line="6" column="7" selection-start-line="6" selection-start-column="7" selection-end-line="6" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ExactMatchBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="74" column="77" selection-start-line="74" selection-start-column="77" selection-end-line="74" selection-end-column="77" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#294#1334#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/JaccardOnWordCloudBaseline.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
+        <state vertical-scroll-proportion="1.8933539">
           <caret line="80" column="77" selection-start-line="80" selection-start-column="77" selection-end-line="80" selection-end-column="77" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
+    <entry file="file://$PROJECT_DIR$/RandomIndexing.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5795981">
-          <caret line="70" column="18" selection-start-line="55" selection-start-column="0" selection-end-line="70" selection-end-column="18" />
+        <state vertical-scroll-proportion="0.4992272">
+          <caret line="93" column="18" selection-start-line="81" selection-start-column="0" selection-end-line="93" selection-end-column="18" />
           <folding>
-            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#445#561#1" expanded="false" />
+            <element signature="e#1469#1705#1" expanded="false" />
           </folding>
         </state>
       </provider>

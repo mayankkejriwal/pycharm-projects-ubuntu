@@ -10,7 +10,7 @@ class RandomIndexer:
     """
 
     @staticmethod
-    def _read_in_tokens_file(tokens_list_file):
+    def read_in_tokens_file(tokens_list_file):
         answer = dict()
         with codecs.open(tokens_list_file, 'r', 'utf-8') as f:
             for line in f:
@@ -89,7 +89,7 @@ class RandomIndexer:
         """
         idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file)
         token_cvs = RandomIndexer._generate_context_vectors_for_idf(idf_dict, include_dummy, d, non_zero_ratio)
-        tokens_dict = RandomIndexer._read_in_tokens_file(tokens_file)
+        tokens_dict = RandomIndexer.read_in_tokens_file(tokens_file)
         unigram_embeddings = RandomIndexer._init_unigram_embeddings(token_cvs)
         count = 1
         for v in tokens_dict.itervalues():

@@ -54,6 +54,16 @@ def _generate_scored_dict(unigram_embeddings, seed_token):
     return scored_dict
 
 
+def read_in_embeddings(embeddings_file):
+    unigram_embeddings = dict()
+    with codecs.open(embeddings_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            for k, v in obj.items():
+                unigram_embeddings[k] = v
+    return unigram_embeddings
+
+
 def find_k_nearest_neighbors(embeddings_file, seed_token, k=10):
     """
 
@@ -62,12 +72,7 @@ def find_k_nearest_neighbors(embeddings_file, seed_token, k=10):
     :param k:
     :return: None
     """
-    unigram_embeddings = dict()
-    with codecs.open(embeddings_file, 'r', 'utf-8') as f:
-        for line in f:
-            obj = json.loads(line)
-            for k, v in obj.items():
-                unigram_embeddings[k] = v
+    unigram_embeddings = read_in_embeddings(embeddings_file)
     scored_dict = _generate_scored_dict(unigram_embeddings, seed_token)
     print _extract_top_k(scored_dict, 10, False)
 

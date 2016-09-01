@@ -85,7 +85,6 @@ def _l2_norm_on_vec(vec):
     :param vec:
     :return: L2-normalized vector
     """
-
     total = 0
     for element in vec:
         total += (element*element)
