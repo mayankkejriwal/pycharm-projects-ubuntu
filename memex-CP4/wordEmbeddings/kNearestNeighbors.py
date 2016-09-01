@@ -72,5 +72,5 @@ def find_k_nearest_neighbors(embeddings_file, seed_token, k=10):
     print _extract_top_k(scored_dict, 10, False)
 
 
-path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-find_k_nearest_neighbors(path+'unigram-embeddings.json', 'blue')
+# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# find_k_nearest_neighbors(path+'unigram-embeddings.json', 'ebony')

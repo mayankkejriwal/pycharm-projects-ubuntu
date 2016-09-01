@@ -7,6 +7,8 @@ class FieldAnalyses:
     """
     Use static methods in this class to analyze the structure of the data. Things like, what fields
     are present in the file, and what are their data types?
+
+    We will also use this class to develop methods for measuring field coherence, once we have our unigram embeds.
     """
 
     @staticmethod
