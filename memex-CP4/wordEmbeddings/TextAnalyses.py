@@ -9,9 +9,8 @@ class TextAnalyses:
     important thing we need to do is document frequency generation
     """
 
-
     @staticmethod
-    def read_in_and_prune_idf(df_file, lower_prune_ratio=0.001, upper_prune_ratio=0.2):
+    def read_in_and_prune_idf(df_file, lower_prune_ratio=0.0005, upper_prune_ratio=0.5):
         """
 
         :param idf_file: e.g. readability_tokens_df.txt
@@ -30,7 +29,6 @@ class TextAnalyses:
         print 'total number of words in idf dict : ',
         print len(idf)
         return idf
-
 
     @staticmethod
     def generate_document_frequencies(tokens_list_file, output_file):
@@ -73,4 +71,4 @@ class TextAnalyses:
 
 
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# TextAnalyses.read_in_and_prune_idf(path+'readability_tokens_df.txt')
+# TextAnalyses.read_in_and_prune_idf(path+'readability_tokens_df-large-corpus.txt')

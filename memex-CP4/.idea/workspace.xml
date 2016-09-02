@@ -116,47 +116,67 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TextPreprocessors.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
+      <file leaf-file-name="RandomIndexer.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="66" column="71" selection-start-line="66" selection-start-column="71" selection-end-line="66" selection-end-column="71" />
+              <caret line="0" column="26" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="26" />
               <folding>
-                <element signature="e#347#1368#0" expanded="false" />
-                <element signature="e#1474#2271#0" expanded="false" />
-                <element signature="e#2371#3236#0" expanded="false" />
+                <element signature="e#298#539#0" expanded="false" />
+                <element signature="e#626#1173#0" expanded="false" />
+                <element signature="e#1288#2091#0" expanded="false" />
+                <element signature="e#2164#2454#0" expanded="false" />
+                <element signature="e#2667#5337#0" expanded="false" />
+                <element signature="e#5556#8002#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FieldAnalyses.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="EmbeddingsAnalyses.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wordEmbeddings/EmbeddingsAnalyses.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="88" column="0" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="FieldAnalyses.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.92111367">
-              <caret line="183" column="0" selection-start-line="183" selection-start-column="0" selection-end-line="183" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="141" column="0" selection-start-line="141" selection-start-column="0" selection-end-line="141" selection-end-column="0" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
                 <element signature="e#643#822#0" expanded="false" />
                 <element signature="e#880#980#0" expanded="false" />
+                <element signature="e#1066#1650#0" expanded="false" />
                 <element signature="e#1701#1937#0" expanded="false" />
                 <element signature="e#2025#2855#0" expanded="false" />
                 <element signature="e#2971#3984#0" expanded="false" />
                 <element signature="e#4057#4644#0" expanded="false" />
+                <element signature="e#4717#5075#0" expanded="false" />
+                <element signature="e#5138#5512#0" expanded="false" />
+                <element signature="e#5641#6834#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="kNearestNeighbors.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="kNearestNeighbors.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="27" column="22" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="22" />
+            <state vertical-scroll-proportion="0.65217394">
+              <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
-                <element signature="e#891#1298#0" expanded="false" />
-                <element signature="e#1346#1598#0" expanded="false" />
+                <element signature="e#139#724#0" expanded="false" />
+                <element signature="e#909#1316#0" expanded="false" />
+                <element signature="e#1364#1616#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -189,13 +209,15 @@
         <option value="$PROJECT_DIR$/ExecuteESQueries.py" />
         <option value="$PROJECT_DIR$/ScratchPad.py" />
         <option value="$PROJECT_DIR$/ClusterGroundTruth.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/ConvertSeqToJSON.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/SimFunctions.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/Serializers.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py" />
-        <option value="$PROJECT_DIR$/wordEmbeddings/ConvertSeqToJSON.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py" />
-        <option value="$PROJECT_DIR$/wordEmbeddings/SimFunctions.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/EmbeddingsAnalyses.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py" />
-        <option value="$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py" />
       </list>
     </option>
   </component>
@@ -272,7 +294,24 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.FieldAnalyses">
+  <component name="RunManager" selected="Python.kNearestNeighbors">
+    <configuration default="false" name="TextPreprocessors" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="memex-CP4" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
     <configuration default="false" name="TextAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -307,6 +346,23 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
     </configuration>
+    <configuration default="false" name="EmbeddingsAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="memex-CP4" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/EmbeddingsAnalyses.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
     <configuration default="false" name="kNearestNeighbors" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -320,40 +376,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="memex-CP4" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="ConvertSeqToJSON" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="memex-CP4" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/ConvertSeqToJSON.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="FieldAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="memex-CP4" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -481,19 +503,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.TextAnalyses" />
-      <item index="1" class="java.lang.String" itemvalue="Python.RandomIndexer" />
-      <item index="2" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
-      <item index="3" class="java.lang.String" itemvalue="Python.ConvertSeqToJSON" />
-      <item index="4" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
+      <item index="0" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
+      <item index="1" class="java.lang.String" itemvalue="Python.TextAnalyses" />
+      <item index="2" class="java.lang.String" itemvalue="Python.RandomIndexer" />
+      <item index="3" class="java.lang.String" itemvalue="Python.EmbeddingsAnalyses" />
+      <item index="4" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
-        <item index="1" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
-        <item index="2" class="java.lang.String" itemvalue="Python.ConvertSeqToJSON" />
-        <item index="3" class="java.lang.String" itemvalue="Python.RandomIndexer" />
-        <item index="4" class="java.lang.String" itemvalue="Python.TextAnalyses" />
+        <item index="0" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
+        <item index="1" class="java.lang.String" itemvalue="Python.EmbeddingsAnalyses" />
+        <item index="2" class="java.lang.String" itemvalue="Python.RandomIndexer" />
+        <item index="3" class="java.lang.String" itemvalue="Python.TextAnalyses" />
+        <item index="4" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
       </list>
     </recent_temporary>
   </component>
@@ -505,10 +527,10 @@
     <frame x="64" y="-4" width="1537" height="775" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2037037" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21428572" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39792898" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3195266" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.37869823" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -539,41 +561,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="23" />
+      <option name="time" value="24" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/SparqlTranslator.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="181" column="21" selection-start-line="181" selection-start-column="21" selection-end-line="181" selection-end-column="21" />
-          <folding>
-            <element signature="e#0#73#0" expanded="true" />
-            <element signature="e#7847#8775#0" expanded="false" />
-            <element signature="e#8851#9207#0" expanded="false" />
-            <element signature="e#9939#13219#0" expanded="false" />
-            <element signature="e#13344#16533#0" expanded="false" />
-            <element signature="e#16658#19797#0" expanded="false" />
-            <element signature="e#19871#20810#0" expanded="false" />
-            <element signature="e#20895#21930#0" expanded="false" />
-            <element signature="e#22040#31021#0" expanded="false" />
-            <element signature="e#31107#31561#0" expanded="false" />
-            <element signature="e#31649#32825#0" expanded="false" />
-            <element signature="e#32900#33340#0" expanded="false" />
-            <element signature="e#33466#35786#0" expanded="false" />
-            <element signature="e#35874#36974#0" expanded="false" />
-            <element signature="e#37040#37219#0" expanded="false" />
-            <element signature="e#37342#38961#0" expanded="false" />
-            <element signature="e#39047#39482#0" expanded="false" />
-            <element signature="e#39607#40072#0" expanded="false" />
-            <element signature="e#40232#42799#0" expanded="false" />
-            <element signature="e#42934#44743#0" expanded="false" />
-            <element signature="e#44872#47361#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ExecuteESQueries.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -976,30 +968,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TableFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="62" column="0" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
-          <folding>
-            <element signature="e#84#178#0" expanded="false" />
-            <element signature="e#232#432#0" expanded="false" />
-            <element signature="e#468#534#0" expanded="false" />
-            <element signature="e#579#836#0" expanded="false" />
-            <element signature="e#1943#2394#0" expanded="false" />
-            <element signature="e#2446#3605#0" expanded="false" />
-            <element signature="e#3657#4023#0" expanded="false" />
-            <element signature="e#4076#4633#0" expanded="false" />
-            <element signature="e#4686#5313#0" expanded="false" />
-            <element signature="e#5363#5940#0" expanded="false" />
-            <element signature="e#5992#6706#0" expanded="false" />
-            <element signature="e#6765#7493#0" expanded="false" />
-            <element signature="e#7551#8270#0" expanded="false" />
-            <element signature="e#8329#9049#0" expanded="false" />
-            <element signature="e#9107#9742#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ResultExtractors.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1067,44 +1035,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/ConvertSeqToJSON.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.30222222">
-          <caret line="8" column="41" selection-start-line="8" selection-start-column="41" selection-end-line="8" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.7755556">
-          <caret line="75" column="68" selection-start-line="75" selection-start-column="43" selection-end-line="75" selection-end-column="68" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="98" column="41" selection-start-line="98" selection-start-column="41" selection-end-line="98" selection-end-column="41" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wordEmbeddings/SimFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="14" column="29" selection-start-line="14" selection-start-column="29" selection-end-line="14" selection-end-column="29" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="66" column="71" selection-start-line="66" selection-start-column="71" selection-end-line="66" selection-end-column="71" />
-          <folding>
-            <element signature="e#347#1368#0" expanded="false" />
-            <element signature="e#1474#2271#0" expanded="false" />
-            <element signature="e#2371#3236#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1116,30 +1051,118 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py">
+    <entry file="file://$PROJECT_DIR$/TableFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="27" column="22" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="22" />
+          <caret line="62" column="0" selection-start-line="62" selection-start-column="0" selection-end-line="62" selection-end-column="0" />
+          <folding>
+            <element signature="e#84#178#0" expanded="false" />
+            <element signature="e#232#432#0" expanded="false" />
+            <element signature="e#468#534#0" expanded="false" />
+            <element signature="e#579#836#0" expanded="false" />
+            <element signature="e#1943#2394#0" expanded="false" />
+            <element signature="e#2446#3605#0" expanded="false" />
+            <element signature="e#3657#4023#0" expanded="false" />
+            <element signature="e#4076#4633#0" expanded="false" />
+            <element signature="e#4686#5313#0" expanded="false" />
+            <element signature="e#5363#5940#0" expanded="false" />
+            <element signature="e#5992#6706#0" expanded="false" />
+            <element signature="e#6765#7493#0" expanded="false" />
+            <element signature="e#7551#8270#0" expanded="false" />
+            <element signature="e#8329#9049#0" expanded="false" />
+            <element signature="e#9107#9742#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
+          <folding>
+            <element signature="e#363#1158#0" expanded="false" />
+            <element signature="e#1256#2820#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="88" column="92" selection-start-line="88" selection-start-column="92" selection-end-line="88" selection-end-column="92" />
+          <folding>
+            <element signature="e#348#1369#0" expanded="false" />
+            <element signature="e#1476#2273#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/Serializers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="31" column="22" selection-start-line="31" selection-start-column="22" selection-end-line="31" selection-end-column="22" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#891#1298#0" expanded="false" />
-            <element signature="e#1346#1598#0" expanded="false" />
+            <element signature="e#91#530#0" expanded="false" />
+            <element signature="e#1087#1314#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="26" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="26" />
+          <folding>
+            <element signature="e#298#539#0" expanded="false" />
+            <element signature="e#626#1173#0" expanded="false" />
+            <element signature="e#1288#2091#0" expanded="false" />
+            <element signature="e#2164#2454#0" expanded="false" />
+            <element signature="e#2667#5337#0" expanded="false" />
+            <element signature="e#5556#8002#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/EmbeddingsAnalyses.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="88" column="0" selection-start-line="88" selection-start-column="0" selection-end-line="88" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#24#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.92111367">
-          <caret line="183" column="0" selection-start-line="183" selection-start-column="0" selection-end-line="183" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="141" column="0" selection-start-line="141" selection-start-column="0" selection-end-line="141" selection-end-column="0" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <element signature="e#643#822#0" expanded="false" />
             <element signature="e#880#980#0" expanded="false" />
+            <element signature="e#1066#1650#0" expanded="false" />
             <element signature="e#1701#1937#0" expanded="false" />
             <element signature="e#2025#2855#0" expanded="false" />
             <element signature="e#2971#3984#0" expanded="false" />
             <element signature="e#4057#4644#0" expanded="false" />
+            <element signature="e#4717#5075#0" expanded="false" />
+            <element signature="e#5138#5512#0" expanded="false" />
+            <element signature="e#5641#6834#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.65217394">
+          <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#139#724#0" expanded="false" />
+            <element signature="e#909#1316#0" expanded="false" />
+            <element signature="e#1364#1616#0" expanded="false" />
           </folding>
         </state>
       </provider>

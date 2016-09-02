@@ -182,8 +182,9 @@ class FieldAnalyses:
         print FieldAnalyses._k_centroid(score_dict=score_dict, k=k, nearest=False)
 
 
-path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-FieldAnalyses.centroid_analysis_on_attribute_cluster(path+'unigram-embeddings.json', path+'ground-truth-corpus.json', 'eyeColor')
+# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# FieldAnalyses.print_fields_data_types(path+'part-00000.json')
+# FieldAnalyses.centroid_analysis_on_attribute_cluster(path+'unigram-embeddings.json', path+'ground-truth-corpus.json', 'price')
 # attribute_vecs = FieldAnalyses._build_vector_set_for_attribute(path+'unigram-embeddings.json',
 #                                                               path+'ground-truth-corpus.json', 'ethnicity')
 # centroid = FieldAnalyses._find_normalized_centroid_of_vectors(attribute_vecs)

@@ -13,7 +13,7 @@ def _extract_top_k(scored_results_dict, k, disable_k=False, reverse=True):
     for score in scores:
         # print score
         # print count
-        if count >= k:
+        if count >= k and not disable_k:
             break
         vals = scored_results_dict[score]
         if disable_k:
@@ -67,8 +67,8 @@ def find_k_nearest_neighbors(embeddings_file, seed_token, k=10):
     """
     unigram_embeddings = read_in_embeddings(embeddings_file)
     scored_dict = _generate_scored_dict(unigram_embeddings, seed_token)
-    print _extract_top_k(scored_dict, 10, False)
+    print _extract_top_k(scored_dict, k=k, disable_k=False)
 
 
-# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# find_k_nearest_neighbors(path+'unigram-embeddings.json', 'ebony')
+path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+find_k_nearest_neighbors(path+'unigram-embeddings-gt.json', 'california', k=20)

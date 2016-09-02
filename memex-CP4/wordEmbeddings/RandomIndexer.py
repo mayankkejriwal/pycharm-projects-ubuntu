@@ -78,6 +78,75 @@ class RandomIndexer:
         We are keeping the lower_prune and upper_prune ratios in the TextAnalyses file. Feel free to change
         those directly. Consider adding weighting scheme in future. Right now, we assume constant weighting
         for the tokens in the context window
+
+        This code does not assume the tokens_file is small enough to fit in memory. Note
+        that idf_file data must be read into main memory at the present time.
+        :param tokens_file:
+        :param idf_file:
+        :param output_file: each line will be a dict
+        :param context_window_size:
+        :param include_dummy:
+        :param d:
+        :param non_zero_ratio:
+        :return:
+        """
+        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file)
+        token_cvs = RandomIndexer._generate_context_vectors_for_idf(idf_dict, include_dummy, d, non_zero_ratio)
+        # tokens_dict = RandomIndexer.read_in_tokens_file(tokens_file)
+        unigram_embeddings = RandomIndexer._init_unigram_embeddings(token_cvs)
+        count = 1
+        with codecs.open(tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                v = None
+                for k, val in obj.items():
+                    v = val
+                print 'In document '+str(count)
+                count += 1
+                if count>10000:
+                    break
+                for i in range(0, len(v)):
+                    if v[i] not in token_cvs:
+                        continue
+                    vec = unigram_embeddings[v[i]]
+                    min = i-context_window_size
+                    if min<0:
+                        min = 0
+                    max = i+context_window_size
+                    if max>len(v):
+                        max = len(v)
+                    for j in range(min, max):
+                        if j == i:
+                            continue
+                        context_token = v[j]
+                        if context_token not in token_cvs:
+                            if include_dummy:
+                                context_token = ''
+                            else:
+                                continue
+                        for k in range(0, len(token_cvs[context_token])):
+                            vec[k] += token_cvs[context_token][k]
+                    unigram_embeddings[v[i]] = vec
+        if output_file:
+            out = codecs.open(output_file, 'w', 'utf-8')
+            for k, v in unigram_embeddings.items():
+                answer = dict()
+                answer[k] = v
+                json.dump(answer, out)
+                out.write('\n')
+            out.close()
+
+    @staticmethod
+    def generate_unigram_embeddings_batch(tokens_file, idf_file, output_file=None, context_window_size=2,
+                                    include_dummy=True, d=200, non_zero_ratio=0.01):
+        """
+        We are keeping the lower_prune and upper_prune ratios in the TextAnalyses file. Feel free to change
+        those directly. Consider adding weighting scheme in future. Right now, we assume constant weighting
+        for the tokens in the context window
+
+        This is in batch mode because the entire input file (tokens_file) is read into main memory
+        before processing is done. If this file is too big, please use the non-batch version. Note
+        that idf_file data must be read into main memory at the present time.
         :param tokens_file:
         :param idf_file:
         :param output_file: each line will be a dict
@@ -127,6 +196,7 @@ class RandomIndexer:
             out.close()
 
 
-# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# RandomIndexer.generate_unigram_embeddings(path+'readability_tokens.json',
-#                                           path+'readability_tokens_df.txt', path+'unigram-embeddings.json')
+path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+RandomIndexer.generate_unigram_embeddings(path+'readability_tokens-large-corpus.json',
+                        path+'readability_tokens_df-large-corpus.txt', path+'unigram-embeddings-10000docs.json')
+
