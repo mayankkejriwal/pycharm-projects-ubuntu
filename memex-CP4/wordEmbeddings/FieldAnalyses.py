@@ -10,6 +10,8 @@ import numpy as np
 import warnings
 import SimFunctions
 import kNearestNeighbors
+from random import shuffle
+from nltk.tokenize import sent_tokenize,word_tokenize
 
 
 class FieldAnalyses:
@@ -19,14 +21,6 @@ class FieldAnalyses:
 
     We will also use this class to develop methods for measuring field coherence, once we have our unigram embeds.
     """
-    @staticmethod
-    def read_in_ground_truth_file(ground_truth_file):
-        results = list()
-        with codecs.open(ground_truth_file, 'r', 'utf-8') as f:
-            for line in f:
-                results.append(json.loads(line))
-        return results
-
     @staticmethod
     def _l2_norm_on_vec(vec):
         warnings.filterwarnings("ignore")
@@ -111,24 +105,6 @@ class FieldAnalyses:
         return attribute_vectors
 
     @staticmethod
-    def print_fields_data_types(input_file):
-        """
-        We are only considering 'upper-level' fields.
-        :param input_file: A json lines file
-        :return: None
-        """
-        fields = dict()  # the key is the field name, the value will be the data type
-        pp = pprint.PrettyPrinter(indent=4)
-        with codecs.open(input_file, 'r', 'utf-8') as f:
-            for line in f:
-                obj = json.loads(line)
-                for k, v in obj.items():
-                    if k not in fields:
-                        fields[k] = set()
-                    fields[k].add(type(v))
-        print pp.pprint(fields)
-
-    @staticmethod
     def _k_centroid(score_dict, k, nearest):
         """
         :param score_dict: A key is a sim. score, and values are lists of items.
@@ -153,11 +129,37 @@ class FieldAnalyses:
         return new_dict
 
     @staticmethod
+    def read_in_ground_truth_file(ground_truth_file):
+        results = list()
+        with codecs.open(ground_truth_file, 'r', 'utf-8') as f:
+            for line in f:
+                results.append(json.loads(line))
+        return results
+
+    @staticmethod
+    def print_fields_data_types(input_file):
+        """
+        We are only considering 'upper-level' fields.
+        :param input_file: A json lines file
+        :return: None
+        """
+        fields = dict()  # the key is the field name, the value will be the data type
+        pp = pprint.PrettyPrinter(indent=4)
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for k, v in obj.items():
+                    if k not in fields:
+                        fields[k] = set()
+                    fields[k].add(type(v))
+        print pp.pprint(fields)
+
+    @staticmethod
     def centroid_analysis_on_attribute_cluster(embeddings_file, ground_truth_file, attribute, k=10):
         """
         Mean, std. dev and k-nearest and k-farthest vectors from centroid (if cluster is small, may overlap)
         :param embeddings_file:
-        :param ground_truth_file:
+        :param ground_truth_file: a misnomer. This is just a 'corpus' file.
         :param attribute:
         :param k:
         :return: None
@@ -181,8 +183,50 @@ class FieldAnalyses:
         print 'k farthest values: ',
         print FieldAnalyses._k_centroid(score_dict=score_dict, k=k, nearest=False)
 
+    @staticmethod
+    def sample_n_values_from_field(text_corpus, attribute, n=10, output_file=None):
+        """
+        Will sample the values and write them out to file/print them. Note that we treat all values independently,
+        regardless of whether they originated in the same document. We do tokenize each value, using word/sent_tokenize,
+        then concatenate all tokens using space. This way, we're assured of some rudimentary normalization.
+        :param text_corpus:
+        :param output_file:
+        :return: None
+        """
+        results = set()
+        with codecs.open(text_corpus, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                if attribute not in obj:
+                    continue
+                if type(obj[attribute]) == list:
+                    results = results.union(set(obj[attribute]))
+                else:
+                    results.add(obj[attribute])
+        if len(results) <= n:
+            print 'Warning: the number of values in attribute is not greater than what you\'ve requested'
+        else:
+            results = list(results)
+            shuffle(results)
+            results = results[0:n]
+
+        if output_file:
+            out = codecs.open(output_file, 'w', 'utf-8')
+            for result in results:
+                word_tokens = list()
+                for s in sent_tokenize(result):
+                    word_tokens += word_tokenize(s)
+                out.write(' '.join(word_tokens))
+                out.write('\n')
+            out.close()
+        else:
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(results)
+
 
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# FieldAnalyses.sample_n_values_from_field(path+'part-00000.json', attribute='eyeColor', n=100,
+#                                          output_file=path+'100-sampled-eyeColor-vals-2.txt')
 # FieldAnalyses.print_fields_data_types(path+'part-00000.json')
 # FieldAnalyses.centroid_analysis_on_attribute_cluster(path+'unigram-embeddings.json', path+'ground-truth-corpus.json', 'price')
 # attribute_vecs = FieldAnalyses._build_vector_set_for_attribute(path+'unigram-embeddings.json',

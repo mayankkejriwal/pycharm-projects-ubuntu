@@ -33,7 +33,6 @@ class EmbeddingsAnalyses:
             r2.append(l1_pos[item])
         return stats.spearmanr(r1, r2)
 
-
     @staticmethod
     def measure_embeddings_correlations(embeddings_file1, embeddings_file2, sample_size=10):
         """

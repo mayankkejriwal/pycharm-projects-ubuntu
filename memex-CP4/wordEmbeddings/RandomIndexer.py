@@ -196,7 +196,7 @@ class RandomIndexer:
             out.close()
 
 
-path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-RandomIndexer.generate_unigram_embeddings(path+'readability_tokens-large-corpus.json',
-                        path+'readability_tokens_df-large-corpus.txt', path+'unigram-embeddings-10000docs.json')
+# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# RandomIndexer.generate_unigram_embeddings(path+'readability_tokens-large-corpus.json',
+#                         path+'readability_tokens_df-large-corpus.txt', path+'unigram-embeddings-10000docs.json')
 

@@ -1,6 +1,7 @@
 import codecs
 import json
 from nltk.tokenize import sent_tokenize, word_tokenize
+import re
 
 
 class TextPreprocessors:
@@ -20,7 +21,7 @@ class TextPreprocessors:
         :return: A list of tokens.
         """
         list_of_sentences = list()
-        list_of_tokens = list()
+
         #print obj['readability_text']
         if field not in obj:
             return None
@@ -64,6 +65,26 @@ class TextPreprocessors:
         return new_list
 
     @staticmethod
+    def _preprocess_sampled_annotated_file(sample_file, output_file):
+        """
+        We sampled files in FieldAnalyses.sample_n_values_from_field, and then labeled them. The problem is
+        that we sampled raw values, and now I've done too much labeling to rectify. This is a one-time piece of
+         code for the two files we have already sampled/labeled.
+        :param sample_file:
+        :return:
+        """
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(sample_file, 'r', 'utf-8') as f:
+            for line in f:
+                fields = re.split('\t',line)
+                word_tokens = list()
+                for s in sent_tokenize(fields[0]):
+                    word_tokens += word_tokenize(s)
+                fields[0] = ' '.join(word_tokens)
+                out.write('\t'.join(fields))
+        out.close()
+
+    @staticmethod
     def build_tokens_objects_from_readability(input_file, output_file):
         """
 
@@ -84,6 +105,7 @@ class TextPreprocessors:
                     out.write('\n')
         out.close()
 
-
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # TextPreprocessors.build_tokens_objects_from_readability(path+'part-00000.json', path+'readability_tokens-large-corpus.json')
+
+
