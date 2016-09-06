@@ -6,6 +6,10 @@ import numpy as np
 import warnings
 from sklearn.preprocessing import normalize
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import neighbors
+import SimFunctions
+from sklearn.feature_selection import chi2, f_classif, SelectKBest
+from sklearn.linear_model import LogisticRegression, LinearRegression
 
 class TokenSupervised:
     """
@@ -19,6 +23,25 @@ class TokenSupervised:
     def _convert_string_to_float_list(string):
         return [float(i) for i in re.split(', ', string[1:-1])]
 
+    @staticmethod
+    def _compute_majority_label_in_vector(vector):
+        """
+        If there are multiple labels with the same count, there's no telling which one will get returned.
+        :param vector:
+        :return:
+        """
+        label_dict = dict()
+        for v in vector:
+            if v not in label_dict:
+                label_dict[v] = 0
+            label_dict[v] += 1
+        max = 0
+        max_element = -1
+        for k,v in label_dict.items():
+            if v > max:
+                max = v
+                max_element = k
+        return max_element
 
     @staticmethod
     def _l2_norm_on_matrix(matrix):
@@ -100,6 +123,27 @@ class TokenSupervised:
         return result
 
     @staticmethod
+    def _select_k_best_features(data_dict, k=10):
+        """
+        Do feature selection. Transforms data_dict
+        :param data_dict:
+        :param k: the number of features to select
+        :return: None
+        """
+        train_len = len(data_dict['train_data'])
+        # test_len = len(data_dict['test_data'])
+        data_matrix = np.append(data_dict['train_data'], data_dict['test_data'], axis=0)
+        # print data_matrix.shape
+        label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
+        new_data_matrix = SelectKBest(f_classif, k=k).fit_transform(data_matrix, label_matrix)
+        # print len(new_data_matrix[0:train_len])
+        data_dict['train_data'] = new_data_matrix[0:train_len]
+        data_dict['test_data'] = new_data_matrix[train_len:]
+        # print len(data_dict['test_labels'])
+        # print new_data_matrix.shape
+
+
+    @staticmethod
     def _prepare_train_test_data(pos_neg_file, train_percent = 0.5, randomize=False):
         """
         Warning: randomize is not implemented at present.
@@ -141,7 +185,8 @@ class TokenSupervised:
     @staticmethod
     def _train_and_test_classifier(train_data, train_labels, test_data, test_labels, classifier_model):
         """
-        Take three matrices and compute a bunch of metrics
+        Take three numpy matrices and compute a bunch of metrics. Hyperparameters must be changed manually,
+        we do not take them in as input.
         :param train_data:
         :param train_labels:
         :param test_data:
@@ -153,19 +198,62 @@ class TokenSupervised:
             model = RandomForestClassifier()
             model.fit(train_data, train_labels)
             predicted_labels = model.predict(test_data)
-        print len(predicted_labels)
+        elif classifier_model == 'knn':
+            k = 1
+            model = neighbors.KNeighborsClassifier(n_neighbors=k, weights='uniform')
+            model.fit(train_data, train_labels)
+            predicted_labels = model.predict(test_data)
+        elif classifier_model == 'manual_knn':
+            # this is not an scikit-learn model
+            k = 3
+            predicted_labels = list()
+            # print len(test_data)
+            for t in test_data:
+                scores_dict = dict()
+                for i in range(0, len(train_data)):
+                    score = SimFunctions.SimFunctions.abs_dot_product_sim(train_data[i], t)
+                    label = train_labels[i]
+                    if score not in scores_dict:
+                        scores_dict[score] = list()
+                    scores_dict[score].append(label)
+                results = kNearestNeighbors._extract_top_k(scores_dict, k=k)
+                predicted_labels.append(TokenSupervised._compute_majority_label_in_vector(results))
+            predicted_labels = np.array(predicted_labels)
+        elif classifier_model == 'logistic_regression':
+            model = LogisticRegression()
+            model.fit(train_data, train_labels)
+            predicted_labels = model.predict(test_data)
+        elif classifier_model == 'linear_regression': # this is a regressor; be careful.
+            model = LinearRegression()
+            model.fit(train_data, train_labels)
+            predicted_labels = model.predict(test_data)
+        print test_labels
+        print predicted_labels
 
     @staticmethod
-    def script_1(pos_neg_file):
+    def trial_script(pos_neg_file, opt=2):
         """
 
-        :param pos_neg_file:
+        :param pos_neg_file: e.g. token-supervised/pos-neg-eyeColor.txt
+        :param opt:use this to determine which script to run.
         :return:
         """
-        data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
-        data_dict['classifier_model'] = 'random_forest'
-        TokenSupervised._train_and_test_classifier(**data_dict)
+        if opt == 1:
+            #Test Set 1: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
+            #We do NOT do any kind of feature selection.
+
+            data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
+            # print data_dict['train_labels'][0]
+            data_dict['classifier_model'] = 'logistic_regression'
+            TokenSupervised._train_and_test_classifier(**data_dict)
+        elif opt == 2:
+            #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
+            #We do feature selection.
+            data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
+            TokenSupervised._select_k_best_features(data_dict, k=10)
+            data_dict['classifier_model'] = 'linear_regression'
+            TokenSupervised._train_and_test_classifier(**data_dict)
 
 
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# TokenSupervised.script_1(path+'token-supervised/pos-neg-eyeColor.txt')
+# TokenSupervised.trial_script(path+'token-supervised/pos-neg-eyeColor.txt')

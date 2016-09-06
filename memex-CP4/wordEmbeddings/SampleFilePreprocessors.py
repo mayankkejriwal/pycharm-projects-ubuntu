@@ -142,6 +142,33 @@ class SampleFilePreprocessors:
                     out.write(line)
         out.close()
 
+    @staticmethod
+    def filter_lines_with_embeddings(sample_file, embeddings_file, output_file,
+                                   preprocess_function=TextPreprocessors.TextPreprocessors._preprocess_tokens):
+        """
+        The goal of this function is to take a sample file, and to print to file all lines
+        such that at least some token from the last column has an embedding.
+        :param sample_file:
+        :param embeddings_file:
+        :param output_file:
+        :param preprocess_function:
+        :return:
+        """
+        embeddings = set(kNearestNeighbors.read_in_embeddings(embeddings_file).keys())
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(sample_file, 'r', 'utf-8') as f:
+            for line in f:
+                cols = re.split('\t',line)
+                last_field = cols[-1][0:-1]  # take the last value, then strip out the newline.
+                fields = re.split(',',last_field)
+                if preprocess_function:
+                    fields = set(preprocess_function(fields))
+                if len(fields.intersection(embeddings)) > 0:
+                    out.write(line)
+        out.close()
+
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# SampleFilePreprocessors.filter_r_lines(path+'100-sampled-eyeColor-vals.txt',
-#                             path+'unigram-embeddings-10000docs.json', path+'filtered-eyeColor.txt')
+# SampleFilePreprocessors.filter_lines_with_embeddings(path+'sampled-annotated-extractions/100-sampled-ethnicity-vals.txt',
+#                             path+'embedding/unigram-embeddings-10000docs.json',
+#                             path+'sampled-annotated-extractions/filtered-ethnicity.txt')
+

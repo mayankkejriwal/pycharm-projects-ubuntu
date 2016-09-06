@@ -5,6 +5,15 @@ import SimFunctions
 
 
 def _extract_top_k(scored_results_dict, k, disable_k=False, reverse=True):
+    """
+
+    :param scored_results_dict: a score always references a list
+    :param k: Max. size of returned list.
+    :param disable_k: ignore k, and sort the list by k
+    :param reverse: if reverse is true, the top k will be the highest scoring k. If reverse is false,
+    top k will be the lowest scoring k.
+    :return:
+    """
     count = 0
     # print k
     results = list()
