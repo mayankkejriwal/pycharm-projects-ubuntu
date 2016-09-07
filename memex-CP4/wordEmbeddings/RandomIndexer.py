@@ -259,8 +259,8 @@ class RandomIndexer:
                     token = v[i]
                     if token not in token_cvs:
                         if include_dummies:
-                            dummy = RandomIndexer._find_right_dummy_v2(token)
-                            vec = unigram_embeddings[dummy]
+                            token = RandomIndexer._find_right_dummy_v2(token)
+                            vec = unigram_embeddings[token]
                         else:
                             continue
                     else:
@@ -352,8 +352,11 @@ class RandomIndexer:
             out.close()
 
 
-path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# str = 'bødy'
+# print str.isalpha()
 # print RandomIndexer._find_right_dummy_v2('..,')
-RandomIndexer.generate_unigram_embeddings_v2(path+'tokens/readability_tokens-large-corpus.json',
-                        path+'tokens/readability_tokens_df-large-corpus.txt', path+'embedding/unigram-embeddings-v2-10000docs.json')
+# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# RandomIndexer.generate_unigram_embeddings_v2(path+'tokens/readability_tokens-large-corpus-onlyLower.json',
+#                         path+'tokens/readability_tokens_df-large-corpus-onlyLower.txt',
+#               path+'embedding/unigram-embeddings-v2-10000docs.json')
 

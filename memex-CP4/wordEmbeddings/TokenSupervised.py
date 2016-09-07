@@ -10,6 +10,7 @@ from sklearn import neighbors
 import SimFunctions
 from sklearn.feature_selection import chi2, f_classif, SelectKBest
 from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.metrics import roc_auc_score, accuracy_score
 
 class TokenSupervised:
     """
@@ -55,10 +56,30 @@ class TokenSupervised:
         return normalize(matrix)
 
     @staticmethod
+    def prepare_pos_neg_dictionaries_file(dictionary_file1, dictionary_file2, embeddings_file, output_file):
+        """
+        we will assign label 0 to file 1 and label 1 to file 2
+        :param dictionary_file1:
+        :param dictionary_file2:
+        :param embeddings_file:
+        :param output_file: the pos_neg file
+        :return:
+        """
+        full_embeddings = kNearestNeighbors.read_in_embeddings(embeddings_file)
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(dictionary_file1, 'r', 'utf-8') as f:
+            for line in f:
+                out.write(line[0:-1]+'\t'+str(full_embeddings[line[0:-1]])+'\t0\n')
+        with codecs.open(dictionary_file2, 'r', 'utf-8') as f:
+            for line in f:
+                out.write(line[0:-1]+'\t'+str(full_embeddings[line[0:-1]])+'\t1\n')
+        out.close()
+
+    @staticmethod
     def preprocess_filtered_eyeColor_file(filtered_eyeColor_file, embeddings_file, output_file,
                                           preprocess_function=TextPreprocessors.TextPreprocessors._preprocess_tokens):
         """
-        The output file will contain three tab delimited columns. The first column contains a token
+        The output file will contain three tab delimited columns (the 'pos-neg' file). The first column contains a token
         that is guaranteed to be in the embeddings file (hence, we will not have to do any preprocessing
         when we read in this file), the second column is the embedding, and the third column is either a 1 or a 0.
 
@@ -144,7 +165,7 @@ class TokenSupervised:
 
 
     @staticmethod
-    def _prepare_train_test_data(pos_neg_file, train_percent = 0.5, randomize=False):
+    def _prepare_train_test_data(pos_neg_file, train_percent = 0.3, randomize=False):
         """
         Warning: randomize is not implemented at present.
         :param pos_neg_file:
@@ -205,7 +226,7 @@ class TokenSupervised:
             predicted_labels = model.predict(test_data)
         elif classifier_model == 'manual_knn':
             # this is not an scikit-learn model
-            k = 3
+            k = 5
             predicted_labels = list()
             # print len(test_data)
             for t in test_data:
@@ -227,8 +248,11 @@ class TokenSupervised:
             model = LinearRegression()
             model.fit(train_data, train_labels)
             predicted_labels = model.predict(test_data)
-        print test_labels
-        print predicted_labels
+        print 'auc score: ',
+        print roc_auc_score(test_labels, predicted_labels)
+        print 'accuracy score: ',
+        print accuracy_score(test_labels, predicted_labels)
+
 
     @staticmethod
     def trial_script(pos_neg_file, opt=2):
@@ -244,16 +268,16 @@ class TokenSupervised:
 
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
             # print data_dict['train_labels'][0]
-            data_dict['classifier_model'] = 'logistic_regression'
+            data_dict['classifier_model'] = 'manual_knn'
             TokenSupervised._train_and_test_classifier(**data_dict)
         elif opt == 2:
             #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             #We do feature selection.
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
-            TokenSupervised._select_k_best_features(data_dict, k=10)
-            data_dict['classifier_model'] = 'linear_regression'
+            TokenSupervised._select_k_best_features(data_dict, k=20)
+            data_dict['classifier_model'] = 'manual_knn'
             TokenSupervised._train_and_test_classifier(**data_dict)
 
 
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# TokenSupervised.trial_script(path+'token-supervised/pos-neg-eyeColor.txt')
+# TokenSupervised.trial_script(path+'supervised-exp-datasets/pos-neg-names-spa.txt')

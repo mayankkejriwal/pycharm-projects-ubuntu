@@ -2,6 +2,7 @@ import codecs
 import json
 import math
 import SimFunctions
+import pprint
 
 
 def _extract_top_k(scored_results_dict, k, disable_k=False, reverse=True):
@@ -79,5 +80,81 @@ def find_k_nearest_neighbors(embeddings_file, seed_token, k=10):
     print _extract_top_k(scored_dict, k=k, disable_k=False)
 
 
-# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# find_k_nearest_neighbors(path+'unigram-embeddings-10000docs.json', 'massage', k=20)
+def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10):
+    """
+
+    :param embeddings_file: e.g.
+    :param seed_tokens: a set of tokens that must occur in the embeddings_file
+    :param k:
+    :return: None
+    """
+    results = dict()
+    unigram_embeddings = read_in_embeddings(embeddings_file)
+    for seed_token in seed_tokens:
+        scored_dict = _generate_scored_dict(unigram_embeddings, seed_token)
+        results[seed_token]=_extract_top_k(scored_dict, k=k, disable_k=False)
+    return results
+
+
+def _reverse_dict(dictionary):
+        """
+        Borrowed from FieldAnalyses.
+        Turn keys into (lists of) values, and values into keys. Values must originally be primitive.
+        :param dictionary:
+        :return: Another dictionary
+        """
+        new_dict = dict()
+        for k, v in dictionary.items():
+            if v not in new_dict:
+                new_dict[v] = list()
+            new_dict[v].append(k)
+        return new_dict
+
+
+def prune_low_scores_from_score_dict(score_dict, threshold):
+    """
+    Modifies score_dict
+    :param score_dict:
+    :param threshold: any entries (strictly) below this threshold get deleted
+    :return: None
+    """
+    k = score_dict.keys()
+    for score in k:
+        if score < threshold:
+            del score_dict[score]
+
+
+def supplement_dictionary(dictionary_file, embeddings_file, k=20):
+    """
+    At present dictionary_file must only contain words that are in embeddings, otherwise I'll raise an exception
+    Will print a list of words that should be included but aren't, in increasing order of probability.
+    :param dictionary_file:
+    :param embeddings_file:
+    :param k:
+    :return: None
+    """
+    seed_tokens = list()
+    with codecs.open(dictionary_file, 'r', 'utf-8') as f:
+        for line in f:
+            seed_tokens.append(line[0:-1])
+
+    knn_multi_dict = find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=k)
+    results = dict()  # only contains tokens that do not occur in dictionary_file
+    seed_tokens = set(seed_tokens)
+    for v in knn_multi_dict.values():
+        for i in range(0, len(v)):
+            val = v[i]
+            if val in seed_tokens:
+                continue
+            if val not in results:
+                results[val] = 0
+            results[val] += (len(v)-i)
+    score_dict = _reverse_dict(results)
+    prune_low_scores_from_score_dict(score_dict, threshold=200)
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
+
+
+path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# print find_k_nearest_neighbors(path+'embedding/unigram-embeddings-v2-10000docs.json', 'katy')
+supplement_dictionary(path+'dictionary-supervised/names.txt',path+'embedding/unigram-embeddings-v2-10000docs.json')

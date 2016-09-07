@@ -2,6 +2,7 @@ import codecs
 import re
 import TextPreprocessors
 import kNearestNeighbors
+import json
 
 
 class SampleFilePreprocessors:
@@ -167,7 +168,27 @@ class SampleFilePreprocessors:
                     out.write(line)
         out.close()
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+    @staticmethod
+    def filter_dict_terms_with_embeddings(dictionary_file, embeddings_file, output_file):
+        """
+
+        :param dictionary_file:
+        :param embeddings_file:
+        :param output_file:
+        :return:
+        """
+        input = codecs.open(dictionary_file, 'r', 'utf-8')
+        dictionary_set = set(json.load(input))
+        embeddings = set(kNearestNeighbors.read_in_embeddings(embeddings_file).keys())
+        out = codecs.open(output_file, 'w', 'utf-8')
+        for m in dictionary_set.intersection(embeddings):
+            out.write(m)
+            out.write('\n')
+        out.close()
+
+path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+SampleFilePreprocessors.filter_dict_terms_with_embeddings(path+'dictionaries/names.json',
+            path+'embedding/unigram-embeddings-v2-10000docs.json',path+'dictionary-supervised/names.txt' )
 # SampleFilePreprocessors.filter_lines_with_embeddings(path+'sampled-annotated-extractions/100-sampled-ethnicity-vals.txt',
 #                             path+'embedding/unigram-embeddings-10000docs.json',
 #                             path+'sampled-annotated-extractions/filtered-ethnicity.txt')

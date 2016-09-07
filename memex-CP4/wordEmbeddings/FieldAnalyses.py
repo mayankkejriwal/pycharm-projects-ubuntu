@@ -223,8 +223,43 @@ class FieldAnalyses:
             pp = pprint.PrettyPrinter(indent=4)
             pp.pprint(results)
 
+    @staticmethod
+    def find_intersecting_values(corpus, attribute1, attribute2, num=10000):
+        """
+        We will use lower-case tokens preprocessing only.
+        :param corpus:
+        :param attribute1:
+        :param attribute2:
+        :param num: the (first) number of lines to consider
+        :return: A set of intersecting values
+        """
+        values1 = set()
+        values2 = set()
+        count = 1
+        with codecs.open(corpus, 'r', 'utf-8') as f:
+            for line in f:
+                print count
+                obj = json.loads(line)
+                if attribute1 in obj:
+                    tokens_list = TextPreprocessors.TextPreprocessors._tokenize_field(obj, attribute1)
+                    vals = set(TextPreprocessors.TextPreprocessors._preprocess_tokens(tokens_list, options=['lower']))
+                    values1 = values1.union(vals)
+                if attribute2 in obj:
+                    tokens_list = TextPreprocessors.TextPreprocessors._tokenize_field(obj, attribute2)
+                    vals = set(TextPreprocessors.TextPreprocessors._preprocess_tokens(tokens_list, options=['lower']))
+                    values2 = values2.union(vals)
+                if count == num:
+                    break
+                count += 1
+        results = values1.intersection(values2)
+        print results
+        print len(results)
+        return results
+
+
 
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# FieldAnalyses.find_intersecting_values(path+'corpora/part-00000.json','addressLocality','name')
 # FieldAnalyses.sample_n_values_from_field(path+'part-00000.json', attribute='eyeColor', n=100,
 #                                          output_file=path+'100-sampled-eyeColor-vals-2.txt')
 # FieldAnalyses.print_fields_data_types(path+'part-00000.json')

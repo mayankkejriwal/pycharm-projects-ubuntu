@@ -100,12 +100,24 @@ class TextPreprocessors:
                 obj = json.loads(line)
                 tokenized_field = TextPreprocessors._tokenize_field(obj, field)
                 if tokenized_field:
-                    tokens_obj[obj['identifier']] = TextPreprocessors._preprocess_tokens(tokenized_field)
+                    tokens_obj[obj['identifier']] = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
                     json.dump(tokens_obj, out)
                     out.write('\n')
         out.close()
 
+    @staticmethod
+    def convert_txt_dict_to_json(input_file, output_file):
+        results = list()
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                results.append(line[0:-1])
+        out = codecs.open(output_file, 'w', 'utf-8')
+        json.dump(results, out, indent=4)
+        out.close()
+
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# TextPreprocessors.build_tokens_objects_from_readability(path+'part-00000.json', path+'readability_tokens-large-corpus.json')
+# TextPreprocessors.convert_txt_dict_to_json(path+'dictionaries/spa-massage-words.txt', path+'dictionaries/spa-massage-words.json')
+# TextPreprocessors.build_tokens_objects_from_readability(path+'corpora/part-00000.json',
+# path+'tokens/readability_tokens-large-corpus-onlyLower.json')
 
 

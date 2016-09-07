@@ -42,6 +42,7 @@ class TextAnalyses:
         uncomfortable issues like dividing by zero.
 
         :param tokens_list_file: Each line in the file is a json, with an identifier referring to a list of tokens
+        :param output_file:
         :return: None
         """
         df = dict()  # the key is the token, the value is the count
@@ -71,4 +72,6 @@ class TextAnalyses:
 
 
 # path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# TextAnalyses.read_in_and_prune_idf(path+'readability_tokens_df-large-corpus.txt')
+# TextAnalyses.generate_document_frequencies(path+'tokens/readability_tokens-large-corpus-onlyLower.json',
+# path+'tokens/readability_tokens_df-large-corpus-onlyLower.txt')
+
