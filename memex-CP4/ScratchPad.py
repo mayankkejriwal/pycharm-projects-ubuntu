@@ -3,6 +3,7 @@ from elasticsearch import Elasticsearch
 import nltk
 import pprint
 from sqparser import SQParser
+# import re
 #import sqparser
 #Various odds and ends
 
@@ -66,6 +67,7 @@ def _bulkload_json_file(input_file):
 
 
 
-#path = '/home/mayankkejriwal/Downloads/dig-data/sample-datasets/escorts/'
+# path = '/home/mayankkejriwal/Downloads/dig-data/sample-datasets/escorts/'
+# print re.split('/',path)[-1]
 #_bulkload_json_file(path+'all-extractions-webpage-bulk-load.jl')
 #_try_sparql_parser()

@@ -155,6 +155,6 @@ def supplement_dictionary(dictionary_file, embeddings_file, k=20):
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
 
-path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# print find_k_nearest_neighbors(path+'embedding/unigram-embeddings-v2-10000docs.json', 'katy')
-supplement_dictionary(path+'dictionary-supervised/names.txt',path+'embedding/unigram-embeddings-v2-10000docs.json')
+# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# # print find_k_nearest_neighbors(path+'embedding/unigram-embeddings-v2-10000docs.json', 'katy')
+# supplement_dictionary(path+'dictionary-supervised/names.txt',path+'embedding/unigram-embeddings-v2-10000docs.json')
