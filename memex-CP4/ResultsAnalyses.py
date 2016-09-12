@@ -63,5 +63,5 @@ def compile_results(results_dir, latex=False):
         pp = pprint.PrettyPrinter(indent=4)
         pp.pprint(all_results)
 
-path = '/home/mayankkejriwal/Downloads/memex-cp4/all_results/'
-compile_results(path, latex=True)
+# path = '/home/mayankkejriwal/Downloads/memex-cp4/all_results/'
+# compile_results(path, latex=True)

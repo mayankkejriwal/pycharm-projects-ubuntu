@@ -65,10 +65,16 @@
       <file leaf-file-name="PreprocessRWP.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.44822258">
-              <caret line="58" column="79" selection-start-line="58" selection-start-column="4" selection-end-line="58" selection-end-column="79" />
+            <state vertical-scroll-proportion="0.29025844">
+              <caret line="182" column="26" selection-start-line="182" selection-start-column="26" selection-end-line="182" selection-end-column="26" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
+                <element signature="e#236#1604#0" expanded="false" />
+                <element signature="e#1673#2809#0" expanded="false" />
+                <element signature="e#4471#5513#0" expanded="false" />
+                <element signature="e#4471#4615#1" expanded="false" />
+                <element signature="e#5581#5923#0" expanded="false" />
+                <element signature="e#5981#6215#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -113,9 +119,9 @@
         <option value="$PROJECT_DIR$/ClusteringAnalyses.py" />
         <option value="$PROJECT_DIR$/ExactMatchBaseline.py" />
         <option value="$PROJECT_DIR$/WordCloudPreprocessor.py" />
-        <option value="$PROJECT_DIR$/PreprocessRWP.py" />
         <option value="$PROJECT_DIR$/Analysis.py" />
         <option value="$PROJECT_DIR$/RandomIndexing.py" />
+        <option value="$PROJECT_DIR$/PreprocessRWP.py" />
       </list>
     </option>
   </component>
@@ -150,6 +156,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -170,14 +177,15 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$USER_HOME$" />
     <property name="SearchEverywhereHistoryKey" value="&#9;FILE&#9;file:///home/mayankkejriwal/PycharmProjects/lorelei/PreprocessRWP.py" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.Analysis">
+  <component name="RunManager" selected="Python.PreprocessRWP">
     <configuration default="false" name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -394,8 +402,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.Analysis" />
-        <item index="1" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
+        <item index="0" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Analysis" />
         <item index="2" class="java.lang.String" itemvalue="Python.ExactMatchBaseline" />
         <item index="3" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
         <item index="4" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
@@ -408,22 +416,22 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-4" width="1537" height="775" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22156085" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39940828" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.21301775" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39940828" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20833333" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -439,7 +447,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="5" />
+      <option name="time" value="6" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -488,6 +496,12 @@
           <caret line="80" column="38" selection-start-line="80" selection-start-column="12" selection-end-line="80" selection-end-column="38" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#236#1604#0" expanded="false" />
+            <element signature="e#1673#2809#0" expanded="false" />
+            <element signature="e#4471#5513#0" expanded="false" />
+            <element signature="e#4471#4615#1" expanded="false" />
+            <element signature="e#5581#5923#0" expanded="false" />
+            <element signature="e#5981#6215#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -571,6 +585,12 @@
           <caret line="99" column="118" selection-start-line="99" selection-start-column="88" selection-end-line="99" selection-end-column="118" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#236#1604#0" expanded="false" />
+            <element signature="e#1673#2809#0" expanded="false" />
+            <element signature="e#4471#5513#0" expanded="false" />
+            <element signature="e#4471#4615#1" expanded="false" />
+            <element signature="e#5581#5923#0" expanded="false" />
+            <element signature="e#5981#6215#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -643,6 +663,12 @@
           <caret line="64" column="6" selection-start-line="64" selection-start-column="6" selection-end-line="64" selection-end-column="6" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#236#1604#0" expanded="false" />
+            <element signature="e#1673#2809#0" expanded="false" />
+            <element signature="e#4471#5513#0" expanded="false" />
+            <element signature="e#4471#4615#1" expanded="false" />
+            <element signature="e#5581#5923#0" expanded="false" />
+            <element signature="e#5981#6215#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -701,6 +727,12 @@
           <caret line="64" column="100" selection-start-line="63" selection-start-column="0" selection-end-line="64" selection-end-column="100" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#236#1604#0" expanded="false" />
+            <element signature="e#1673#2809#0" expanded="false" />
+            <element signature="e#4471#5513#0" expanded="false" />
+            <element signature="e#4471#4615#1" expanded="false" />
+            <element signature="e#5581#5923#0" expanded="false" />
+            <element signature="e#5981#6215#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -934,10 +966,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44822258">
-          <caret line="58" column="79" selection-start-line="58" selection-start-column="4" selection-end-line="58" selection-end-column="79" />
+        <state vertical-scroll-proportion="0.29025844">
+          <caret line="182" column="26" selection-start-line="182" selection-start-column="26" selection-end-line="182" selection-end-column="26" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#236#1604#0" expanded="false" />
+            <element signature="e#1673#2809#0" expanded="false" />
+            <element signature="e#4471#5513#0" expanded="false" />
+            <element signature="e#4471#4615#1" expanded="false" />
+            <element signature="e#5581#5923#0" expanded="false" />
+            <element signature="e#5981#6215#0" expanded="false" />
           </folding>
         </state>
       </provider>
