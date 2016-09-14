@@ -71,7 +71,7 @@ class TextAnalyses:
         out.close()
 
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# TextAnalyses.generate_document_frequencies(path+'tokens/readability_tokens-large-corpus-onlyLower.json',
-# path+'tokens/readability_tokens_df-large-corpus-onlyLower.txt')
+# path='/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# TextAnalyses.generate_document_frequencies(path+'tokens/ebolaXFer_lowerCase.json',
+# path+'tokens/ebolaXFer_lowerCase_df.txt')
 

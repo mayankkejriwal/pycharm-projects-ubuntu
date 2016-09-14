@@ -53,7 +53,6 @@ class RandomIndexer:
         else:
             return 'dummy_idf' # it's just a rare word
 
-
     @staticmethod
     def _generate_random_sparse_vector(d, non_zero_ratio):
         """
@@ -146,9 +145,9 @@ class RandomIndexer:
     def _init_unigram_embeddings(token_cvs):
         unigram_embeddings = dict()
         for k, v in token_cvs.items():
-            if k == '':  # don't forget to exclude the dummy value (if there)
-                continue
-            else:
+            # if k == '':  # don't forget to exclude the dummy value (if there)
+            #     continue
+            # else:
                 unigram_embeddings[k] = list(v)  # deep copy of list
         return unigram_embeddings
 
@@ -186,6 +185,66 @@ class RandomIndexer:
                 count += 1
                 if count>10000:
                     break
+                for i in range(0, len(v)):
+                    if v[i] not in token_cvs:
+                        continue
+                    vec = unigram_embeddings[v[i]]
+                    min = i-context_window_size
+                    if min<0:
+                        min = 0
+                    max = i+context_window_size
+                    if max>len(v):
+                        max = len(v)
+                    for j in range(min, max):
+                        if j == i:
+                            continue
+                        context_token = v[j]
+                        if context_token not in token_cvs:
+                            if include_dummy:
+                                context_token = ''
+                            else:
+                                continue
+                        for k in range(0, len(token_cvs[context_token])):
+                            vec[k] += token_cvs[context_token][k]
+                    unigram_embeddings[v[i]] = vec
+        if output_file:
+            out = codecs.open(output_file, 'w', 'utf-8')
+            for k, v in unigram_embeddings.items():
+                answer = dict()
+                answer[k] = v
+                json.dump(answer, out)
+                out.write('\n')
+            out.close()
+
+    @staticmethod
+    def generate_unigram_embeddings_twitter_v1(tokens_file, idf_file, output_file=None, context_window_size=2,
+                                    include_dummy=False, d=200, non_zero_ratio=0.01):
+        """
+
+        :param tokens_file:
+        :param idf_file:
+        :param output_file:
+        :param context_window_size:
+        :param include_dummies:
+        :param d:
+        :param non_zero_ratio:
+        :return:
+        """
+        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file, lower_prune_ratio=0.0)
+        token_cvs = RandomIndexer._generate_context_vectors_for_idf(idf_dict, include_dummy, d, non_zero_ratio)
+        # tokens_dict = RandomIndexer.read_in_tokens_file(tokens_file)
+        unigram_embeddings = RandomIndexer._init_unigram_embeddings(token_cvs)
+        count = 1
+        with codecs.open(tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                v = None
+                for k, val in obj.items():
+                    v = val
+                print 'In document '+str(count)
+                count += 1
+                # if count>10000:
+                #     break
                 for i in range(0, len(v)):
                     if v[i] not in token_cvs:
                         continue
@@ -355,8 +414,8 @@ class RandomIndexer:
 # str = 'bødy'
 # print str.isalpha()
 # print RandomIndexer._find_right_dummy_v2('..,')
-# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# RandomIndexer.generate_unigram_embeddings_v2(path+'tokens/readability_tokens-large-corpus-onlyLower.json',
-#                         path+'tokens/readability_tokens_df-large-corpus-onlyLower.txt',
-#               path+'embedding/unigram-embeddings-v2-10000docs.json')
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# RandomIndexer.generate_unigram_embeddings_twitter_v1(path+'tokens/ebolaXFer_lowerCase.json',
+#                         path+'tokens/ebolaXFer_lowerCase_df.txt',
+#               path+'embedding/unigram-embeddings-v1.json')
 

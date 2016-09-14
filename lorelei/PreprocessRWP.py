@@ -188,9 +188,30 @@ def sort_objects_by_createdAt(origFile, outputFile):
         out.write('\n')
     out.close()
 
+def build_tokens_file(condensed_file, output_file):
+    """
+    Each object in the final file will be uuid referencing a preprocessed word cloud. At present,
+    preprocessing is limited to converting each string to its lower case equivalent.
+    :param condensed_file:
+    :param output_file:
+    :return:
+    """
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(condensed_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            object = dict()
+            wordcloud = obj['loreleiJSONMapping.wordcloud']
+            for i in range(0,len(wordcloud)):
+                wordcloud[i] = wordcloud[i].lower()
+            object[obj['uuid']] = wordcloud
+            json.dump(object, out)
+            out.write('\n')
+    out.close()
 
-path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-sort_objects_by_createdAt(path+'ebolaXFer-freetown-allFields.json', path+'ebolaXFer-freetown-allFields-sorted.json')
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# build_tokens_file(path+'ebolaXFer-condensed.json', path+'tokens/ebolaXFer_lowerCase.json')
+# sort_objects_by_createdAt(path+'ebolaXFer-freetown-allFields.json', path+'ebolaXFer-freetown-allFields-sorted.json')
 # build_uuids_file_from_csv(path+'westafrica-uuids.txt', path+'queryResultsTable-2-westafrica.csv')
 # condenseRWPWithUUIDFilter(path+'data/ebolaXFer/',path+'freetown-uuids.txt',path+'ebolaXFer-freetown-condensed.json', extractAll=False)
 # build_reference_uuids_file(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-reference-uuids.txt')
