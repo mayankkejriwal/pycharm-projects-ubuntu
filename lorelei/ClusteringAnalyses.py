@@ -2,6 +2,8 @@ import codecs
 import json
 import JaccardOnWordCloudBaseline
 import TestRandomIndexing
+import math
+import WordCloudPreprocessor
 
 """
 Primarily for evaluating the results of TestRandomIndexing, JaccardOnWordCloudBaseline and any other baselines (e.g. tf-idf)
@@ -111,11 +113,53 @@ def compute_mean_reciprocal_rank(relevant_set, list_of_ranked_lists):
     return mrr/len(list_of_ranked_lists)
 
 
+def print_ranked_results_statistics(relevant_set, list_of_ranked_lists):
+    """
+    Prints out the number of relevant entries, a vector containing ranks (starting from 1) of relevant docs
+    per relevant entry, and the length of that vector.
+    :param relevant_set: a set of items (e.g. uuids)
+    :param list_of_ranked_lists: a list of list of items (e.g. uuids)
+    :return: None
+    """
+    print 'number of relevant entries is : ',
+    print len(relevant_set)
+    for ranked_list in list_of_ranked_lists:
+        vec = list()
+        for i in range(0, len(ranked_list)):
+            if ranked_list[i] in relevant_set:
+                vec.append(i+1)
+        print 'number of relevant entries in list: ',
+        print len(vec)
+        print vec
 
-def analyze_condensed_tweets(condensed_tweets, reference_uuids):
+
+
+def compute_avg_dcgAtk(relevant_set, list_of_ranked_lists):
+    """
+    Unlike MRR, DCG in this function does not have a 'natural' bound between 0 and 1. Thus, only use it
+     to compare across results.
+    :param relevant_set: a set of items (e.g. uuids)
+    :param list_of_ranked_lists: a list of list of items (e.g. uuids)
+    :return: a float that is the avg DCG till the kth document (that is, if any relevant document has rank greater
+    than k, we will make it 0)
+    """
+    dcg = 0.0
+    for ranked_list in list_of_ranked_lists:
+        if ranked_list[i] in relevant_set:
+            dcg += 1.0
+        for i in range(1, len(ranked_list)):
+            if ranked_list[i] in relevant_set:
+                # print ranked_list[i]
+                dcg += (1.0/math.log(i+1, 2))
+                # break
+    return dcg/len(list_of_ranked_lists)
+
+
+def analyze_condensed_tweets(condensed_tweets, reference_uuids, k=100):
     """
     Will take a condensed_tweets_file and possibly other reference files, and run a variety of analyses. I will
-    comment in the code on each level of analysis. Will print stuff out.
+    comment in the code on each level of analysis. Will print stuff out. Also convert wordcloud to lowercase when
+    processing.
     :return: None
     """
     tweets_dict = dict()
@@ -123,20 +167,27 @@ def analyze_condensed_tweets(condensed_tweets, reference_uuids):
     with codecs.open(condensed_tweets, 'r', 'utf-8') as f:
         for line in f:
             obj = json.loads(line)
+            WordCloudPreprocessor.WordCloudPreprocessor.convert_list_to_lower(obj['loreleiJSONMapping.wordcloud'])
             tweets_dict[obj['uuid']] = obj
     with open(reference_uuids, 'r') as f:
         for line in f:
             uuids_set.add(line[0:-1])
     list_of_ranked_lists = list()
+    forbidden = set()
     for uuid in uuids_set:
         if uuid in tweets_dict:
-            list_of_ranked_lists.append(_find_jaccard_knn(uuid, tweets_dict))
-    print compute_mean_reciprocal_rank(uuids_set, list_of_ranked_lists)
+            ranked_list = _find_jaccard_knn(uuid, tweets_dict, k=k)
+            print ranked_list[0:10]
+            list_of_ranked_lists.append(ranked_list)
+        else:
+            forbidden.add(uuid)
+    print_ranked_results_statistics(uuids_set.difference(forbidden), list_of_ranked_lists)
+    #print compute_mean_reciprocal_rank(uuids_set, list_of_ranked_lists)
 
 
 
-path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-analyze_condensed_tweets(path+'ebolaXFer-condensed.json', path+'westafrica-uuids.txt')
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# analyze_condensed_tweets(path+'ebolaXFer-condensed.json', path+'freetown-uuids.txt')
 # calculate_reciprocal_rank(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt',
 #                           path+'3000d-all-nn-for-ref-uuids.txt')
 

@@ -179,7 +179,7 @@ def sort_objects_by_createdAt(origFile, outputFile):
     with codecs.open(origFile, 'r', 'utf-8') as f:
         for line in f:
             obj = json.loads(line)
-            objects[parser.parse(obj['createdAt'])] = obj
+            objects[parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])] = obj
     dates = objects.keys()
     dates.sort()
     out = codecs.open(outputFile, 'w', 'utf-8')
@@ -187,6 +187,7 @@ def sort_objects_by_createdAt(origFile, outputFile):
         json.dump(objects[date], out)
         out.write('\n')
     out.close()
+
 
 def build_tokens_file(condensed_file, output_file):
     """
@@ -209,9 +210,9 @@ def build_tokens_file(condensed_file, output_file):
             out.write('\n')
     out.close()
 
-# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
 # build_tokens_file(path+'ebolaXFer-condensed.json', path+'tokens/ebolaXFer_lowerCase.json')
-# sort_objects_by_createdAt(path+'ebolaXFer-freetown-allFields.json', path+'ebolaXFer-freetown-allFields-sorted.json')
+sort_objects_by_createdAt(path+'ebolaXFer-freetown-allFields.json', path+'ebolaXFer-freetown-allFields-sorted.json')
 # build_uuids_file_from_csv(path+'westafrica-uuids.txt', path+'queryResultsTable-2-westafrica.csv')
 # condenseRWPWithUUIDFilter(path+'data/ebolaXFer/',path+'freetown-uuids.txt',path+'ebolaXFer-freetown-condensed.json', extractAll=False)
 # build_reference_uuids_file(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-reference-uuids.txt')

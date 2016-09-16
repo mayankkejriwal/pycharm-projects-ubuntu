@@ -218,7 +218,7 @@ class RandomIndexer:
 
     @staticmethod
     def generate_unigram_embeddings_twitter_v1(tokens_file, idf_file, output_file=None, context_window_size=2,
-                                    include_dummy=False, d=200, non_zero_ratio=0.01):
+                                    include_dummy=False, d=20, non_zero_ratio=0.05):
         """
 
         :param tokens_file:
@@ -417,5 +417,5 @@ class RandomIndexer:
 # path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
 # RandomIndexer.generate_unigram_embeddings_twitter_v1(path+'tokens/ebolaXFer_lowerCase.json',
 #                         path+'tokens/ebolaXFer_lowerCase_df.txt',
-#               path+'embedding/unigram-embeddings-v1.json')
+#               path+'embedding/unigram-embeddings-v2.json')
 

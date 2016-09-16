@@ -91,8 +91,12 @@ def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10):
     results = dict()
     unigram_embeddings = read_in_embeddings(embeddings_file)
     for seed_token in seed_tokens:
+        print 'seed_token: ',
+        print seed_token
         scored_dict = _generate_scored_dict(unigram_embeddings, seed_token)
         results[seed_token]=_extract_top_k(scored_dict, k=k, disable_k=False)
+        print results[seed_token]
+        print '\n'
     return results
 
 
@@ -155,6 +159,6 @@ def supplement_dictionary(dictionary_file, embeddings_file, k=20):
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
 
-# path = '/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# # print find_k_nearest_neighbors(path+'embedding/unigram-embeddings-v2-10000docs.json', 'katy')
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# find_k_nearest_neighbors_multi(path+'embedding/unigram-embeddings-v2.json', ['emergency', 'freetown', '#ebola'])
 # supplement_dictionary(path+'dictionary-supervised/names.txt',path+'embedding/unigram-embeddings-v2-10000docs.json')

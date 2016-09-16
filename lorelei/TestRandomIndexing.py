@@ -53,21 +53,37 @@ def _dot_product(vec1, vec2):
     return score
 
 
-def _extract_top_k(scored_results_dict, k, disable_k):
+def _extract_top_k(scored_results_dict, k, disable_k=False, reverse=True):
+    """
+
+    :param scored_results_dict: a score always references a list
+    :param k: Max. size of returned list.
+    :param disable_k: ignore k, and sort the list by k
+    :param reverse: if reverse is true, the top k will be the highest scoring k. If reverse is false,
+    top k will be the lowest scoring k.
+    :return:
+    """
     count = 0
+    # print k
     results = list()
     scores = scored_results_dict.keys()
-    scores.sort(reverse=True)
+    scores.sort(reverse=reverse)
     for score in scores:
+        # print score
+        # print count
+        if count >= k and not disable_k:
+            break
         vals = scored_results_dict[score]
         if disable_k:
             results += vals
             continue
         if count + len(vals) <= k:
             results += vals
-            count += len(vals)
+            count = len(results)
         else:
             results += vals[0: k - count]
+            count = len(results)
+    # print results[0]
     return results
 
 

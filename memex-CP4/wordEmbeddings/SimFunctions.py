@@ -28,7 +28,9 @@ class SimFunctions:
         total1 = math.sqrt(total1)
         total2 = math.sqrt(total2)
         if total1 == 0.0 or total2 == 0.0:
-            print 'divide by zero problem. Returning 0.0'
+            # print 'divide by zero problem. Returning 0.0'
+            # print vector1
+            # print vector2
             return 0.0
         else:
             return math.fabs(sim/(total1*total2))
