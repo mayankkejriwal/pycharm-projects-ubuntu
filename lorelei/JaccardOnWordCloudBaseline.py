@@ -16,6 +16,13 @@ def _jaccard_on_word_cloud(word_cloud1, word_cloud2):
     return len(set(word_cloud1).intersection(set(word_cloud2)))*1.0/len(set(word_cloud1).union(set(word_cloud2)))
 
 
+def _average_jaccard_on_word_clouds(word_cloud, list_of_word_clouds):
+    score = 0.0
+    for wc in list_of_word_clouds:
+        score += _jaccard_on_word_cloud(word_cloud, wc)
+    return score/len(list_of_word_clouds)
+
+
 def _find_jaccard_knn(subject_index, word_cloud_list, k, disable_k):
     subject_words = word_cloud_list[subject_index]
     scored_results = dict() # a dictionary with the score as key, and a list as values. The list ensures determinism

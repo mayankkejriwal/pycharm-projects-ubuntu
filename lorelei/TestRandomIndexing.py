@@ -53,6 +53,26 @@ def _dot_product(vec1, vec2):
     return score
 
 
+def _extract_top_k_unique_from_list(list_of_entries, k):
+    """
+
+    :param list_of_entries: a list of values (e.g. uuids)
+    :param k: the number of unique entries to extract
+    :return: a list with k or fewer elements.
+    """
+    answer = list()
+    already_there = set()
+    for entry in list_of_entries:
+        if len(answer) == k:
+            break
+        if entry in already_there:
+            continue
+        else:
+            answer.append(entry)
+            already_there.add(entry)
+    return answer
+
+
 def _extract_top_k(scored_results_dict, k, disable_k=False, reverse=True):
     """
 

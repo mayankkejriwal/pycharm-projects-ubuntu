@@ -133,7 +133,6 @@ def print_ranked_results_statistics(relevant_set, list_of_ranked_lists):
         print vec
 
 
-
 def compute_avg_dcgAtk(relevant_set, list_of_ranked_lists):
     """
     Unlike MRR, DCG in this function does not have a 'natural' bound between 0 and 1. Thus, only use it
