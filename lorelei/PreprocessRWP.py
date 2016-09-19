@@ -175,6 +175,12 @@ def build_uuids_file_from_csv(uuidsFile, csvFile):
 
 
 def sort_objects_by_createdAt(origFile, outputFile):
+    """
+
+    :param origFile: Must not be condensed. If condensed, try the next function.
+    :param outputFile:
+    :return:
+    """
     objects = dict()
     with codecs.open(origFile, 'r', 'utf-8') as f:
         for line in f:
@@ -188,6 +194,40 @@ def sort_objects_by_createdAt(origFile, outputFile):
         out.write('\n')
     out.close()
 
+
+def sort_condensed_objects_by_createdAt(condensedFile, fullFile, outputFile, allFields=True):
+    """
+
+    :param condensedFile: A condensed file
+    :param fullFile: The non-condensed file containing all entries
+    :param outputFile: The file to be output. It will contain all the objects, and be in the same format as, condensedF
+    :return: None
+    """
+    objects_by_uuid = dict()
+    objects = dict()
+    with codecs.open(condensedFile, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            objects_by_uuid[obj['uuid']] = obj
+    with codecs.open(fullFile, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            uuid = obj['uuid']
+            if uuid not in objects_by_uuid:
+                continue
+            if allFields:
+                objects[parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])] = obj
+            else:
+                objects[parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])] = objects_by_uuid[uuid]
+    if len(objects) != len(objects_by_uuid):
+        print 'Number of objects are unequal. Some objects are not in your full file'
+    dates = objects.keys()
+    dates.sort()
+    out = codecs.open(outputFile, 'w', 'utf-8')
+    for date in dates:
+        json.dump(objects[date], out)
+        out.write('\n')
+    out.close()
 
 def build_tokens_file(condensed_file, output_file):
     """
@@ -212,7 +252,8 @@ def build_tokens_file(condensed_file, output_file):
 
 path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
 # build_tokens_file(path+'ebolaXFer-condensed.json', path+'tokens/ebolaXFer_lowerCase.json')
-sort_objects_by_createdAt(path+'ebolaXFer-freetown-allFields.json', path+'ebolaXFer-freetown-allFields-sorted.json')
+sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
+                        path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)
 # build_uuids_file_from_csv(path+'westafrica-uuids.txt', path+'queryResultsTable-2-westafrica.csv')
 # condenseRWPWithUUIDFilter(path+'data/ebolaXFer/',path+'freetown-uuids.txt',path+'ebolaXFer-freetown-condensed.json', extractAll=False)
 # build_reference_uuids_file(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-reference-uuids.txt')

@@ -51,11 +51,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PreprocessRWP.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="PreprocessRWP.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="217" column="31" selection-start-line="217" selection-start-column="31" selection-end-line="217" selection-end-column="31" />
+            <state vertical-scroll-proportion="0.60952383">
+              <caret line="254" column="65" selection-start-line="254" selection-start-column="65" selection-end-line="254" selection-end-column="65" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
                 <element signature="e#236#1604#0" expanded="false" />
@@ -65,7 +65,7 @@
                 <element signature="e#4471#4615#1" expanded="false" />
                 <element signature="e#5581#5923#0" expanded="false" />
                 <element signature="e#5981#6215#0" expanded="false" />
-                <element signature="e#6742#7473#0" expanded="false" />
+                <element signature="e#8230#8961#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -101,11 +101,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="BuildGroundTruth.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="BuildGroundTruth.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/BuildGroundTruth.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.75714284">
-              <caret line="104" column="43" selection-start-line="104" selection-start-column="43" selection-end-line="104" selection-end-column="43" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="85" column="22" selection-start-line="85" selection-start-column="22" selection-end-line="85" selection-end-column="22" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
                 <element signature="e#138#427#0" expanded="false" />
@@ -185,11 +185,11 @@
         <option value="$PROJECT_DIR$/RandomIndexing.py" />
         <option value="$PROJECT_DIR$/DocVecBuilders.py" />
         <option value="$PROJECT_DIR$/WordCloudPreprocessor.py" />
-        <option value="$PROJECT_DIR$/PreprocessRWP.py" />
         <option value="$PROJECT_DIR$/ClusteringAnalyses.py" />
         <option value="$PROJECT_DIR$/JaccardOnWordCloudBaseline.py" />
         <option value="$PROJECT_DIR$/TestRandomIndexing.py" />
         <option value="$PROJECT_DIR$/BuildGroundTruth.py" />
+        <option value="$PROJECT_DIR$/PreprocessRWP.py" />
       </list>
     </option>
   </component>
@@ -253,7 +253,7 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
-  <component name="RunManager" selected="Python.BuildGroundTruth">
+  <component name="RunManager" selected="Python.PreprocessRWP">
     <configuration default="false" name="Analysis" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -470,8 +470,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.BuildGroundTruth" />
-        <item index="1" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
+        <item index="0" class="java.lang.String" itemvalue="Python.PreprocessRWP" />
+        <item index="1" class="java.lang.String" itemvalue="Python.BuildGroundTruth" />
         <item index="2" class="java.lang.String" itemvalue="Python.ClusteringAnalyses" />
         <item index="3" class="java.lang.String" itemvalue="Python.TestRandomIndexing" />
         <item index="4" class="java.lang.String" itemvalue="Python.Analysis" />
@@ -493,13 +493,13 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -553,7 +553,7 @@
             <element signature="e#4471#4615#1" expanded="false" />
             <element signature="e#5581#5923#0" expanded="false" />
             <element signature="e#5981#6215#0" expanded="false" />
-            <element signature="e#6742#7473#0" expanded="false" />
+            <element signature="e#8230#8961#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -642,7 +642,7 @@
             <element signature="e#4471#4615#1" expanded="false" />
             <element signature="e#5581#5923#0" expanded="false" />
             <element signature="e#5981#6215#0" expanded="false" />
-            <element signature="e#6742#7473#0" expanded="false" />
+            <element signature="e#8230#8961#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -718,7 +718,7 @@
             <element signature="e#4471#4615#1" expanded="false" />
             <element signature="e#5581#5923#0" expanded="false" />
             <element signature="e#5981#6215#0" expanded="false" />
-            <element signature="e#6742#7473#0" expanded="false" />
+            <element signature="e#8230#8961#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -780,7 +780,7 @@
             <element signature="e#4471#4615#1" expanded="false" />
             <element signature="e#5581#5923#0" expanded="false" />
             <element signature="e#5981#6215#0" expanded="false" />
-            <element signature="e#6742#7473#0" expanded="false" />
+            <element signature="e#8230#8961#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -978,6 +978,35 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="66" column="17" selection-start-line="66" selection-start-column="17" selection-end-line="66" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JaccardOnWordCloudBaseline.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/BuildGroundTruth.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="85" column="22" selection-start-line="85" selection-start-column="22" selection-end-line="85" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#138#427#0" expanded="false" />
+            <element signature="e#466#672#0" expanded="false" />
+            <element signature="e#836#2834#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ClusteringAnalyses.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1006,8 +1035,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/PreprocessRWP.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="217" column="31" selection-start-line="217" selection-start-column="31" selection-end-line="217" selection-end-column="31" />
+        <state vertical-scroll-proportion="0.60952383">
+          <caret line="254" column="65" selection-start-line="254" selection-start-column="65" selection-end-line="254" selection-end-column="65" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
             <element signature="e#236#1604#0" expanded="false" />
@@ -1017,36 +1046,7 @@
             <element signature="e#4471#4615#1" expanded="false" />
             <element signature="e#5581#5923#0" expanded="false" />
             <element signature="e#5981#6215#0" expanded="false" />
-            <element signature="e#6742#7473#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestRandomIndexing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="66" column="17" selection-start-line="66" selection-start-column="17" selection-end-line="66" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/JaccardOnWordCloudBaseline.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="22" column="16" selection-start-line="22" selection-start-column="16" selection-end-line="22" selection-end-column="16" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/BuildGroundTruth.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.75714284">
-          <caret line="104" column="43" selection-start-line="104" selection-start-column="43" selection-end-line="104" selection-end-column="43" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-            <element signature="e#138#427#0" expanded="false" />
-            <element signature="e#466#672#0" expanded="false" />
-            <element signature="e#836#2834#0" expanded="false" />
+            <element signature="e#8230#8961#0" expanded="false" />
           </folding>
         </state>
       </provider>
