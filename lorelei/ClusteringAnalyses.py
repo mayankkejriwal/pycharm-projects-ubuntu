@@ -184,8 +184,44 @@ def analyze_condensed_tweets(condensed_tweets, reference_uuids, k=100):
     #print compute_mean_reciprocal_rank(uuids_set, list_of_ranked_lists)
 
 
+def find_uuids_in_ranked_tweets(ranked_file, uuid_file):
+    """
+    Prints out the total number of uuids in uuid_file, and the number of uuids not found in ranked file. Also prints
+    out the average rank, and the max. rank possible
+    :param ranked_file: e.g. freetown-top500.json. the file does not have to be 'condensed'.
+    :param uuid_file: a list of uuids-file
+    :return: None
+    """
+    uuids_set = set()
+    with open(uuid_file, 'r') as f:
+        for line in f:
+            uuids_set.add(line[0:-1])
+    print 'num uuids in uuid_file: ',
+    print len(uuids_set)
+    print 'max avg rank possible for ALL given uuids set is : ',
+    print str((len(uuids_set)+1.0)/2)
+    sum_of_ranks = 0
+    num_found = 0
+    count = 1
+    with codecs.open(ranked_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            uuid = obj['uuid']
+            if uuid in uuids_set:
+                num_found += 1
+                sum_of_ranks += count
+            count += 1
+    if num_found == 0:
+        print 'no relevant results found.'
+        return
+    print 'num results found : ',
+    print num_found
+    print 'average rank over found uuids: ',
+    print str(sum_of_ranks*1.0/num_found)
+
 
 # path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# find_uuids_in_ranked_tweets(path+'freetown/freetown-top500.json', path+'19validationresults-relevant-uuids.txt')
 # analyze_condensed_tweets(path+'ebolaXFer-condensed.json', path+'freetown-uuids.txt')
 # calculate_reciprocal_rank(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt',
 #                           path+'3000d-all-nn-for-ref-uuids.txt')

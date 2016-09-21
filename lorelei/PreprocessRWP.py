@@ -16,7 +16,16 @@ def _extract_obj_fields_into_answer(obj, answer):
     :param answer:
     :return: None
     """
-    answer['uuid'] = obj['uuid']
+    if 'uuid' in obj:
+        answer['uuid'] = obj['uuid']
+    elif 'loreleiJSONMapping' in obj and 'id' in obj['loreleiJSONMapping']:
+        print 'uuid not found, but loreleiJSONMapping.id found; using that as uuid for:'
+        print obj
+        answer['uuid'] = obj['loreleiJSONMapping']['id']
+    else:
+        print 'Skipping object because uuid and id both not found: '
+        print obj
+        return
     if 'situationFrame' in obj and 'type' in obj['situationFrame']:
         answer['situationFrame.type'] = obj['situationFrame']['type']
     else:
@@ -42,6 +51,23 @@ def _extract_obj_fields_into_answer(obj, answer):
         answer['loreleiJSONMapping.sourcedata.theme'] = obj['loreleiJSONMapping']['sourcedata']['theme']
     else:
         answer['loreleiJSONMapping.sourcedata.theme'] = None
+
+
+def prune_objects_without_uuid(infile, outfile):
+    """
+
+    :param infile: A json lines file
+    :param outfile: Outputs all objects in the json lines file above that contain a uuid field.
+    :return: None
+    """
+    out = codecs.open(outfile, 'w', 'utf-8')
+    with codecs.open(infile, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            if 'uuid' in obj:
+                json.dump(obj, out)
+                out.write('\n')
+    out.close()
 
 
 def condenseRWP(input_folder, output_file, extractAll=False):
@@ -120,6 +146,38 @@ def condenseRWPWithUUIDFilter(input_folder, uuid_file, output_file, extractAll=F
         print uuids_set
 
 
+def filter_file_by_uuids(input_file, uuid_file, output_file):
+    """
+    We feed in the full records file, and the uuid_file, and obtain an output file containing only those
+    records that have uuids in the uuid_file.
+
+    :param input_file: the file containing all the jsons
+    :param uuid_file: a list of uuids
+    :param output_file: the jsons corresponding to the list of uuids
+    :return: None
+    """
+    uuids_set = set()
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(uuid_file, 'r', 'utf-8') as f:
+        for line in f:
+            uuids_set.add(line[0:-1])
+    with codecs.open(input_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            if obj['uuid'] not in uuids_set:
+                continue
+            else:
+                uuids_set.discard(obj['uuid'])
+
+                json.dump(obj, out)
+
+            out.write('\n')
+    out.close()
+    if uuids_set:
+        print 'uuids_set is not empty'
+        print uuids_set
+
+
 def condenseWCJaccard(WCJaccard_file, output_file):
     """
     We will take a WCJaccard cluster file as input, and output a condensed file that contains only those instances
@@ -171,6 +229,22 @@ def build_uuids_file_from_csv(uuidsFile, csvFile):
     for i in range(1, len(my_list)):
         out.write(my_list[i][-2])
         out.write('\n')
+    out.close()
+
+
+def build_uuids_file_from_json(uuidsFile, jsonFile):
+    """
+
+    :param uuidsFile:
+    :param jsonFile:
+    :return:
+    """
+    out = codecs.open(uuidsFile, 'w')
+    with codecs.open(jsonFile, 'r', 'utf-8') as f:
+        for line in f:
+            uuid = json.loads(line)['uuid']
+            out.write(uuid)
+            out.write('\n')
     out.close()
 
 
@@ -229,6 +303,7 @@ def sort_condensed_objects_by_createdAt(condensedFile, fullFile, outputFile, all
         out.write('\n')
     out.close()
 
+
 def build_tokens_file(condensed_file, output_file):
     """
     Each object in the final file will be uuid referencing a preprocessed word cloud. At present,
@@ -250,12 +325,17 @@ def build_tokens_file(condensed_file, output_file):
             out.write('\n')
     out.close()
 
-path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+
+
+
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# build_uuids_file_from_json(path+'19validationresults-relevant-uuids.txt', path+'19validationresults-relevant-allFields.json')
+# condenseRWP(path+'ebolaTemp/',path+'data/ebola-new-condensed.json', extractAll=False)
 # build_tokens_file(path+'ebolaXFer-condensed.json', path+'tokens/ebolaXFer_lowerCase.json')
-sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
-                        path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)
-# build_uuids_file_from_csv(path+'westafrica-uuids.txt', path+'queryResultsTable-2-westafrica.csv')
-# condenseRWPWithUUIDFilter(path+'data/ebolaXFer/',path+'freetown-uuids.txt',path+'ebolaXFer-freetown-condensed.json', extractAll=False)
+# sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
+#                         path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)
+# build_uuids_file_from_csv(path+'19validationresults-uuids.txt', path+'queryResultsTable-2.csv')
+# filter_file_by_uuids(path+'data/ebola-new-allFields.json',path+'19validationresults-uuids.txt',path+'19validationresults-allFields.json')
 # build_reference_uuids_file(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-reference-uuids.txt')
 # dt1 = parser.parse('Fri Sep 19 23:38:45 PDT 2014')
 # dt2 = parser.parse('Fri Sep 19 07:21:56 PDT 2015')

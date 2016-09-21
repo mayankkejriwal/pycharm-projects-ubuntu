@@ -104,6 +104,6 @@ class Analysis:
 
 # Analysis.countNumUniqueWordsInRWPWordClouds('/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed/')
 # path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-# Analysis.find_seeds_in_ebola_data(path+'ebolaXFer.json', path+'westafrica-uuids.txt')
+# Analysis.find_seeds_in_ebola_data(path+'data/ebola-new-condensed.json', path+'19validationresults-uuids.txt')
 # Analysis.analyzeExactMatchBaseline(path+'record_dump_50000.json', path+'exactMatchOnRecordDump50000.json',
 #                 ['california', 'ca'])

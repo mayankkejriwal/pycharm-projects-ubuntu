@@ -30,8 +30,8 @@ def field_value_expansion(seed_file, full_file, output_file,
     the seed entities are a subset of the full entities. In our initial run, we designed it for hashtags in the field
     loreleiJSONMapping.wordcloud field and situationFrame.entities using freetown/westafrica as the seed file
     and ebolaXFer-condensed as the full file. We're defined a 'field' as a function on each json for
-     full expressiveness
-    :param seed_file: A json lines file (condensed or otherwise), where each json is treated as a seed
+     full expressiveness. At present, all files must be in the condensed 'format'
+    :param seed_file: A json lines file (condensed), where each json is treated as a seed
     :param full_file: Another json lines file on which the clustering will be conducted
     :param output_file: A json lines file to which the ground-truth will be output
     :param field_list: A list of fields (i.e. functions) that will be applied to each object both in seed_file and full_file
@@ -61,7 +61,7 @@ def field_value_expansion(seed_file, full_file, output_file,
     out.close()
 
 
-def jaccard_prune_expanded_file_to_top_k(seed_file, expanded_file, output_file, k=1000):
+def jaccard_rank_prune_expanded_file_to_top_k(seed_file, expanded_file, output_file, k=500):
     """
     The westafrica-expanded file is too big and contains too many objects (over 7000). We'll compute the average
     jaccard of each entity in the expanded file to all entities in the seed file (including seed
@@ -100,6 +100,8 @@ def jaccard_prune_expanded_file_to_top_k(seed_file, expanded_file, output_file, 
     out.close()
 
 
-path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-jaccard_prune_expanded_file_to_top_k(path+'ebolaXFer-freetown-condensed.json',path+'freetown-expanded.json',
-                                     path+'westafrica-top-all.json')
+# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# field_value_expansion(path+'westafrica/westafrica-condensed.json',
+#                       path+'data/ebola-new-condensed.json', path+'westafrica/westafrica-condensed-expanded.json')
+# jaccard_rank_prune_expanded_file_to_top_k(path+'westafrica/westafrica-condensed.json',path+'westafrica/westafrica-condensed-expanded.json',
+#                                      path+'westafrica/westafrica-top500.json')
