@@ -25,10 +25,17 @@ class TextPreprocessors:
         #print obj['readability_text']
         if field not in obj:
             return None
-        elif obj[field] is list:
-            list_of_sentences += obj[field]
+        elif type(obj[field]) == list:
+            k = list()
+            k.append(obj[field])
+            list_of_sentences += k
         else:
-            list_of_sentences.append(obj[field])  # we are assuming this is a unicode/string
+            tmp = list()
+            tmp.append(obj[field])
+            k = list()
+            k.append(tmp)
+            # print k
+            list_of_sentences += k  # we are assuming this is a unicode/string
 
         word_tokens = list()
         for sentences in list_of_sentences:
@@ -115,7 +122,39 @@ class TextPreprocessors:
         json.dump(results, out, indent=4)
         out.close()
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+    @staticmethod
+    def preprocess_annotated_cities_file(input_file, output_file):
+        """
+        We will take in a file such as annotated-cities-1.json as input and output another json that:
+        tokenizes the high_recall_readability_text field and converts it to lower-case.
+        converts values in the other two fields to lowercase
+
+        These preprocessed files can then be used for analysis.
+
+        Note that the field names remain the same in the output file, even though high_recall-* is now
+         a list of tokens instead of a string.
+        :param input_file:
+        :param output_file:
+        :return:
+        """
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                tokenized_field = TextPreprocessors._tokenize_field(obj, 'high_recall_readability_text')
+                if tokenized_field:
+                    obj['high_recall_readability_text'] = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
+                    for k in obj.keys():
+                        obj[k] = TextPreprocessors._preprocess_tokens(obj[k], options=["lower"])
+                    json.dump(obj, out)
+                    out.write('\n')
+        out.close()
+
+
+
+path='/home/mayankkejriwal/Downloads/memex-cp4-october/annotated-cities-experiments/'
+TextPreprocessors.preprocess_annotated_cities_file(path+'raw-data/annotated-cities-2.json',
+                                                path+'prepped-data/annotated-cities-2-prepped.json')
 # TextPreprocessors.convert_txt_dict_to_json(path+'dictionaries/spa-massage-words.txt', path+'dictionaries/spa-massage-words.json')
 # TextPreprocessors.build_tokens_objects_from_readability(path+'corpora/part-00000.json',
 # path+'tokens/readability_tokens-large-corpus-onlyLower.json')

@@ -410,6 +410,22 @@ class RandomIndexer:
                 out.write('\n')
             out.close()
 
+    @staticmethod
+    def generate_telephone_embeddings_v1(ground_truth_corpus, output_file, context_field = 'addressLocality',
+                                         d=200, non_zero_ratio=0.01):
+        """
+        We generate telephone embeddings based on the tokens in addressLocality. Note that there can be
+        multiple telephone numbers per object, and they may not all contain addressLocalities.
+        :param ground_truth_corpus: we intend this to be corpora/ground-truth-corpus.json
+
+        At present, there is no notion of dummies or idf. A context will get generated for every unique
+        token.
+        :param output_file: where the embeddings get written
+        :param context_field: whichever field should be tokenized and then used as context
+        :param d:
+        :param non_zero_ratio:
+        :return: None
+        """
 
 # str = 'bødy'
 # print str.isalpha()

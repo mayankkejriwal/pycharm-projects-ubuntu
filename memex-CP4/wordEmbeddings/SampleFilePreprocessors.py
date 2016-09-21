@@ -186,9 +186,9 @@ class SampleFilePreprocessors:
             out.write('\n')
         out.close()
 
-path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-SampleFilePreprocessors.filter_dict_terms_with_embeddings(path+'dictionaries/names.json',
-            path+'embedding/unigram-embeddings-v2-10000docs.json',path+'dictionary-supervised/names.txt' )
+# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# SampleFilePreprocessors.filter_dict_terms_with_embeddings(path+'dictionaries/names.json',
+#             path+'embedding/unigram-embeddings-v2-10000docs.json',path+'dictionary-supervised/names.txt' )
 # SampleFilePreprocessors.filter_lines_with_embeddings(path+'sampled-annotated-extractions/100-sampled-ethnicity-vals.txt',
 #                             path+'embedding/unigram-embeddings-10000docs.json',
 #                             path+'sampled-annotated-extractions/filtered-ethnicity.txt')

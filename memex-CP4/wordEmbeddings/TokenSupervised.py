@@ -1,5 +1,5 @@
 import TextPreprocessors
-import codecs
+import codecs, json
 import kNearestNeighbors
 import re
 import numpy as np
@@ -10,7 +10,8 @@ from sklearn import neighbors
 import SimFunctions
 from sklearn.feature_selection import chi2, f_classif, SelectKBest
 from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.metrics import roc_auc_score, accuracy_score
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score
+import ContextVectorGenerators
 
 class TokenSupervised:
     """
@@ -73,6 +74,40 @@ class TokenSupervised:
         with codecs.open(dictionary_file2, 'r', 'utf-8') as f:
             for line in f:
                 out.write(line[0:-1]+'\t'+str(full_embeddings[line[0:-1]])+'\t1\n')
+        out.close()
+
+    @staticmethod
+    def preprocess_prepped_annotated_cities(annotated_cities_file, embeddings_file, output_file, context_generator):
+        """
+        Meant for parsing the files in annotated-cities-experiments/prepped-data into something that is
+        amenable to the ML experiments such as in supervised-exp-datasets.
+        :param annotated_cities_file:
+        :param embeddings_file:
+        :param output_file:
+        :param context_generator: a function in ContextVectorGenerator that will be used for taking a word from
+        high_recall_readability_text and generating a context vector based on some notion of context
+        :return: None
+        """
+        full_embeddings = kNearestNeighbors.read_in_embeddings(embeddings_file)
+        # embeddings = set(full_embeddings.keys())
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(annotated_cities_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for word in obj['annotated_cities']:
+                    if word not in obj['high_recall_readability_text']:
+                        print 'skipping word not found in high_recall: ',
+                        print word
+                        continue
+                    context_vecs = context_generator(word, obj['high_recall_readability_text'], full_embeddings)
+                    if not context_vecs:
+                        print 'context_generator did not return anything...'
+                        continue
+                    for context_vec in context_vecs:
+                        if word in obj['correct_cities']:
+                            out.write(word+'\t'+str(context_vec)+'\t1\n')
+                        else:
+                            out.write(word+'\t'+str(context_vec)+'\t0\n')
         out.close()
 
     @staticmethod
@@ -144,25 +179,36 @@ class TokenSupervised:
         return result
 
     @staticmethod
-    def _select_k_best_features(data_dict, k=10):
+    def _select_k_best_features(data_dict, k=10, test_data_visible=False):
         """
         Do feature selection. Transforms data_dict
         :param data_dict:
         :param k: the number of features to select
+        :param test_data_visible: use the complete dataset to do feature selection. Otherwise, use only
+        the training data, but then fit_transform the entire dataset.
         :return: None
         """
-        train_len = len(data_dict['train_data'])
-        # test_len = len(data_dict['test_data'])
-        data_matrix = np.append(data_dict['train_data'], data_dict['test_data'], axis=0)
-        # print data_matrix.shape
-        label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
-        new_data_matrix = SelectKBest(f_classif, k=k).fit_transform(data_matrix, label_matrix)
-        # print len(new_data_matrix[0:train_len])
-        data_dict['train_data'] = new_data_matrix[0:train_len]
-        data_dict['test_data'] = new_data_matrix[train_len:]
-        # print len(data_dict['test_labels'])
-        # print new_data_matrix.shape
-
+        if test_data_visible:
+            train_len = len(data_dict['train_data'])
+            # test_len = len(data_dict['test_data'])
+            data_matrix = np.append(data_dict['train_data'], data_dict['test_data'], axis=0)
+            # print data_matrix.shape
+            label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
+            new_data_matrix = SelectKBest(f_classif, k=k).fit_transform(data_matrix, label_matrix)
+            # print len(new_data_matrix[0:train_len])
+            data_dict['train_data'] = new_data_matrix[0:train_len]
+            data_dict['test_data'] = new_data_matrix[train_len:]
+            # print len(data_dict['test_labels'])
+            # print new_data_matrix.shape
+        else:
+            kBest = SelectKBest(f_classif, k=k)
+            kBest = kBest.fit(data_dict['train_data'], data_dict['train_labels'])
+            train_len = len(data_dict['train_data'])
+            data_matrix = np.append(data_dict['train_data'], data_dict['test_data'], axis=0)
+            label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
+            new_data_matrix = kBest.fit_transform(data_matrix, label_matrix)
+            data_dict['train_data'] = new_data_matrix[0:train_len]
+            data_dict['test_data'] = new_data_matrix[train_len:]
 
     @staticmethod
     def _prepare_train_test_data(pos_neg_file, train_percent = 0.3, randomize=False):
@@ -252,7 +298,8 @@ class TokenSupervised:
         print roc_auc_score(test_labels, predicted_labels)
         print 'accuracy score: ',
         print accuracy_score(test_labels, predicted_labels)
-
+        print 'precision score'
+        print precision_score(test_labels, predicted_labels)
 
     @staticmethod
     def trial_script(pos_neg_file, opt=2):
@@ -275,9 +322,12 @@ class TokenSupervised:
             #We do feature selection.
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
             TokenSupervised._select_k_best_features(data_dict, k=20)
-            data_dict['classifier_model'] = 'manual_knn'
+            data_dict['classifier_model'] = 'random_forest'
             TokenSupervised._train_and_test_classifier(**data_dict)
 
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
-# TokenSupervised.trial_script(path+'supervised-exp-datasets/pos-neg-names-spa.txt')
+path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# TokenSupervised.preprocess_prepped_annotated_cities(path+'annotated-cities-experiments/prepped-data/annotated-cities-2-prepped.json',
+#         path+'embedding/unigram-embeddings-v2-10000docs.json', path+'supervised-exp-datasets/pos-neg-annotated-cities-2.txt',
+#                                                     ContextVectorGenerators.ContextVectorGenerators.symmetric_generator)
+# TokenSupervised.trial_script(path+'supervised-exp-datasets/pos-neg-annotated-cities-1.txt')
