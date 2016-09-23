@@ -12,6 +12,7 @@ import SimFunctions
 import kNearestNeighbors
 from random import shuffle
 from nltk.tokenize import sent_tokenize,word_tokenize
+import pprint
 
 
 class FieldAnalyses:
@@ -256,13 +257,73 @@ class FieldAnalyses:
         print len(results)
         return results
 
+    @staticmethod
+    def find_missing_present_field_statistics(corpus, field):
+        """
+        We are doing this for upper-level fields only. We will print out the number of objects containing that
+        field and the number of objects missing that field.
+        :param corpus: A jl file
+        :param field: An upper level field
+        :return: None
+        """
+        present = 0
+        absent = 0
+        with codecs.open(corpus, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                if field in obj:
+                    if obj[field]:
+                        present += 1
+                        continue
+
+                absent += 1
+        print 'num. objects in which field is present: ',
+        print present
+        print 'num. objects in which field is absent: ',
+        print absent
+
+    @staticmethod
+    def field_value_statistics(corpus, field):
+        """
+        For each value, will print count of objects it occurs in. Note that due to the multi/missing-value problem,
+        numbers may not add up to the total number of objects.
+
+        We will convert the line and field to lower-case to avoid conflation problems.
+
+        Prints out and returns the statistics dictionary
+        :param corpus:
+        :param field:
+        :return: the statistics dictionary
+        """
+        field = field.lower()
+        stats_dict = dict()
+        pp = pprint.PrettyPrinter(indent =4)
+        with codecs.open(corpus, 'r', 'utf-8') as f:
+            for line in f:
+                l = line.lower()
+                obj = json.loads(l)
+                if field in obj:
+                    if obj[field]:
+                        elements = list()
+                        if type(obj[field]) is not list:
+                            elements.append(obj[field])
+                        else:
+                            elements = obj[field]
+                        for element in elements:
+                            if element not in stats_dict:
+                                stats_dict[element] = 0
+                            stats_dict[element] += 1
+        pp.pprint(stats_dict)
+        return stats_dict
 
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+
+# path='/home/mayankkejriwal/Downloads/memex-cp4-october/corpora/'
+# FieldAnalyses.field_value_statistics(path+'all_extractions_july_2016.jl', 'nationality')
 # FieldAnalyses.find_intersecting_values(path+'corpora/part-00000.json','addressLocality','name')
 # FieldAnalyses.sample_n_values_from_field(path+'part-00000.json', attribute='eyeColor', n=100,
 #                                          output_file=path+'100-sampled-eyeColor-vals-2.txt')
-# FieldAnalyses.print_fields_data_types(path+'part-00000.json')
+# FieldAnalyses.print_fields_data_types(path+'all_extractions_july_2016.jl')
 # FieldAnalyses.centroid_analysis_on_attribute_cluster(path+'unigram-embeddings.json', path+'ground-truth-corpus.json', 'price')
 # attribute_vecs = FieldAnalyses._build_vector_set_for_attribute(path+'unigram-embeddings.json',
 #                                                               path+'ground-truth-corpus.json', 'ethnicity')

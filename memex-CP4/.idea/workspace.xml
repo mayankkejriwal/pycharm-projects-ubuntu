@@ -21,65 +21,6 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="SparqlTranslator.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/SparqlTranslator.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="102" column="24" selection-start-line="102" selection-start-column="24" selection-end-line="102" selection-end-column="24" />
-              <folding>
-                <element signature="e#0#73#0" expanded="true" />
-                <element signature="e#7847#8775#0" expanded="false" />
-                <element signature="e#8851#9207#0" expanded="false" />
-                <element signature="e#9939#13219#0" expanded="false" />
-                <element signature="e#13344#16533#0" expanded="false" />
-                <element signature="e#16658#19797#0" expanded="false" />
-                <element signature="e#19871#20810#0" expanded="false" />
-                <element signature="e#20895#21930#0" expanded="false" />
-                <element signature="e#22040#31021#0" expanded="false" />
-                <element signature="e#31107#31561#0" expanded="false" />
-                <element signature="e#31649#32825#0" expanded="false" />
-                <element signature="e#32900#33340#0" expanded="false" />
-                <element signature="e#33466#35786#0" expanded="false" />
-                <element signature="e#35874#36974#0" expanded="false" />
-                <element signature="e#37040#37219#0" expanded="false" />
-                <element signature="e#37342#38961#0" expanded="false" />
-                <element signature="e#39047#39482#0" expanded="false" />
-                <element signature="e#39607#40072#0" expanded="false" />
-                <element signature="e#40232#42799#0" expanded="false" />
-                <element signature="e#42934#44743#0" expanded="false" />
-                <element signature="e#44872#47361#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ExecuteESQueries.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ExecuteESQueries.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="609" column="54" selection-start-line="609" selection-start-column="13" selection-end-line="609" selection-end-column="54" />
-              <folding>
-                <element signature="e#308#486#1" expanded="false" />
-                <element signature="e#556#2163#0" expanded="false" />
-                <element signature="e#556#613#1" expanded="false" />
-                <element signature="e#2250#3634#0" expanded="false" />
-                <element signature="e#2250#2307#1" expanded="false" />
-                <element signature="e#3715#4772#0" expanded="false" />
-                <element signature="e#3715#3772#1" expanded="false" />
-                <element signature="e#4859#4916#1" expanded="false" />
-                <element signature="e#6949#7325#1" expanded="false" />
-                <element signature="e#10263#10930#0" expanded="false" />
-                <element signature="e#11011#13758#0" expanded="false" />
-                <element signature="e#11011#11198#1" expanded="false" />
-                <element signature="e#14663#14790#0" expanded="false" />
-                <element signature="e#14887#15434#0" expanded="false" />
-                <element signature="e#15520#15607#1" expanded="false" />
-                <element signature="e#27022#27132#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
       <file leaf-file-name="ScratchPad.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ScratchPad.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -106,33 +47,52 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="RandomIndexer.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="RandomIndexer.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.36596736">
-              <caret line="414" column="0" selection-start-line="414" selection-start-column="0" selection-end-line="414" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="430" column="16" selection-start-line="430" selection-start-column="16" selection-end-line="430" selection-end-column="16" />
               <folding>
-                <element signature="e#335#576#0" expanded="false" />
-                <element signature="e#950#1691#0" expanded="false" />
-                <element signature="e#1778#2325#0" expanded="false" />
-                <element signature="e#2440#3243#0" expanded="false" />
-                <element signature="e#3363#5231#0" expanded="false" />
-                <element signature="e#5304#5600#0" expanded="false" />
-                <element signature="e#5816#8486#0" expanded="false" />
-                <element signature="e#8710#10956#0" expanded="false" />
-                <element signature="e#11174#14457#0" expanded="false" />
-                <element signature="e#17333#17980#0" expanded="false" />
+                <element signature="e#24#50#0" expanded="true" />
+                <element signature="e#360#601#0" expanded="false" />
+                <element signature="e#975#1716#0" expanded="false" />
+                <element signature="e#1803#2350#0" expanded="false" />
+                <element signature="e#2465#3268#0" expanded="false" />
+                <element signature="e#3388#5256#0" expanded="false" />
+                <element signature="e#5329#5625#0" expanded="false" />
+                <element signature="e#5841#8511#0" expanded="false" />
+                <element signature="e#8735#10981#0" expanded="false" />
+                <element signature="e#11199#14482#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SimFunctions.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wordEmbeddings/SimFunctions.py">
+      <file leaf-file-name="TokenSupervised.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/wordEmbeddings/TokenSupervised.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="31" column="27" selection-start-line="31" selection-start-column="27" selection-end-line="31" selection-end-column="27" />
-              <folding />
+            <state vertical-scroll-proportion="0.2631579">
+              <caret line="673" column="60" selection-start-line="673" selection-start-column="60" selection-end-line="673" selection-end-column="60" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+                <element signature="e#1288#1790#0" expanded="false" />
+                <element signature="e#1854#2127#0" expanded="false" />
+                <element signature="e#1854#2052#1" expanded="false" />
+                <element signature="e#2264#3003#0" expanded="false" />
+                <element signature="e#3148#4833#0" expanded="false" />
+                <element signature="e#3148#3675#1" expanded="false" />
+                <element signature="e#4911#5272#0" expanded="false" />
+                <element signature="e#5513#8009#0" expanded="false" />
+                <element signature="e#5513#6315#1" expanded="false" />
+                <element signature="e#9370#11190#0" expanded="false" />
+                <element signature="e#11276#12102#0" expanded="false" />
+                <element signature="e#12184#13281#0" expanded="false" />
+                <element signature="e#13384#15062#0" expanded="false" />
+                <element signature="e#16714#18168#0" expanded="false" />
+                <element signature="e#18282#19750#0" expanded="false" />
+                <element signature="e#26460#29866#0" expanded="false" />
+                <element signature="e#30827#31881#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -151,25 +111,31 @@
         <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="147" column="32" selection-start-line="147" selection-start-column="32" selection-end-line="147" selection-end-column="32" />
+              <caret line="155" column="58" selection-start-line="155" selection-start-column="58" selection-end-line="155" selection-end-column="58" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TokenSupervised.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wordEmbeddings/TokenSupervised.py">
+      <file leaf-file-name="FieldAnalyses.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="329" column="25" selection-start-line="329" selection-start-column="25" selection-end-line="329" selection-end-column="25" />
+              <caret line="322" column="0" selection-start-line="322" selection-start-column="0" selection-end-line="322" selection-end-column="0" />
               <folding>
-                <element signature="e#0#24#0" expanded="true" />
-                <element signature="e#1151#1653#0" expanded="false" />
-                <element signature="e#1717#1990#0" expanded="false" />
-                <element signature="e#1717#1915#1" expanded="false" />
-                <element signature="e#4939#6759#0" expanded="false" />
-                <element signature="e#4939#5582#1" expanded="false" />
-                <element signature="e#6841#7938#0" expanded="false" />
+                <element signature="e#0#13#0" expanded="true" />
+                <element signature="e#714#814#0" expanded="false" />
+                <element signature="e#900#1484#0" expanded="false" />
+                <element signature="e#1535#1771#0" expanded="false" />
+                <element signature="e#1859#2689#0" expanded="false" />
+                <element signature="e#2805#3818#0" expanded="false" />
+                <element signature="e#3891#4249#0" expanded="false" />
+                <element signature="e#4312#4686#0" expanded="false" />
+                <element signature="e#4768#4947#0" expanded="false" />
+                <element signature="e#5020#5607#0" expanded="false" />
+                <element signature="e#5736#6971#0" expanded="false" />
+                <element signature="e#7083#8624#0" expanded="false" />
+                <element signature="e#8729#10024#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -179,7 +145,7 @@
         <entry file="file://$PROJECT_DIR$/wordEmbeddings/ContextVectorGenerators.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
+              <caret line="84" column="23" selection-start-line="84" selection-start-column="23" selection-end-line="84" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -214,25 +180,25 @@
         <option value="$PROJECT_DIR$/wordEmbeddings/ConvertSeqToJSON.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/Serializers.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/EmbeddingsAnalyses.py" />
-        <option value="$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py" />
         <option value="$PROJECT_DIR$/ScratchPad.py" />
         <option value="$PROJECT_DIR$/ResultsAnalyses.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/SimFunctions.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/SampleFilePreprocessors.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py" />
+        <option value="$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/ContextVectorGenerators.py" />
         <option value="$PROJECT_DIR$/wordEmbeddings/TokenSupervised.py" />
-        <option value="$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="65" />
-    <option name="y" value="24" />
-    <option name="width" value="1535" />
-    <option name="height" value="746" />
+    <option name="x" value="64" />
+    <option name="y" value="-4" />
+    <option name="width" value="1537" />
+    <option name="height" value="775" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -259,6 +225,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -293,7 +260,6 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -315,23 +281,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="memex-CP4" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <method />
-    </configuration>
-    <configuration default="false" name="TextAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="memex-CP4" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -383,6 +332,23 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="memex-CP4" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/TokenSupervised.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="FieldAnalyses" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wordEmbeddings" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="memex-CP4" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
@@ -511,18 +477,18 @@
     </configuration>
     <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
-      <item index="1" class="java.lang.String" itemvalue="Python.TextAnalyses" />
-      <item index="2" class="java.lang.String" itemvalue="Python.RandomIndexer" />
-      <item index="3" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
-      <item index="4" class="java.lang.String" itemvalue="Python.TokenSupervised" />
+      <item index="1" class="java.lang.String" itemvalue="Python.RandomIndexer" />
+      <item index="2" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
+      <item index="3" class="java.lang.String" itemvalue="Python.TokenSupervised" />
+      <item index="4" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.TokenSupervised" />
-        <item index="1" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
-        <item index="2" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
-        <item index="3" class="java.lang.String" itemvalue="Python.RandomIndexer" />
-        <item index="4" class="java.lang.String" itemvalue="Python.TextAnalyses" />
+        <item index="1" class="java.lang.String" itemvalue="Python.FieldAnalyses" />
+        <item index="2" class="java.lang.String" itemvalue="Python.TextPreprocessors" />
+        <item index="3" class="java.lang.String" itemvalue="Python.kNearestNeighbors" />
+        <item index="4" class="java.lang.String" itemvalue="Python.RandomIndexer" />
       </list>
     </recent_temporary>
   </component>
@@ -531,23 +497,23 @@
     <configuration />
   </component>
   <component name="ToolWindowManager">
-    <frame x="65" y="24" width="1535" height="746" extended-state="6" />
-    <editor active="true" />
+    <frame x="64" y="-4" width="1537" height="775" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21428572" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39792898" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3224852" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3106509" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -568,18 +534,11 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="26" />
+      <option name="time" value="28" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/TableFunctions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="16" selection-start-line="7" selection-start-column="16" selection-end-line="7" selection-end-column="16" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/JSONToBulkFormat.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -592,7 +551,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="241" column="9" selection-start-line="241" selection-start-column="9" selection-end-line="241" selection-end-column="9" />
           <folding>
-            <element signature="e#0#73#0" expanded="true" />
+            <element signature="e#0#73#0" expanded="false" />
             <element signature="e#7847#8775#0" expanded="false" />
             <element signature="e#8851#9207#0" expanded="false" />
             <element signature="e#9939#13219#0" expanded="false" />
@@ -735,7 +694,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="19" column="26" selection-start-line="19" selection-start-column="25" selection-end-line="19" selection-end-column="26" />
           <folding>
-            <element signature="e#0#73#0" expanded="true" />
+            <element signature="e#0#73#0" expanded="false" />
             <element signature="e#7847#8775#0" expanded="false" />
             <element signature="e#8851#9207#0" expanded="false" />
             <element signature="e#9939#13219#0" expanded="false" />
@@ -832,7 +791,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="11" column="11" selection-start-line="11" selection-start-column="11" selection-end-line="11" selection-end-column="11" />
           <folding>
-            <element signature="e#0#73#0" expanded="true" />
+            <element signature="e#0#73#0" expanded="false" />
             <element signature="e#7847#8775#0" expanded="false" />
             <element signature="e#8851#9207#0" expanded="false" />
             <element signature="e#9939#13219#0" expanded="false" />
@@ -904,7 +863,7 @@
         <state vertical-scroll-proportion="0.0">
           <caret line="102" column="24" selection-start-line="102" selection-start-column="24" selection-end-line="102" selection-end-column="24" />
           <folding>
-            <element signature="e#0#73#0" expanded="true" />
+            <element signature="e#0#73#0" expanded="false" />
             <element signature="e#7847#8775#0" expanded="false" />
             <element signature="e#8851#9207#0" expanded="false" />
             <element signature="e#9939#13219#0" expanded="false" />
@@ -1025,14 +984,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="2.6012366">
-          <caret line="112" column="36" selection-start-line="112" selection-start-column="36" selection-end-line="112" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wordEmbeddings/kNearestNeighbors.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1049,9 +1000,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.26429674">
           <caret line="44" column="32" selection-start-line="44" selection-start-column="32" selection-end-line="44" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#13#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1065,6 +1013,39 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="430" column="16" selection-start-line="430" selection-start-column="16" selection-end-line="430" selection-end-column="16" />
+          <folding>
+            <element signature="e#24#50#0" expanded="true" />
+            <element signature="e#360#601#0" expanded="false" />
+            <element signature="e#975#1716#0" expanded="false" />
+            <element signature="e#1803#2350#0" expanded="false" />
+            <element signature="e#2465#3268#0" expanded="false" />
+            <element signature="e#3388#5256#0" expanded="false" />
+            <element signature="e#5329#5625#0" expanded="false" />
+            <element signature="e#5841#8511#0" expanded="false" />
+            <element signature="e#8735#10981#0" expanded="false" />
+            <element signature="e#11199#14482#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/SampleFilePreprocessors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="188" column="0" selection-start-line="188" selection-start-column="0" selection-end-line="188" selection-end-column="0" />
+          <folding>
+            <element signature="e#701#1756#0" expanded="false" />
+            <element signature="e#1834#2784#0" expanded="false" />
+            <element signature="e#2989#4809#0" expanded="false" />
+            <element signature="e#5015#6050#0" expanded="false" />
+            <element signature="e#6270#7227#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextAnalyses.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -1073,61 +1054,75 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/SampleFilePreprocessors.py">
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.6408731">
-          <caret line="190" column="49" selection-start-line="190" selection-start-column="49" selection-end-line="190" selection-end-column="49" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="155" column="58" selection-start-line="155" selection-start-column="58" selection-end-line="155" selection-end-column="58" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/TextPreprocessors.py">
+    <entry file="file://$PROJECT_DIR$/wordEmbeddings/FieldAnalyses.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="147" column="32" selection-start-line="147" selection-start-column="32" selection-end-line="147" selection-end-column="32" />
-          <folding />
+          <caret line="322" column="0" selection-start-line="322" selection-start-column="0" selection-end-line="322" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+            <element signature="e#714#814#0" expanded="false" />
+            <element signature="e#900#1484#0" expanded="false" />
+            <element signature="e#1535#1771#0" expanded="false" />
+            <element signature="e#1859#2689#0" expanded="false" />
+            <element signature="e#2805#3818#0" expanded="false" />
+            <element signature="e#3891#4249#0" expanded="false" />
+            <element signature="e#4312#4686#0" expanded="false" />
+            <element signature="e#4768#4947#0" expanded="false" />
+            <element signature="e#5020#5607#0" expanded="false" />
+            <element signature="e#5736#6971#0" expanded="false" />
+            <element signature="e#7083#8624#0" expanded="false" />
+            <element signature="e#8729#10024#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wordEmbeddings/ContextVectorGenerators.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="14" column="21" selection-start-line="14" selection-start-column="21" selection-end-line="14" selection-end-column="21" />
+          <caret line="84" column="23" selection-start-line="84" selection-start-column="23" selection-end-line="84" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/env1/local/lib/python2.7/site-packages/sklearn/metrics/classification.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33188722">
+          <caret line="81" column="0" selection-start-line="81" selection-start-column="0" selection-end-line="81" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wordEmbeddings/TokenSupervised.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="329" column="25" selection-start-line="329" selection-start-column="25" selection-end-line="329" selection-end-column="25" />
+        <state vertical-scroll-proportion="0.2631579">
+          <caret line="673" column="60" selection-start-line="673" selection-start-column="60" selection-end-line="673" selection-end-column="60" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
-            <element signature="e#1151#1653#0" expanded="false" />
-            <element signature="e#1717#1990#0" expanded="false" />
-            <element signature="e#1717#1915#1" expanded="false" />
-            <element signature="e#4939#6759#0" expanded="false" />
-            <element signature="e#4939#5582#1" expanded="false" />
-            <element signature="e#6841#7938#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wordEmbeddings/RandomIndexer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.36596736">
-          <caret line="414" column="0" selection-start-line="414" selection-start-column="0" selection-end-line="414" selection-end-column="0" />
-          <folding>
-            <element signature="e#335#576#0" expanded="false" />
-            <element signature="e#950#1691#0" expanded="false" />
-            <element signature="e#1778#2325#0" expanded="false" />
-            <element signature="e#2440#3243#0" expanded="false" />
-            <element signature="e#3363#5231#0" expanded="false" />
-            <element signature="e#5304#5600#0" expanded="false" />
-            <element signature="e#5816#8486#0" expanded="false" />
-            <element signature="e#8710#10956#0" expanded="false" />
-            <element signature="e#11174#14457#0" expanded="false" />
-            <element signature="e#17333#17980#0" expanded="false" />
+            <element signature="e#1288#1790#0" expanded="false" />
+            <element signature="e#1854#2127#0" expanded="false" />
+            <element signature="e#1854#2052#1" expanded="false" />
+            <element signature="e#2264#3003#0" expanded="false" />
+            <element signature="e#3148#4833#0" expanded="false" />
+            <element signature="e#3148#3675#1" expanded="false" />
+            <element signature="e#4911#5272#0" expanded="false" />
+            <element signature="e#5513#8009#0" expanded="false" />
+            <element signature="e#5513#6315#1" expanded="false" />
+            <element signature="e#9370#11190#0" expanded="false" />
+            <element signature="e#11276#12102#0" expanded="false" />
+            <element signature="e#12184#13281#0" expanded="false" />
+            <element signature="e#13384#15062#0" expanded="false" />
+            <element signature="e#16714#18168#0" expanded="false" />
+            <element signature="e#18282#19750#0" expanded="false" />
+            <element signature="e#26460#29866#0" expanded="false" />
+            <element signature="e#30827#31881#0" expanded="false" />
           </folding>
         </state>
       </provider>

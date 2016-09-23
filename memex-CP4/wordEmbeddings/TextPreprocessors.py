@@ -152,9 +152,9 @@ class TextPreprocessors:
 
 
 
-path='/home/mayankkejriwal/Downloads/memex-cp4-october/annotated-cities-experiments/'
-TextPreprocessors.preprocess_annotated_cities_file(path+'raw-data/annotated-cities-2.json',
-                                                path+'prepped-data/annotated-cities-2-prepped.json')
+# path='/home/mayankkejriwal/Downloads/memex-cp4-october/annotated-cities-experiments/'
+# TextPreprocessors.preprocess_annotated_cities_file(path+'raw-data/annotated-cities-2.json',
+#                                                 path+'prepped-data/annotated-cities-2-prepped.json')
 # TextPreprocessors.convert_txt_dict_to_json(path+'dictionaries/spa-massage-words.txt', path+'dictionaries/spa-massage-words.json')
 # TextPreprocessors.build_tokens_objects_from_readability(path+'corpora/part-00000.json',
 # path+'tokens/readability_tokens-large-corpus-onlyLower.json')

@@ -4,6 +4,7 @@ import codecs
 import json
 import TextAnalyses
 import string
+import kNearestNeighbors
 
 class RandomIndexer:
     """
@@ -411,21 +412,23 @@ class RandomIndexer:
             out.close()
 
     @staticmethod
-    def generate_telephone_embeddings_v1(ground_truth_corpus, output_file, context_field = 'addressLocality',
-                                         d=200, non_zero_ratio=0.01):
+    def generate_telephone_embeddings_v1(ground_truth_corpus, embeddings_file, output_file, context_field = 'location'):
         """
-        We generate telephone embeddings based on the tokens in addressLocality. Note that there can be
-        multiple telephone numbers per object, and they may not all contain addressLocalities.
+        We generate telephone embeddings based on the tokens in location. Note that there can be
+        multiple telephone numbers per object, and they may not all contain locations. I have verified that
+        'phone' is always a list, and 'location' is always a string. This will make life easier.
         :param ground_truth_corpus: we intend this to be corpora/ground-truth-corpus.json
 
-        At present, there is no notion of dummies or idf. A context will get generated for every unique
-        token.
+        At present, there is no notion of dummies or idf. I will only use vectors if we generated them
+        in previous embeddings.
         :param output_file: where the embeddings get written
         :param context_field: whichever field should be tokenized and then used as context
-        :param d:
-        :param non_zero_ratio:
+        :param embeddings_file: where the original embeddings were generated
         :return: None
         """
+        full_embeddings = kNearestNeighbors.read_in_embeddings(embeddings_file)
+        with codecs.open(ground_truth_corpus, 'r', 'utf-8') as f:
+            pass
 
 # str = 'bødy'
 # print str.isalpha()

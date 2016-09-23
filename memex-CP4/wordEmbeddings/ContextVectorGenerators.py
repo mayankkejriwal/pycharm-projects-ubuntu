@@ -64,3 +64,23 @@ class ContextVectorGenerators:
             return None
         else:
             return context_vecs
+
+    @staticmethod
+    def tokenize_add_all_generator(word, list_of_words, embeddings_dict):
+        """
+        We will not preprocess the string, only tokenize it
+        :param word: this parameter will not be used
+        :param list_of_words: a list of words.
+        :param embeddings_dict: The embeddings dictionary
+        :return: A context vector
+        """
+        context_vec = list()
+        for w in list_of_words:
+            if w not in embeddings_dict:
+                continue
+            if not context_vec:
+                context_vec = list(embeddings_dict[w])
+            else:
+                ContextVectorGenerators._add_vectors(context_vec, embeddings_dict[w])
+        if context_vec:
+            return context_vec
