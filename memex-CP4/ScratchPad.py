@@ -66,7 +66,8 @@ def _bulkload_json_file(input_file):
     res = es.bulk(body = bulk_body, refresh = True)
 
 
-
+# test_string = 'this is a test'
+# print test_string
 # path = '/home/mayankkejriwal/Downloads/dig-data/sample-datasets/escorts/'
 # print re.split('/',path)[-1]
 #_bulkload_json_file(path+'all-extractions-webpage-bulk-load.jl')

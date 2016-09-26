@@ -42,6 +42,6 @@ def convert_txt_tojlines(input_file, output_file):
             out.write('\n')
     out.close()
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # convert_txt_tojlines(path+'part-00000.txt', path+'part-00000.json')
 

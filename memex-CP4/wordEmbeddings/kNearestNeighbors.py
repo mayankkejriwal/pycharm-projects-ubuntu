@@ -159,6 +159,6 @@ def supplement_dictionary(dictionary_file, embeddings_file, k=20):
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
 
-# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-# find_k_nearest_neighbors_multi(path+'embedding/unigram-embeddings-v2.json', ['emergency', 'freetown', '#ebola'])
+# path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# find_k_nearest_neighbors_multi(path+'phone-embeddings-part-00000-v1.json', ['5733533734'])
 # supplement_dictionary(path+'dictionary-supervised/names.txt',path+'embedding/unigram-embeddings-v2-10000docs.json')

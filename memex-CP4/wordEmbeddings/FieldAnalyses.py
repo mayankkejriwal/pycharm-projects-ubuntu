@@ -318,12 +318,12 @@ class FieldAnalyses:
 
 
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/corpora/'
+# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # FieldAnalyses.field_value_statistics(path+'all_extractions_july_2016.jl', 'nationality')
 # FieldAnalyses.find_intersecting_values(path+'corpora/part-00000.json','addressLocality','name')
 # FieldAnalyses.sample_n_values_from_field(path+'part-00000.json', attribute='eyeColor', n=100,
 #                                          output_file=path+'100-sampled-eyeColor-vals-2.txt')
-# FieldAnalyses.print_fields_data_types(path+'all_extractions_july_2016.jl')
+# FieldAnalyses.print_fields_data_types(path+'part-00000.json')
 # FieldAnalyses.centroid_analysis_on_attribute_cluster(path+'unigram-embeddings.json', path+'ground-truth-corpus.json', 'price')
 # attribute_vecs = FieldAnalyses._build_vector_set_for_attribute(path+'unigram-embeddings.json',
 #                                                               path+'ground-truth-corpus.json', 'ethnicity')

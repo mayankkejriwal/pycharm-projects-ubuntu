@@ -100,8 +100,8 @@ def jaccard_rank_prune_expanded_file_to_top_k(seed_file, expanded_file, output_f
     out.close()
 
 
-# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-# field_value_expansion(path+'westafrica/westafrica-condensed.json',
-#                       path+'data/ebola-new-condensed.json', path+'westafrica/westafrica-condensed-expanded.json')
-# jaccard_rank_prune_expanded_file_to_top_k(path+'westafrica/westafrica-condensed.json',path+'westafrica/westafrica-condensed-expanded.json',
-#                                      path+'westafrica/westafrica-top500.json')
+# path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# field_value_expansion(path+'myanmar-earthquake-seeds-condensed.json',
+#                       path+'italyEarthquakeProcessed-condensed.json', path+'myanmar-italyEarthquakeProcessed-condensed-expanded.json')
+# jaccard_rank_prune_expanded_file_to_top_k(path+'myanmar-earthquake-seeds-condensed.json',path+'myanmar-italyEarthquakeProcessed-condensed-expanded.json',
+#                                      path+'myanmar-italyEarthquakeProcessed-top500.json')

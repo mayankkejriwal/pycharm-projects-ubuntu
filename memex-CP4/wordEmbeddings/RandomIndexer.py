@@ -153,6 +153,24 @@ class RandomIndexer:
         return unigram_embeddings
 
     @staticmethod
+    def _init_phone_embeddings(inner_field_tokens_file, d):
+        """
+
+        :param inner_field_tokens_file: each json in the inner_field file must have a single key-value pair
+        of which the value itself is a dictionary with a phone field. This phone field references a string.
+        We will initialize each embedding to be the 0 vector
+        :param d: the dimensionality of the embedding
+        :return: A dictionary of initialized embedding vectors
+        """
+        phone_embeddings = dict()
+        with codecs.open(inner_field_tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                phone = obj.values()[0]['phone']
+                phone_embeddings[phone] = [0.0]*d
+        return phone_embeddings
+
+    @staticmethod
     def generate_unigram_embeddings_v1(tokens_file, idf_file, output_file=None, context_window_size=2,
                                     include_dummy=True, d=200, non_zero_ratio=0.01):
         """
@@ -313,8 +331,8 @@ class RandomIndexer:
                     v = val
                 print 'In document '+str(count)
                 count += 1
-                if count>10000:
-                    break
+                # if count>10000:
+                #     break
                 for i in range(0, len(v)):
                     token = v[i]
                     if token not in token_cvs:
@@ -412,28 +430,61 @@ class RandomIndexer:
             out.close()
 
     @staticmethod
-    def generate_telephone_embeddings_v1(ground_truth_corpus, embeddings_file, output_file, context_field = 'location'):
+    def generate_telephone_embeddings_v1(inner_field_tokens_file, idf_file, output_file,
+                                         include_dummies=False, d=200, non_zero_ratio=0.01):
         """
-        We generate telephone embeddings based on the tokens in location. Note that there can be
-        multiple telephone numbers per object, and they may not all contain locations. I have verified that
-        'phone' is always a list, and 'location' is always a string. This will make life easier.
-        :param ground_truth_corpus: we intend this to be corpora/ground-truth-corpus.json
 
-        At present, there is no notion of dummies or idf. I will only use vectors if we generated them
-        in previous embeddings.
-        :param output_file: where the embeddings get written
-        :param context_field: whichever field should be tokenized and then used as context
-        :param embeddings_file: where the original embeddings were generated
-        :return: None
+        :param inner_field_tokens_file:
+        :param idf_file:
+        :param output_file:
+        :param include_dummies:
+        :param d:
+        :param non_zero_ratio:
+        :return:
         """
-        full_embeddings = kNearestNeighbors.read_in_embeddings(embeddings_file)
-        with codecs.open(ground_truth_corpus, 'r', 'utf-8') as f:
-            pass
+        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file, lower_prune_ratio=0.0)
+        token_cvs = RandomIndexer._generate_context_vectors_for_idf_v2(idf_dict, include_dummies, d, non_zero_ratio)
+        phone_embeddings = RandomIndexer._init_phone_embeddings(inner_field_tokens_file, d=d)
+        count = 1
+        with codecs.open(inner_field_tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                v = obj.values()[0]['tokens_list']
+
+                print 'In document ' + str(count)
+                count += 1
+                # if count>10000:
+                #     break
+                phone = obj.values()[0]['phone']
+                for token in v:
+                    if token not in token_cvs:
+                        if include_dummies:
+                            token = RandomIndexer._find_right_dummy_v2(token)
+                            vec = token_cvs[token]
+                        else:
+                            continue
+                    else:
+                        vec = token_cvs[token]
+
+                    for k in range(0, len(phone_embeddings[phone])):
+                        phone_embeddings[phone][k] += vec[k]
+
+        if output_file:
+            out = codecs.open(output_file, 'w', 'utf-8')
+            for k, v in phone_embeddings.items():
+                answer = dict()
+                answer[k] = v
+                json.dump(answer, out)
+                out.write('\n')
+            out.close()
 
 # str = 'bødy'
 # print str.isalpha()
 # print RandomIndexer._find_right_dummy_v2('..,')
-# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# RandomIndexer.generate_telephone_embeddings_v1(path+'all_tokens-part-00000-onlyLower-1.json',
+#                                              path+'all_tokens-part-00000-onlyLower-1-df.txt',
+#                                              path+'phone-embeddings-part-00000-v1.json')
 # RandomIndexer.generate_unigram_embeddings_twitter_v1(path+'tokens/ebolaXFer_lowerCase.json',
 #                         path+'tokens/ebolaXFer_lowerCase_df.txt',
 #               path+'embedding/unigram-embeddings-v2.json')

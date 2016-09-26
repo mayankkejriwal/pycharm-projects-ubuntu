@@ -80,6 +80,44 @@ class TokenSupervised:
         out.close()
 
     @staticmethod
+    def prep_preprocessed_annotated_file_for_classification(preprocessed_file, embeddings_file,
+                                            output_file, context_generator, text_field, annotated_field, correct_field):
+        """
+        Meant for parsing the files in annotated-cities-experiments/prepped-data into something that is
+        amenable to the ML experiments such as in supervised-exp-datasets.
+        :param preprocessed_file:
+        :param embeddings_file:
+        :param output_file:
+        :param context_generator: a function in ContextVectorGenerator that will be used for taking a word from
+        the text field (e.g.high_recall_readability_text)and generating a context vector based on some notion of context
+        :param text_field: e.g. 'high_recall_readability_text'
+        :param: annotated_field: e.g. 'annotated_cities'
+        :param correct_field: e.g. 'correct_cities'
+        :return: None
+        """
+        full_embeddings = kNearestNeighbors.read_in_embeddings(embeddings_file)
+        # embeddings = set(full_embeddings.keys())
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(preprocessed_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for word in obj[annotated_field]:
+                    if word not in obj[text_field]:
+                        print 'skipping word not found in text field: ',
+                        print word
+                        continue
+                    context_vecs = context_generator(word, obj[text_field], full_embeddings)
+                    if not context_vecs:
+                        print 'context_generator did not return anything...'
+                        continue
+                    for context_vec in context_vecs:
+                        if word in obj[correct_field]:
+                            out.write(word + '\t' + str(context_vec) + '\t1\n')
+                        else:
+                            out.write(word + '\t' + str(context_vec) + '\t0\n')
+        out.close()
+
+    @staticmethod
     def preprocess_prepped_annotated_cities(annotated_cities_file, embeddings_file, output_file, context_generator):
         """
         Meant for parsing the files in annotated-cities-experiments/prepped-data into something that is
@@ -640,25 +678,27 @@ class TokenSupervised:
             model = LinearRegression()
             model.fit(train_data, train_labels)
             predicted_labels = model.predict(test_data)
-        print 'auc score: ',
+        print 'AUC (Area Under Curve): ',
         print roc_auc_score(test_labels, predicted_labels)
-        precision, recall, thresholds = precision_recall_curve(test_labels, predicted_labels)
-        plt.clf()
-        plt.plot(recall, precision, label='precision-recall-curve')
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.ylim([0.0, 1.05])
-        plt.xlim([0.0, 1.0])
-        plt.title('Precision-Recall curve')
-        plt.savefig('/home/mayankkejriwal/Downloads/memex-cp4-october/tmp/fig.png')
+        # precision, recall, thresholds = precision_recall_curve(test_labels, predicted_labels)
+        # plt.clf()
+        # plt.plot(recall, precision, label='precision-recall-curve')
+        # plt.xlabel('Recall')
+        # plt.ylabel('Precision')
+        # plt.ylim([0.0, 1.05])
+        # plt.xlim([0.0, 1.0])
+        # plt.title('Precision-Recall curve')
+        # plt.savefig('/home/mayankkejriwal/Downloads/memex-cp4-october/tmp/fig.png')
         if classifier_model not in ['linear_regression']:
-            print 'accuracy score: ',
+            print 'Accuracy: ',
             print accuracy_score(test_labels, predicted_labels)
             # print precision_score(test_labels, predicted_labels)
-            print 'precision-recall-fscore-support score'
+            prf = ['Precision: ', 'Recall: ', 'F-score: ', 'Support: ']
+            print 'Class 0\tClass 1'
             k = precision_recall_fscore_support(test_labels, predicted_labels)
-            for t in k:
-                print t
+            for i in range(0, len(k)):
+                print prf[i],
+                print k[i]
 
     @staticmethod
     def trial_script_multi(multi_file, opt=2):
@@ -696,18 +736,15 @@ class TokenSupervised:
             #We do feature selection.
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
             TokenSupervised._select_k_best_features(data_dict, k=20)
-            data_dict['classifier_model'] = 'linear_regression'
+            data_dict['classifier_model'] = 'random_forest'
             TokenSupervised._train_and_test_classifier(**data_dict)
 
 
-path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # TokenSupervised.construct_nationality_multi_file(
 #     path+'supervised-exp-datasets/pos-neg-location-american.txt',
 #     path+'supervised-exp-datasets/multi-location-nationality-5class.txt')
 # TokenSupervised.construct_nationality_pos_neg_files(path+'corpora/all_extractions_july_2016.jl',
 #                             path+'embedding/unigram-embeddings-v2-10000docs.json', path+'supervised-exp-datasets/')
-# TokenSupervised.preprocess_prepped_annotated_cities(path+'annotated-cities-experiments/prepped-data/annotated-cities-2-prepped.json',
-#         path+'embedding/unigram-embeddings-v2-10000docs.json', path+'supervised-exp-datasets/pos-neg-annotated-cities-2.txt',
-#                                                     ContextVectorGenerators.ContextVectorGenerators.symmetric_generator)
-TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-5class.txt')
+# TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-5class.txt')
 # TokenSupervised.trial_script_binary(path+'supervised-exp-datasets/pos-neg-location-turkish.txt')

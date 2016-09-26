@@ -2,6 +2,7 @@ import codecs
 import json
 from nltk.tokenize import sent_tokenize, word_tokenize
 import re
+import nltk
 
 
 class TextPreprocessors:
@@ -92,6 +93,34 @@ class TextPreprocessors:
         out.close()
 
     @staticmethod
+    def _extract_name_strings_from_dict_lists(obj, field='telephone', return_as_tokens = False):
+        """
+        We're assuming that obj contains 'field' (make sure to have checked for this) which is a list
+        containing dicts. Each dict contains a name field. We will return a string of phone numbers in
+        alphabetic order.
+        :param obj:
+        :param field: e.g. telephone or email
+        :param return_as_tokens: if True we will return a list, otherwise we'll join and return as string.
+        :return: A string, (sorted) list of unique tokens or None (if no names exist within the list)
+        """
+        phones = set()
+        for phone in obj[field]:
+            if 'name' in phone and phone['name']:
+                if type(phone['name']) == list:
+                    phones = phones.union(set(phone['name']))
+                else:
+                    phones.add(phone['name'])
+        if not phones:
+            return None
+        else:
+            phones = list(phones)
+            phones.sort()
+            if return_as_tokens:
+                return phones
+            else:
+                return '-'.join(phones)
+
+    @staticmethod
     def build_tokens_objects_from_readability(input_file, output_file):
         """
 
@@ -110,6 +139,68 @@ class TextPreprocessors:
                     tokens_obj[obj['identifier']] = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
                     json.dump(tokens_obj, out)
                     out.write('\n')
+        out.close()
+
+    @staticmethod
+    def build_phone_objects_from_all_fields(input_file, output_file, exclude_fields = None, exclude_field_regex = None):
+        """
+        Be careful about the assumptions for the field structure. This function is not going to be appropriate for
+        every jlines file.
+        :param input_file: A json lines file
+        :param output_file: A tokens file, where an identifier has two fields: tokens and phone. Both are lists. Be
+        careful about usage; we will use this file primarily for generating phone embeddings.
+        :param exclude_fields: If the field is within this list, we will ignore that field.
+        :param exclude_field_regex: a regex string, where, if the field name matches this regex, we ignore it.
+        :return: None
+        """
+        # field = 'readability_text'
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+
+                # get phone string, if one exists
+                if 'telephone' not in obj:
+                    continue
+                else:
+                    phone = TextPreprocessors._extract_name_strings_from_dict_lists(obj)
+                    if not phone:
+                        continue
+
+                # get tokens list, if one exists
+                tokens_list = []
+                for k in obj.keys():
+                    if k == 'telephone':
+                        continue
+                    if exclude_fields:
+                        if k in exclude_fields:
+                            continue
+                    if exclude_field_regex:
+                        pat = re.split(exclude_field_regex, k)
+                        print pat
+                        if not (pat and len(pat) == 1 and pat[0] == k):
+                            continue
+                    # print k
+                    if k == 'email':
+                        tokenized_field = TextPreprocessors._extract_name_strings_from_dict_lists(obj, 'email', True)
+                    else:
+                        tokenized_field = TextPreprocessors._tokenize_field(obj, k)
+                    if tokenized_field:
+                        tokens = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
+                        if tokens:
+                            tokens_list += tokens
+
+                if not tokens_list:
+                    continue
+
+                # assuming we made it this far, we have everything we need
+                inner_obj = dict()
+                inner_obj['phone'] = phone
+                inner_obj['tokens_list'] = tokens_list
+                tokens_obj = dict()
+                tokens_obj[obj['identifier']] = inner_obj
+                json.dump(tokens_obj, out)
+                out.write('\n')
         out.close()
 
     @staticmethod
@@ -150,13 +241,49 @@ class TextPreprocessors:
                     out.write('\n')
         out.close()
 
+    @staticmethod
+    def preprocess_annotated_file(input_file, text_field, output_file):
+        """
+        We will take in a file such as annotated-cities-1.json as input and output another json that:
+        tokenizes the text( e.g. high_recall_readability_text field) and converts it to lower-case.
+        converts values in all other fields to lowercase
+
+        These preprocessed files can then be used for analysis.
+
+        Note that the field names remain the same in the output file, even though high_recall-* is now
+         a list of tokens instead of a string.
+        :param input_file:
+        :param text_field:
+        :param output_file:
+        :return:
+        """
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                tokenized_field = TextPreprocessors._tokenize_field(obj, text_field)
+                if tokenized_field:
+                    obj[text_field] = TextPreprocessors._preprocess_tokens(tokenized_field,
+                                                                                               options=["lower"])
+                    for k in obj.keys():
+                        obj[k] = TextPreprocessors._preprocess_tokens(obj[k], options=["lower"])
+                    json.dump(obj, out)
+                    out.write('\n')
+        out.close()
 
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/annotated-cities-experiments/'
+
+# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # TextPreprocessors.preprocess_annotated_cities_file(path+'raw-data/annotated-cities-2.json',
 #                                                 path+'prepped-data/annotated-cities-2-prepped.json')
 # TextPreprocessors.convert_txt_dict_to_json(path+'dictionaries/spa-massage-words.txt', path+'dictionaries/spa-massage-words.json')
-# TextPreprocessors.build_tokens_objects_from_readability(path+'corpora/part-00000.json',
-# path+'tokens/readability_tokens-large-corpus-onlyLower.json')
-
+# TextPreprocessors.build_tokens_objects_from_readability(path+'part-00000.json',
+# path+'readability_tokens-part-00000-onlyLower.json')
+# exclude_fields_1 = ['high_recall_readability_text', 'identifier', 'inferlink_text', 'readability_text', 'seller']
+# exclude_field_regex = '\.*_count'
+# string = 'readability_text'
+# print re.split(exclude_field_regex, string)
+# print '-'.join(exclude_fields_1)
+# TextPreprocessors.build_phone_objects_from_all_fields(path+'part-00000.json',
+# path+'all_tokens-part-00000-onlyLower-1.json', exclude_fields_1, exclude_field_regex)
 

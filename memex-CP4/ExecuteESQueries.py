@@ -1,7 +1,7 @@
 import SparqlTranslator, SelectExtractors, Grouper, ResultExtractors
 
 from elasticsearch import Elasticsearch
-#import gensim
+# import gensim
 import pprint, codecs, json
 import PrintUtils
 from sqparser import SQParser

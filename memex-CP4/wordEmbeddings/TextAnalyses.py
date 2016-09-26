@@ -31,7 +31,7 @@ class TextAnalyses:
         return idf
 
     @staticmethod
-    def generate_document_frequencies(tokens_list_file, output_file):
+    def generate_document_frequencies(tokens_list_file, output_file, inner_field = None):
         """
         In the output_file, each line contains three tab delimited fields: the first field is the token,
         the second field is the count of documents in which that token occurred, the third field
@@ -43,6 +43,9 @@ class TextAnalyses:
 
         :param tokens_list_file: Each line in the file is a json, with an identifier referring to a list of tokens
         :param output_file:
+        :param inner_field: if None, then each read-in dictionary is a single key-value pair, with the value
+        being the list of tokens. Otherwise, the 'value' itself is a dictionary and we reference the inner
+        field of that dictionary. This distinction is particularly useful for phone embeddings e.g.
         :return: None
         """
         df = dict()  # the key is the token, the value is the count
@@ -51,8 +54,21 @@ class TextAnalyses:
             for line in f:
                 total += 1
                 obj = json.loads(line)
-                for k, v in obj.items():
+                if not inner_field:
+                    for k, v in obj.items():
+                        forbidden = set()
+                        for token in v:
+                            if token in forbidden:
+                                continue
+                            if token not in df:
+                                df[token] = 1
+                                forbidden.add(token)
+                            else:
+                                df[token] += 1
+                                forbidden.add(token)
+                elif inner_field:
                     forbidden = set()
+                    v =obj.values()[0][inner_field]
                     for token in v:
                         if token in forbidden:
                             continue
@@ -71,7 +87,7 @@ class TextAnalyses:
         out.close()
 
 
-# path='/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
-# TextAnalyses.generate_document_frequencies(path+'tokens/ebolaXFer_lowerCase.json',
-# path+'tokens/ebolaXFer_lowerCase_df.txt')
+# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# TextAnalyses.generate_document_frequencies(path+'all_tokens-part-00000-onlyLower-1.json',
+# path+'all_tokens-part-00000-onlyLower-1-df.txt', inner_field='tokens_list')
 
