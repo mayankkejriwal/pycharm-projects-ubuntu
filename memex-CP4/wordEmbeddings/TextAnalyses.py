@@ -86,8 +86,9 @@ class TextAnalyses:
             out.write(string)
         out.close()
 
-
+# RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/tokens/'
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
-# TextAnalyses.generate_document_frequencies(path+'all_tokens-part-00000-onlyLower-1.json',
+# TextAnalyses.generate_document_frequencies(RWP_path+'condensed-objects-lowerCase.json',
+#                                            RWP_path+'condensed-objects-idf.txt')
 # path+'all_tokens-part-00000-onlyLower-1-df.txt', inner_field='tokens_list')
 

@@ -347,11 +347,12 @@ def find_seeds_in_condensed_file(condensed_file, seeds_list):
 
 
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
 # uuid_seeds = ['768466957527953410','768466964457152512','768467097802280961','768467207261188096','768467216761102338']
 # find_seeds_in_condensed_file(path+'italyEarthquakeProcessed-condensed.json', seeds_list=['earthquake', 'myanmar'])
 # build_uuids_file_from_json(path+'19validationresults-relevant-uuids.txt', path+'19validationresults-relevant-allFields.json')
 # condenseRWP(path+'italyEarthquakeProcessed/',path+'italyEarthquakeProcessed-condensed.json', extractAll=False)
-# build_tokens_file(path+'ebolaXFer-condensed.json', path+'tokens/ebolaXFer_lowerCase.json')
+# build_tokens_file(RWP_path+'condensed-objects.json', RWP_path+'tokens/condensed-objects-lowerCase.json')
 # sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
 #                         path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)
 # build_uuids_file_from_csv(path+'19validationresults-uuids.txt', path+'queryResultsTable-2.csv')

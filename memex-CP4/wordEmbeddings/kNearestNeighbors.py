@@ -160,5 +160,6 @@ def supplement_dictionary(dictionary_file, embeddings_file, k=20):
 
 
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
-# find_k_nearest_neighbors_multi(path+'phone-embeddings-part-00000-v1.json', ['5733533734'])
+# RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/embedding/'
+# find_k_nearest_neighbors_multi(RWP_path+'unigram-embedding-v2.json', ['war', 'flood', 'disaster'])
 # supplement_dictionary(path+'dictionary-supervised/names.txt',path+'embedding/unigram-embeddings-v2-10000docs.json')

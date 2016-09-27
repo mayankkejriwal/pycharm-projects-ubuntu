@@ -15,13 +15,14 @@ from sklearn.metrics import precision_recall_curve
 import ContextVectorGenerators
 import FieldAnalyses
 import matplotlib.pyplot as plt
+from random import shuffle
 
 class TokenSupervised:
     """
     This class is primarily concerned with token classification tasks in a supervised setting. For example,
     given a few words like 'green', 'blue' and 'brown' for eye color, can the algorithm learn to detect
-     'hazel' and 'grey' from words like 'big' and 'sparkling'? For 'context' supervision tasks, where we
-     use more information than just the word vectors, we design a separate class.
+     'hazel' and 'grey' from words like 'big' and 'sparkling'? We also use it for 'context' supervision tasks, where
+     the feature vector of the word depends on its context.
     """
 
     @staticmethod
@@ -62,7 +63,8 @@ class TokenSupervised:
     @staticmethod
     def prepare_pos_neg_dictionaries_file(dictionary_file1, dictionary_file2, embeddings_file, output_file):
         """
-        we will assign label 0 to file 1 and label 1 to file 2
+        we will assign label 0 to all words in file 1 and label 1 to all words in file 2
+        A line in each file only contains a word.
         :param dictionary_file1:
         :param dictionary_file2:
         :param embeddings_file:
@@ -83,7 +85,7 @@ class TokenSupervised:
     def prep_preprocessed_annotated_file_for_classification(preprocessed_file, embeddings_file,
                                             output_file, context_generator, text_field, annotated_field, correct_field):
         """
-        Meant for parsing the files in annotated-cities-experiments/prepped-data into something that is
+        Meant for prepping a preprocessed annotated tokens file (e.g. a file output by  into something that is
         amenable to the ML experiments such as in supervised-exp-datasets.
         :param preprocessed_file:
         :param embeddings_file:
@@ -372,9 +374,8 @@ class TokenSupervised:
                 TokenSupervised._select_k_best_features(v2, k=k, test_data_visible=test_data_visible)
 
     @staticmethod
-    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=False):
+    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True):
         """
-        randomize is not currently implemented.
         :param multi_file:
         :param train_percent:
         :param randomize:
@@ -387,14 +388,14 @@ class TokenSupervised:
         for i in range(0, len(labels)-1):
             results[labels[i]] = dict() # this will be the 1 label
             for j in range(i+1, len(labels)):   # this will be the 0 label
-                results[labels[i]][labels[j]] = TokenSupervised._prepare_train_test_from_01_vectors(data[labels[j]], data[labels[i]],
-                                                                                    train_percent, randomize)
+                results[labels[i]][labels[j]] = TokenSupervised._prepare_train_test_from_01_vectors(data[labels[j]],
+                                                                        data[labels[i]], train_percent, randomize)
         return results
 
     @staticmethod
-    def _prepare_train_test_from_01_vectors(vectors_0, vectors_1, train_percent = 0.3, randomize = False):
+    def _prepare_train_test_from_01_vectors(vectors_0, vectors_1, train_percent = 0.3, randomize=True):
         """
-        randomize is not currently implemented.
+
         :param vectors_0:
         :param vectors_1:
         :param train_percent:
@@ -404,64 +405,60 @@ class TokenSupervised:
         data = dict()
         data[1] = vectors_1
         data[0] = vectors_0
-        train_pos_num = int(len(data[1])*train_percent)
-        train_neg_num = int(len(data[0])*train_percent)
-        test_pos_num = len(data[1])-train_pos_num
-        test_neg_num = len(data[0])-train_neg_num
-
-        train_data_pos = data[1][0:train_pos_num]
-        train_data_neg = data[0][0:train_neg_num]
-        train_data = np.append(train_data_pos, train_data_neg, axis=0)
-
-        test_data_pos = data[1][train_pos_num:]
-        test_data_neg = data[0][train_neg_num:]
-        test_data = np.append(test_data_pos, test_data_neg, axis=0)
-
-        train_labels_pos = [[1]*train_pos_num]
-        train_labels_neg = [[0]*train_neg_num]
-        train_labels = np.append(train_labels_pos, train_labels_neg)
-
-        test_labels_pos = [[1]*test_pos_num]
-        test_labels_neg = [[0]*test_neg_num]
-        test_labels = np.append(test_labels_pos, test_labels_neg)
-
-        results = dict()
-        results['train_data'] = train_data
-        results['train_labels'] = train_labels
-        results['test_data'] = test_data
-        results['test_labels'] = test_labels
-
-        return results
+        return TokenSupervised._prepare_train_test_data(pos_neg_file=None, train_percent=train_percent,
+                                                        randomize=randomize, data_vectors=data)
 
     @staticmethod
-    def _prepare_train_test_data(pos_neg_file, train_percent = 0.3, randomize=False):
+    def _prepare_train_test_data(pos_neg_file, train_percent = 0.3, randomize=True, data_vectors=None):
         """
-        Warning: randomize is not implemented at present.
+
         :param pos_neg_file:
         :param train_percent:
         :param randomize: If true, we'll randomize the data we're reading in from pos_neg_file.
         :return: dictionary containing training/testing data/labels
         """
-        data = TokenSupervised._prepare_for_ML_classification(pos_neg_file)
+        if pos_neg_file:
+            data = TokenSupervised._prepare_for_ML_classification(pos_neg_file)
+        elif data_vectors:
+            data = data_vectors
+        else:
+            raise Exception('Neither pos_neg_file nor data_vectors argument is specified. Exiting.')
+
         train_pos_num = int(len(data[1])*train_percent)
         train_neg_num = int(len(data[0])*train_percent)
         test_pos_num = len(data[1])-train_pos_num
         test_neg_num = len(data[0])-train_neg_num
 
-        train_data_pos = data[1][0:train_pos_num]
-        train_data_neg = data[0][0:train_neg_num]
+        if not randomize:
+
+            train_data_pos = data[1][0:train_pos_num]
+            train_data_neg = data[0][0:train_neg_num]
+
+            test_data_pos = data[1][train_pos_num:]
+            test_data_neg = data[0][train_neg_num:]
+
+        else:
+
+            all_pos_indices = range(0, len(data[1]))
+            all_neg_indices = range(0, len(data[0]))
+            shuffle(all_pos_indices)
+            shuffle(all_neg_indices)
+
+            train_data_pos = [data[1][i] for i in all_pos_indices[0:train_pos_num]]
+            train_data_neg = [data[0][i] for i in all_neg_indices[0:train_neg_num]]
+
+            test_data_pos = [data[1][i] for i in all_pos_indices[train_pos_num:]]
+            test_data_neg = [data[0][i] for i in all_neg_indices[train_neg_num:]]
+
+        train_labels_pos = [[1] * train_pos_num]
+        train_labels_neg = [[0] * train_neg_num]
+
+        test_labels_pos = [[1] * test_pos_num]
+        test_labels_neg = [[0] * test_neg_num]
+
         train_data = np.append(train_data_pos, train_data_neg, axis=0)
-
-        test_data_pos = data[1][train_pos_num:]
-        test_data_neg = data[0][train_neg_num:]
         test_data = np.append(test_data_pos, test_data_neg, axis=0)
-
-        train_labels_pos = [[1]*train_pos_num]
-        train_labels_neg = [[0]*train_neg_num]
         train_labels = np.append(train_labels_pos, train_labels_neg)
-
-        test_labels_pos = [[1]*test_pos_num]
-        test_labels_neg = [[0]*test_neg_num]
         test_labels = np.append(test_labels_pos, test_labels_neg)
 
         results = dict()
