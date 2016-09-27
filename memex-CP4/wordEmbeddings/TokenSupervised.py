@@ -87,6 +87,8 @@ class TokenSupervised:
         """
         Meant for prepping a preprocessed annotated tokens file (e.g. a file output by  into something that is
         amenable to the ML experiments such as in supervised-exp-datasets.
+
+        We also support multi-word annotations.
         :param preprocessed_file:
         :param embeddings_file:
         :param output_file:
@@ -104,13 +106,22 @@ class TokenSupervised:
             for line in f:
                 obj = json.loads(line)
                 for word in obj[annotated_field]:
-                    if word not in obj[text_field]:
-                        print 'skipping word not found in text field: ',
-                        print word
+                    word_tokens = TextPreprocessors.TextPreprocessors.tokenize_string(word)
+                    if len(word_tokens) <= 1: # we're dealing with a single word
+                        if word not in obj[text_field]:
+                            print 'skipping word not found in text field: ',
+                            print word
+                            continue
+                        context_vecs = context_generator(word, obj[text_field], full_embeddings)
+                    elif TextPreprocessors.TextPreprocessors.is_sublist_in_big_list(obj[text_field], word_tokens):
+                        context_vecs = context_generator(word, obj[text_field], full_embeddings, multi=True)
+                    else:
                         continue
-                    context_vecs = context_generator(word, obj[text_field], full_embeddings)
+
+
                     if not context_vecs:
-                        print 'context_generator did not return anything...'
+                        print 'context_generator did not return anything for word: ',
+                        print word
                         continue
                     for context_vec in context_vecs:
                         if word in obj[correct_field]:
@@ -374,7 +385,7 @@ class TokenSupervised:
                 TokenSupervised._select_k_best_features(v2, k=k, test_data_visible=test_data_visible)
 
     @staticmethod
-    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True, balanced_training=False):
+    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True, balanced_training=True):
         """
         :param multi_file:
         :param train_percent:
@@ -397,7 +408,7 @@ class TokenSupervised:
 
     @staticmethod
     def _prepare_train_test_from_01_vectors(vectors_0, vectors_1, train_percent = 0.3, randomize=True,
-                                            balanced_training=False):
+                                            balanced_training=True):
         """
 
         :param vectors_0:
@@ -508,6 +519,8 @@ class TokenSupervised:
             train_labels_pos = [[1] * train_pos_num]
             train_labels_neg = [[0] * train_neg_num]
 
+        # print len(train_data_pos)
+        # print len(train_data_neg)
         train_data = np.append(train_data_pos, train_data_neg, axis=0)
         test_data = np.append(test_data_pos, test_data_neg, axis=0)
         train_labels = np.append(train_labels_pos, train_labels_neg)
