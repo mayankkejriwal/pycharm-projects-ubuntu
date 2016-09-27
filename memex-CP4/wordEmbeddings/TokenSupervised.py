@@ -16,6 +16,7 @@ import ContextVectorGenerators
 import FieldAnalyses
 import matplotlib.pyplot as plt
 from random import shuffle
+import math
 
 class TokenSupervised:
     """
@@ -385,7 +386,7 @@ class TokenSupervised:
                 TokenSupervised._select_k_best_features(v2, k=k, test_data_visible=test_data_visible)
 
     @staticmethod
-    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True, balanced_training=True):
+    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True, balanced_training=False):
         """
         :param multi_file:
         :param train_percent:
@@ -475,10 +476,19 @@ class TokenSupervised:
         else:
             raise Exception('Neither pos_neg_file nor data_vectors argument is specified. Exiting.')
 
-        train_pos_num = int(len(data[1])*train_percent)
-        train_neg_num = int(len(data[0])*train_percent)
+        # print len(data[1])
+        # print len(data[0])
+        train_pos_num = int(math.ceil(len(data[1])*train_percent))
+        train_neg_num = int(math.ceil(len(data[0])*train_percent))
+        # print train_pos_num
+        # print train_neg_num
         test_pos_num = len(data[1])-train_pos_num
         test_neg_num = len(data[0])-train_neg_num
+        if test_pos_num == 0:
+            test_pos_num = 1
+        if test_neg_num == 0:
+            test_neg_num = 1
+
         test_labels_pos = [[1] * test_pos_num]
         test_labels_neg = [[0] * test_neg_num]
 
@@ -486,9 +496,15 @@ class TokenSupervised:
 
             train_data_pos = data[1][0:train_pos_num]
             train_data_neg = data[0][0:train_neg_num]
+            if train_pos_num < len(data[1]):
+                test_data_pos = data[1][train_pos_num:]
+            else:
+                test_data_pos = [data[1][-1]]
 
-            test_data_pos = data[1][train_pos_num:]
-            test_data_neg = data[0][train_neg_num:]
+            if train_neg_num < len(data[0]):
+                test_data_neg = data[0][train_neg_num:]
+            else:
+                test_data_neg = [data[0][-1]]
 
         else:
 
@@ -500,8 +516,15 @@ class TokenSupervised:
             train_data_pos = [data[1][i] for i in all_pos_indices[0:train_pos_num]]
             train_data_neg = [data[0][i] for i in all_neg_indices[0:train_neg_num]]
 
-            test_data_pos = [data[1][i] for i in all_pos_indices[train_pos_num:]]
-            test_data_neg = [data[0][i] for i in all_neg_indices[train_neg_num:]]
+            if train_pos_num < len(data[1]):
+                test_data_pos = [data[1][i] for i in all_pos_indices[train_pos_num:]]
+            else:
+                test_data_pos = [data[1][-1]]
+
+            if train_neg_num < len(data[0]):
+                test_data_neg = [data[0][i] for i in all_neg_indices[train_neg_num:]]
+            else:
+                test_data_neg = [data[0][-1]]
 
         if balanced_training:
             if train_pos_num < train_neg_num:
@@ -535,12 +558,14 @@ class TokenSupervised:
         return results
 
     @staticmethod
-    def _predict_labels(test_data, model_dict):
+    def _predict_labels(test_data, model_dict, ranking_mode=False):
         """
 
         :param test_data: a vector of vectors
         :param model_dict: the double_dict with a model at the final level.
-        :return: a vector of predicted labels. labels will typically not be numeric.
+        :param ranking_mode: if true, we will not return a single predicted label per element of test data, but
+        instead return a ranked list of labels per test vector.
+        :return: a vector of predicted labels (or ranked label lists). labels will typically not be numeric.
         """
 
         label_scores = [dict()]*len(test_data)
@@ -557,15 +582,18 @@ class TokenSupervised:
                     label_scores[i][k1] += predicted_probabilities[i][1]
         predicted_labels = list()
         for score_dict in label_scores:
-            predicted_labels.append(TokenSupervised._find_max_label(score_dict))
+            if ranking_mode:
+                predicted_labels.append(TokenSupervised._rank_labels_desc(score_dict))
+            else:
+                predicted_labels.append(TokenSupervised._find_max_label(score_dict))
         return predicted_labels
 
     @staticmethod
     def _find_max_label(dictionary):
         """
 
-        :param dictionary:
-        :return:
+        :param dictionary: labels and scores. The higher the score, the more probable the label.
+        :return: the max label.
         """
         max = -1
         max_label = None
@@ -576,11 +604,35 @@ class TokenSupervised:
         return max_label
 
     @staticmethod
-    def _train_and_test_allVsAll_classifier(data_labels_dict, classifier_model="linear_regression"):
+    def _rank_labels_desc(dictionary):
+        """
+
+        :param dictionary: labels and scores. The higher the score, the more probable the label.
+        :return: a ranked list of labels.
+        """
+        # let's reverse the dictionary first.
+        reversed_dict = dict()
+        for k, v in dictionary.items():
+            if v not in reversed_dict:
+                reversed_dict[v] = list()
+            reversed_dict[v].append(k)
+        keys = reversed_dict.keys()
+        keys.sort(reverse=True)
+        results = list()
+        for k in keys:
+            results += reversed_dict[k]
+        return results
+
+    @staticmethod
+    def _train_and_test_allVsAll_classifier(data_labels_dict, classifier_model="linear_regression", ranking_mode=False,
+                                            k=None):
         """
         Prints out a bunch of stuff, most importantly accuracy.
         :param data_labels_dict: The double dict that is returned by _prepare_train_test_data_multi
         :param classifier_model: currently only supports a few popular models.
+        :param ranking_mode: if False, we will only take 'top' labels and compute accuracy with respect to those.
+        Otherwise, we will rank the labels and compute accuracy@k metrics, where k is parameter below.
+        :param k: if you set ranking_mode, you also need to set this. We will print accuracy@k.
         :return: None
         """
         model_dict = dict()
@@ -592,10 +644,21 @@ class TokenSupervised:
         for k1 in data_labels_dict.keys():
             for k2 in data_labels_dict[k1].keys():
                 data_labels_dict[k1][k2]['predicted_labels'] = TokenSupervised._predict_labels(
-                    data_labels_dict[k1][k2]['test_data'],model_dict)
+                    data_labels_dict[k1][k2]['test_data'],model_dict,ranking_mode)
 
         predicted_labels, test_labels = TokenSupervised._numerize_labels(data_labels_dict)
-        print accuracy_score(test_labels, predicted_labels)
+        # print test_labels
+
+        if not ranking_mode:
+            print 'Accuracy: ',
+            print accuracy_score(test_labels, predicted_labels)
+        else:
+            correct = 0.0
+            print 'Accuracy@'+str(k)+': ',
+            for i in range(len(test_labels)):
+                if test_labels[i] in predicted_labels[i][0:k]:
+                    correct += 1.0
+            print str(correct/len(test_labels))
 
     @staticmethod
     def _numerize_labels(data_labels_dict):
@@ -621,7 +684,13 @@ class TokenSupervised:
                 p_labels = v2['predicted_labels']
                 t_labels = v2['test_labels']
                 for p_label in p_labels:
-                    predicted_labels.append(labels.index(p_label))
+                    if type(p_label) == list:
+                        tmp_list = list()
+                        for l in p_label:
+                            tmp_list.append(labels.index(l))
+                        predicted_labels.append(tmp_list)
+                    else:
+                        predicted_labels.append(labels.index(p_label))
                 for t_label in t_labels:
                     if t_label == 0:
                         test_labels.append(labels.index(k2))
@@ -775,7 +844,16 @@ class TokenSupervised:
             #We do feature selection.
             data_dict = TokenSupervised._prepare_train_test_data_multi(multi_file)
             TokenSupervised._select_k_best_features_multi(data_dict, k=20)
-            TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='random_forest')
+            TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='random_forest',
+                                                                ranking_mode=True,k=5)
+            # TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='random_forest',
+            #                                                     ranking_mode=True, k=2)
+            # TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='linear_regression',
+            #                                                     ranking_mode=True, k=3)
+            # TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='linear_regression',
+            #                                                     ranking_mode=True, k=4)
+            # TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='linear_regression',
+            #                                                     ranking_mode=True, k=5)
 
     @staticmethod
     def trial_script_binary(pos_neg_file, opt=2):
@@ -802,11 +880,12 @@ class TokenSupervised:
             TokenSupervised._train_and_test_classifier(**data_dict)
 
 
-# path='/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # TokenSupervised.construct_nationality_multi_file(
 #     path+'supervised-exp-datasets/pos-neg-location-american.txt',
-#     path+'supervised-exp-datasets/multi-location-nationality-5class.txt')
+#     path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt',None)
 # TokenSupervised.construct_nationality_pos_neg_files(path+'corpora/all_extractions_july_2016.jl',
 #                             path+'embedding/unigram-embeddings-v2-10000docs.json', path+'supervised-exp-datasets/')
-# TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-5class.txt')
+# TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt')
 # TokenSupervised.trial_script_binary(path+'supervised-exp-datasets/pos-neg-location-turkish.txt')
+# print TokenSupervised._rank_labels_desc({'a':0.23, 'b':0.23, 'c':0.53})
