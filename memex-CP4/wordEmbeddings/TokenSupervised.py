@@ -374,11 +374,14 @@ class TokenSupervised:
                 TokenSupervised._select_k_best_features(v2, k=k, test_data_visible=test_data_visible)
 
     @staticmethod
-    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True):
+    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True, balanced_training=False):
         """
         :param multi_file:
         :param train_percent:
         :param randomize:
+        :param balanced_training: if True, we will equalize positive and negative training samples by oversampling
+        the lesser class. For example, if we have 4 positive samples and 7 negative samples, we will randomly re-sample
+        3 positive samples from the 4 positive samples, meaning there will be repetition. Use with caution.
         :return:
         """
         data = TokenSupervised._prepare_multi_for_ML_classification(multi_file)
@@ -389,32 +392,69 @@ class TokenSupervised:
             results[labels[i]] = dict() # this will be the 1 label
             for j in range(i+1, len(labels)):   # this will be the 0 label
                 results[labels[i]][labels[j]] = TokenSupervised._prepare_train_test_from_01_vectors(data[labels[j]],
-                                                                        data[labels[i]], train_percent, randomize)
+                                                        data[labels[i]], train_percent, randomize, balanced_training)
         return results
 
     @staticmethod
-    def _prepare_train_test_from_01_vectors(vectors_0, vectors_1, train_percent = 0.3, randomize=True):
+    def _prepare_train_test_from_01_vectors(vectors_0, vectors_1, train_percent = 0.3, randomize=True,
+                                            balanced_training=False):
         """
 
         :param vectors_0:
         :param vectors_1:
         :param train_percent:
         :param randomize:
+        :param balanced_training: if True, we will equalize positive and negative training samples by oversampling
+        the lesser class. For example, if we have 4 positive samples and 7 negative samples, we will randomly re-sample
+        3 positive samples from the 4 positive samples, meaning there will be repetition. Use with caution.
         :return: a dictionary that is very similar to the one that gets returned by _prepare_train_test_data
         """
         data = dict()
         data[1] = vectors_1
         data[0] = vectors_0
         return TokenSupervised._prepare_train_test_data(pos_neg_file=None, train_percent=train_percent,
-                                                        randomize=randomize, data_vectors=data)
+                                            randomize=randomize, balanced_training=balanced_training, data_vectors=data)
 
     @staticmethod
-    def _prepare_train_test_data(pos_neg_file, train_percent = 0.3, randomize=True, data_vectors=None):
+    def _sample_and_extend(list_of_vectors, total_samples):
+        """
+        Oversampling code for balanced training. We will do deep re-sampling, assuming that the vectors contain
+        atoms.
+        :param list_of_vectors: the list of vectors that are going to be re-sampled (randomly)
+        :param total_samples: The total number of vectors that we want in the list. Make sure that this number
+        is higher than the length of list_of_vectors
+        :return: the over-sampled list
+        """
+        if len(list_of_vectors) >= total_samples:
+            raise Exception('Check your lengths!')
+
+        indices = range(0, len(list_of_vectors))
+        shuffle(indices)
+        desired_samples = total_samples-len(list_of_vectors)
+        # print desired_samples>len(list_of_vectors)
+        while desired_samples > len(indices):
+            new_indices = list(indices)
+            shuffle(new_indices)
+            indices += new_indices
+        new_data = [list(list_of_vectors[i]) for i in indices[0:desired_samples]]
+        # print new_data
+        return np.append(list_of_vectors, new_data, axis=0)
+
+
+    @staticmethod
+    def _prepare_train_test_data(pos_neg_file, train_percent = 0.3, randomize=True, balanced_training=True,
+                                 data_vectors=None):
         """
 
         :param pos_neg_file:
         :param train_percent:
-        :param randomize: If true, we'll randomize the data we're reading in from pos_neg_file.
+        :param randomize: If true, we'll randomize the data we're reading in from pos_neg_file. Otherwise, the initial
+        train_percent fraction goes into the training data and the rest of it in the test data
+        :param balanced_training: if True, we will equalize positive and negative training samples by oversampling
+        the lesser class. For example, if we have 4 positive samples and 7 negative samples, we will randomly re-sample
+        3 positive samples from the 4 positive samples, meaning there will be repetition. Use with caution.
+        :param data_vectors: this should be set if pos_neg_file is None. It is mostly for internal uses, so
+        that we can re-use this function by invoking it from some of the other _prepare_ files.
         :return: dictionary containing training/testing data/labels
         """
         if pos_neg_file:
@@ -428,6 +468,8 @@ class TokenSupervised:
         train_neg_num = int(len(data[0])*train_percent)
         test_pos_num = len(data[1])-train_pos_num
         test_neg_num = len(data[0])-train_neg_num
+        test_labels_pos = [[1] * test_pos_num]
+        test_labels_neg = [[0] * test_neg_num]
 
         if not randomize:
 
@@ -450,11 +492,21 @@ class TokenSupervised:
             test_data_pos = [data[1][i] for i in all_pos_indices[train_pos_num:]]
             test_data_neg = [data[0][i] for i in all_neg_indices[train_neg_num:]]
 
-        train_labels_pos = [[1] * train_pos_num]
-        train_labels_neg = [[0] * train_neg_num]
-
-        test_labels_pos = [[1] * test_pos_num]
-        test_labels_neg = [[0] * test_neg_num]
+        if balanced_training:
+            if train_pos_num < train_neg_num:
+                train_labels_pos = [[1] * train_neg_num]
+                train_labels_neg = [[0] * train_neg_num]
+                train_data_pos = TokenSupervised._sample_and_extend(train_data_pos, total_samples=train_neg_num)
+            elif train_pos_num > train_neg_num:
+                train_labels_pos = [[1] * train_pos_num]
+                train_labels_neg = [[0] * train_pos_num]
+                train_data_neg = TokenSupervised._sample_and_extend(train_data_neg, total_samples=train_pos_num)
+            else:
+                train_labels_pos = [[1] * train_pos_num]
+                train_labels_neg = [[0] * train_neg_num]
+        else:
+            train_labels_pos = [[1] * train_pos_num]
+            train_labels_neg = [[0] * train_neg_num]
 
         train_data = np.append(train_data_pos, train_data_neg, axis=0)
         test_data = np.append(test_data_pos, test_data_neg, axis=0)
