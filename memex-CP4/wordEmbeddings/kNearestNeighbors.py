@@ -232,9 +232,9 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
-
-path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
-tmp_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+#
+# path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# tmp_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/embedding/'
 # find_k_nearest_neighbors_multi(RWP_path+'unigram-embedding-v2.json', ['war', 'flood', 'disaster'], False)
-supplement_dictionary_v1(path+'dictionary-supervised/names.txt',tmp_path+'unigram-part-00000-v2.json',tmp_path+'supplemented-names.txt')
+# supplement_dictionary_v1(path+'dictionary-supervised/names.txt',tmp_path+'unigram-part-00000-v2.json',tmp_path+'supplemented-names.txt')
