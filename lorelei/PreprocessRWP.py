@@ -344,14 +344,47 @@ def find_seeds_in_condensed_file(condensed_file, seeds_list):
                     print obj
 
 
+def build_enriched_entities_dataset(jlines_file, output_file):
+    """
+    Meant primarily for application on RWP-prepped/condensed-objects-allFields.json. In the output file, we
+    have uuid, wordcloud, and a field (encoded as list) for each entity type.
+    :param jlines_file:
+    :param output_file:
+    :return: None
+    """
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(jlines_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            result = dict()
+            result['uuid'] = obj['uuid']
+
+            if 'loreleiJSONMapping' in obj and 'wordcloud' in obj['loreleiJSONMapping']:
+                result['wordcloud'] = obj['loreleiJSONMapping']['wordcloud']
+
+            entities_dict = dict()
+            if 'loreleiJSONMapping' in obj and 'rpiInformationExtraction' in obj['loreleiJSONMapping'] and\
+                'enrichedEntities' in obj['loreleiJSONMapping']['rpiInformationExtraction']:
+                enriched_entities = obj['loreleiJSONMapping']['rpiInformationExtraction']['enrichedEntities']
+            for entity in enriched_entities:
+                if entity['entity_type'] not in entities_dict:
+                    entities_dict[entity['entity_type']] = list()
+                entities_dict[entity['entity_type']].append(entity['mention_head'])
+            for k, v in entities_dict.items():
+                result[k] = v
+            json.dump(result, out)
+            out.write('\n')
+
+    out.close()
 
 
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
+# build_enriched_entities_dataset(RWP_path+'condensed-objects-allFields.json', RWP_path+'enriched-entities.json')
 # uuid_seeds = ['768466957527953410','768466964457152512','768467097802280961','768467207261188096','768467216761102338']
 # find_seeds_in_condensed_file(path+'italyEarthquakeProcessed-condensed.json', seeds_list=['earthquake', 'myanmar'])
 # build_uuids_file_from_json(path+'19validationresults-relevant-uuids.txt', path+'19validationresults-relevant-allFields.json')
-# condenseRWP(path+'italyEarthquakeProcessed/',path+'italyEarthquakeProcessed-condensed.json', extractAll=False)
+# condenseRWP(RWP_path+'reliefWebProcessed/', RWP_path+'reliefWebProcessed-prepped/condensed-objects-allFields.json', extractAll=True)
 # build_tokens_file(RWP_path+'condensed-objects.json', RWP_path+'tokens/condensed-objects-lowerCase.json')
 # sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
 #                         path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)

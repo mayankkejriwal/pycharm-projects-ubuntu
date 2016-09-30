@@ -17,6 +17,7 @@ import FieldAnalyses
 import matplotlib.pyplot as plt
 from random import shuffle
 import math
+from sklearn.externals import joblib
 
 class TokenSupervised:
     """
@@ -364,10 +365,11 @@ class TokenSupervised:
         else:
             kBest = SelectKBest(f_classif, k=k)
             kBest = kBest.fit(data_dict['train_data'], data_dict['train_labels'])
+            # joblib.dump(kBest, '/Users/mayankkejriwal/git-projects/dig-random-indexing-extractor/test/features')
             train_len = len(data_dict['train_data'])
             data_matrix = np.append(data_dict['train_data'], data_dict['test_data'], axis=0)
-            label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
-            new_data_matrix = kBest.fit_transform(data_matrix, label_matrix)
+            # label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
+            new_data_matrix = kBest.transform(data_matrix)
             data_dict['train_data'] = new_data_matrix[0:train_len]
             data_dict['test_data'] = new_data_matrix[train_len:]
 
@@ -774,7 +776,11 @@ class TokenSupervised:
         if classifier_model == 'random_forest':
             model = RandomForestClassifier()
             model.fit(train_data, train_labels)
+            # out = codecs.open('/Users/mayankkejriwal/git-projects/dig-random-indexing-extractor/model', 'wb', 'utf-8')
+            # joblib.dump(model, '/Users/mayankkejriwal/git-projects/dig-random-indexing-extractor/test/model')
+            # out.close()
             predicted_labels = model.predict(test_data)
+            print predicted_labels
             predicted_probabilities = model.predict_proba(test_data)
             # print predicted_labels[0:10]
             # print predicted_probabilities[0:10]

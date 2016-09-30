@@ -102,6 +102,16 @@ class Analysis:
             print uuids
 
 
+    @staticmethod
+    def statistics_enriched_dataset(enriched_dataset):
+        """
+        Prints out some basic statistics that we can use for our experiments. Particularly, the type of entity
+        is printed along with document count and average mentions per document. 
+        :param enriched_dataset: The file generated in PreprocessRWP.build_enriched_entities_dataset
+        :return: None
+        """
+
+
 # Analysis.countNumUniqueWordsInRWPWordClouds('/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed/')
 # path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
 # Analysis.find_seeds_in_ebola_data(path+'data/ebola-new-condensed.json', path+'19validationresults-uuids.txt')
