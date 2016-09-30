@@ -106,14 +106,36 @@ class Analysis:
     def statistics_enriched_dataset(enriched_dataset):
         """
         Prints out some basic statistics that we can use for our experiments. Particularly, the type of entity
-        is printed along with document count and average mentions per document. 
+        is printed along with document count and average mentions per document (counting only documents
+        in which that entity type occurs).
         :param enriched_dataset: The file generated in PreprocessRWP.build_enriched_entities_dataset
         :return: None
         """
+        entity_type = dict() # each entity type references a list with exactly three elements. The first
+        # records a count of the number of documents, and the second the total mentions
+        with codecs.open(enriched_dataset, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for k,v in obj.items():
+                    if k == 'uuid' or k == 'wordcloud':
+                        continue
+                    if k not in entity_type:
+                        entity_type[k] = list()
+                        entity_type[k].append(0)
+                        entity_type[k].append(0.0)
+                    entity_type[k][0] += 1
+                    entity_type[k][1] += len(v)
+        print 'entity-type\tnum_documents\taverage_number_of_mentions'
+        for k, v in entity_type.items():
+            v[1] = v[1]/v[0]
+            print k,
+            print v
 
 
 # Analysis.countNumUniqueWordsInRWPWordClouds('/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed/')
 # path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
+# Analysis.statistics_enriched_dataset(RWP_path+'enriched-entities.json')
 # Analysis.find_seeds_in_ebola_data(path+'data/ebola-new-condensed.json', path+'19validationresults-uuids.txt')
 # Analysis.analyzeExactMatchBaseline(path+'record_dump_50000.json', path+'exactMatchOnRecordDump50000.json',
 #                 ['california', 'ca'])
