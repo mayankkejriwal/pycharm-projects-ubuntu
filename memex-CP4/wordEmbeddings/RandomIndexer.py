@@ -4,7 +4,6 @@ import codecs
 import json
 import TextAnalyses
 import string
-import kNearestNeighbors
 
 class RandomIndexer:
     """
@@ -483,9 +482,9 @@ class RandomIndexer:
 # print RandomIndexer._find_right_dummy_v2('..,')
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
-# RandomIndexer.generate_unigram_embeddings_v2(RWP_path+'tokens/condensed-objects-lowerCase.json',
-#                                              RWP_path+'tokens/condensed-objects-idf.txt',
-#                                              RWP_path+'embedding/unigram-embedding-v2.json')
+# RandomIndexer.generate_unigram_embeddings_v2(path+'readability_tokens-part-00000-onlyLower.json',
+#                                              path+'readability_tokens-part-00000-onlyLower-df.txt',
+#                                              path+'unigram-part-00000-v2-attempt2.json')
 # RandomIndexer.generate_telephone_embeddings_v1(path+'all_tokens-part-00000-onlyLower-1.json',
 #                                              path+'all_tokens-part-00000-onlyLower-1-df.txt',
 #                                              path+'phone-embeddings-part-00000-v1.json')

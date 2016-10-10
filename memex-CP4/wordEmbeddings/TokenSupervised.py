@@ -776,9 +776,7 @@ class TokenSupervised:
         if classifier_model == 'random_forest':
             model = RandomForestClassifier()
             model.fit(train_data, train_labels)
-            # out = codecs.open('/Users/mayankkejriwal/git-projects/dig-random-indexing-extractor/model', 'wb', 'utf-8')
             # joblib.dump(model, '/Users/mayankkejriwal/git-projects/dig-random-indexing-extractor/test/model')
-            # out.close()
             predicted_labels = model.predict(test_data)
             print predicted_labels
             predicted_probabilities = model.predict_proba(test_data)

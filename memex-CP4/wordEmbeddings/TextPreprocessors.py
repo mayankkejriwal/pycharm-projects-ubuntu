@@ -2,7 +2,6 @@ import codecs
 import json
 from nltk.tokenize import sent_tokenize, word_tokenize
 import re
-import nltk
 
 
 class TextPreprocessors:
@@ -297,8 +296,7 @@ class TextPreprocessors:
                 obj = json.loads(line)
                 tokenized_field = TextPreprocessors._tokenize_field(obj, text_field)
                 if tokenized_field:
-                    obj[text_field] = TextPreprocessors._preprocess_tokens(tokenized_field,
-                                                                                               options=["lower"])
+                    obj[text_field] = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
                     for k in obj.keys():
                         obj[k] = TextPreprocessors._preprocess_tokens(obj[k], options=["lower"])
                     json.dump(obj, out)
