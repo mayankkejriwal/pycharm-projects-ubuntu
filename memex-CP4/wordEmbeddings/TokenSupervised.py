@@ -182,6 +182,38 @@ class TokenSupervised:
             del d[f]
 
     @staticmethod
+    def construct_nyu_pos_neg_files(doc_vec_file, pos_tokens_file, neg_tokens_file, output_file):
+        """
+
+        :param doc_vec_file:
+        :param pos_tokens_file:
+        :param neg_tokens_file:
+        :param output_file:
+        :return:
+        """
+        pos_keys = set()
+        neg_keys = set()
+        with codecs.open(pos_tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                pos_keys.add(json.loads(line).keys()[0])
+        with codecs.open(neg_tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                neg_keys.add(json.loads(line).keys()[0])
+
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(doc_vec_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                if obj.keys()[0] in pos_keys:
+                    out.write(obj.keys()[0] + '\t' + str(obj.values()[0]) + '\t1\n')
+                elif obj.keys()[0] in neg_keys:
+                    out.write(obj.keys()[0] + '\t' + str(obj.values()[0]) + '\t0\n')
+                else:
+                    raise Exception
+
+        out.close()
+
+    @staticmethod
     def construct_nationality_pos_neg_files(ground_truth_corpus, embeddings_file, output_dir,
                         context_generator=ContextVectorGenerators.ContextVectorGenerators.tokenize_add_all_generator):
         """
@@ -356,7 +388,7 @@ class TokenSupervised:
             data_matrix = np.append(data_dict['train_data'], data_dict['test_data'], axis=0)
             # print data_matrix.shape
             label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
-            new_data_matrix = SelectKBest(f_classif, k=k).fit_transform(data_matrix, label_matrix)
+            new_data_matrix = TokenSupervised._l2_norm_on_matrix(SelectKBest(f_classif, k=k).fit_transform(data_matrix, label_matrix))
             # print len(new_data_matrix[0:train_len])
             data_dict['train_data'] = new_data_matrix[0:train_len]
             data_dict['test_data'] = new_data_matrix[train_len:]
@@ -369,7 +401,7 @@ class TokenSupervised:
             train_len = len(data_dict['train_data'])
             data_matrix = np.append(data_dict['train_data'], data_dict['test_data'], axis=0)
             # label_matrix = np.append(data_dict['train_labels'], data_dict['test_labels'], axis=0)
-            new_data_matrix = kBest.transform(data_matrix)
+            new_data_matrix = TokenSupervised._l2_norm_on_matrix(kBest.transform(data_matrix))
             data_dict['train_data'] = new_data_matrix[0:train_len]
             data_dict['test_data'] = new_data_matrix[train_len:]
 
@@ -873,7 +905,7 @@ class TokenSupervised:
 
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
             # print data_dict['train_labels'][0]
-            data_dict['classifier_model'] = 'manual_knn'
+            data_dict['classifier_model'] = 'random_forest'
             TokenSupervised._train_and_test_classifier(**data_dict)
         elif opt == 2:
             #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
@@ -885,6 +917,10 @@ class TokenSupervised:
 
 
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
+# TokenSupervised.trial_script_binary(data_path+'pos_neg_file.txt', 1)
+# TokenSupervised.construct_nyu_pos_neg_files(data_path+'idf_weighted_combined_doc_embedding.json',data_path+'tokens_pos_ht_onlyLower.json',
+#                                             data_path+'tokens_neg_ht_onlyLower.json', data_path+'pos_neg_file.txt')
 # TokenSupervised.construct_nationality_multi_file(
 #     path+'supervised-exp-datasets/pos-neg-location-american.txt',
 #     path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt',None)

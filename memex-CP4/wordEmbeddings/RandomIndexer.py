@@ -317,7 +317,7 @@ class RandomIndexer:
         :param non_zero_ratio:
         :return:
         """
-        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file)
+        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file, lower_prune_ratio=0.01, upper_prune_ratio=1.0)
         token_cvs = RandomIndexer._generate_context_vectors_for_idf_v2(idf_dict, include_dummies, d, non_zero_ratio)
         # tokens_dict = RandomIndexer.read_in_tokens_file(tokens_file)
         unigram_embeddings = RandomIndexer._init_unigram_embeddings(token_cvs)
@@ -482,9 +482,10 @@ class RandomIndexer:
 # print RandomIndexer._find_right_dummy_v2('..,')
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
-# RandomIndexer.generate_unigram_embeddings_v2(path+'readability_tokens-part-00000-onlyLower.json',
-#                                              path+'readability_tokens-part-00000-onlyLower-df.txt',
-#                                              path+'unigram-part-00000-v2-attempt2.json')
+# data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
+# RandomIndexer.generate_unigram_embeddings_v2(data_path+'tokens_neg_ht_onlyLower.json',
+#                                              data_path+'neg_ht_idf.txt',
+#                                              data_path+'unigram-neg-pruned.json')
 # RandomIndexer.generate_telephone_embeddings_v1(path+'all_tokens-part-00000-onlyLower-1.json',
 #                                              path+'all_tokens-part-00000-onlyLower-1-df.txt',
 #                                              path+'phone-embeddings-part-00000-v1.json')

@@ -81,7 +81,7 @@ def find_k_nearest_neighbors(embeddings_file, seed_token, k=10):
     print _extract_top_k(scored_dict, k=k, disable_k=False)
 
 
-def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10, suppress_print=True):
+def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10, output_file=None, suppress_print=True):
     """
 
     :param embeddings_file: e.g.
@@ -102,6 +102,10 @@ def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10, suppress_
     del unigram_embeddings['dummy_unicode']
 
     for seed_token in seed_tokens:
+        if seed_token not in unigram_embeddings:
+            print 'seed_token '+seed_token+' not in embeddings dict. Moving on to next token..'
+            continue
+        print seed_token
         scored_dict = _generate_scored_dict(unigram_embeddings, seed_token)
         results[seed_token]=_extract_top_k(scored_dict, k=k, disable_k=False)
         if not suppress_print:
@@ -109,6 +113,10 @@ def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10, suppress_
             print seed_token
             print results[seed_token]
             print '\n'
+    if output_file:
+        out = codecs.open(output_file, 'w', 'utf-8')
+        json.dump(results, out)
+        out.close()
     return results
 
 
@@ -200,6 +208,37 @@ def _get_knn_multi_dict_counts(knn_multi_dict, prune=5):
 
     return result
 
+def seed_token_generation(embeddings_files, output_file):
+    """
+
+    :param embeddings_files: a list of trained embeddings files
+    :param output_file: A file with a token per line. This token is guaranteed to be present in all embeddings
+    :return: None
+    """
+    keywords = set()
+    for embeddings_file in embeddings_files:
+        if not keywords:
+            keywords = set(read_in_embeddings(embeddings_file).keys())
+        else:
+            keywords = keywords.intersection(set(read_in_embeddings(embeddings_file).keys()))
+
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for token in keywords:
+        out.write(token)
+        out.write('\n')
+    out.close()
+
+def extract_list_from_tokens_file(input_file):
+    """
+
+    :param input_file: Each line in the file contains a simple token.
+    :return: a list
+    """
+    result = list()
+    with codecs.open(input_file, 'r', 'utf-8') as f:
+        for line in f:
+            result.append(line[0:-1])
+    return result
 
 @DeprecationWarning
 def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
@@ -232,9 +271,14 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
-#
+
+# data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
+# tokens_list = extract_list_from_tokens_file(data_path+'seed_tokens_pruned.txt')
+# print tokens_list[0]
+# seed_token_generation([data_path+'unigram-pos-pruned.json', data_path+'unigram-neg-pruned.json', data_path+'unigram-combined-pruned.json'], data_path+'seed_tokens_pruned.txt')
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # tmp_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/embedding/'
-# find_k_nearest_neighbors_multi(RWP_path+'unigram-embedding-v2.json', ['war', 'flood', 'disaster'], suppress_print=False)
+# find_k_nearest_neighbors_multi(data_path+'unigram-combined-pruned.json', ['melanie', 'address', 'call'], suppress_print=False)
+# multi_embeddings_experiment(embeddings_files, tokens_file, k=50)
 # supplement_dictionary_v1(path+'dictionary-supervised/names.txt',tmp_path+'unigram-part-00000-v2.json',tmp_path+'supplemented-names.txt')

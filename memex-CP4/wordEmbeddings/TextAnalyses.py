@@ -80,6 +80,7 @@ class TextAnalyses:
                             forbidden.add(token)
 
         out = codecs.open(output_file, 'w', 'utf-8')
+        print 'num objects processed: ',
         print total
         for k,v in df.items():
             string = k+'\t'+str(v)+'\t'+str((v+1)*1.0/(total+1))+'\n'
@@ -88,7 +89,8 @@ class TextAnalyses:
 
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/tokens/'
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
-# TextAnalyses.generate_document_frequencies(RWP_path+'condensed-objects-lowerCase.json',
-#                                            RWP_path+'condensed-objects-idf.txt')
+# data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
+# TextAnalyses.generate_document_frequencies(data_path+'tokens_neg_ht_onlyLower.json',
+#                                            data_path+'neg_ht_idf.txt')
 # path+'all_tokens-part-00000-onlyLower-1-df.txt', inner_field='tokens_list')
 

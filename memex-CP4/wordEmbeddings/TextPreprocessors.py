@@ -175,6 +175,59 @@ class TextPreprocessors:
         out.close()
 
     @staticmethod
+    def build_tokens_objects_from_nyu_data(input_file, output_file):
+        """
+        We only perform lower-case preprocessing for the moment.
+        :param input_file: contains a single json object with keys (URIs) referencing long strings of scraped text.
+        :param output_file: a tokens json lines file, with a key referencing a list of tokens.
+        :return: None
+        """
+        inFile = codecs.open(input_file, 'r', 'utf-8')
+        outFile = codecs.open(output_file, 'w', 'utf-8')
+        obj = json.load(inFile)
+        for k,v in obj.items():
+            tmp = dict()
+            tokenized_field = TextPreprocessors.tokenize_string(v)
+            tmp[k] = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
+            json.dump(tmp, outFile)
+            outFile.write('\n')
+        inFile.close()
+        outFile.close()
+
+    @staticmethod
+    def combine_jsons(input_files, output_file):
+        """
+        will raise an exception if keys clash across input files. Also, is memory intensive at present, will
+        read in all jsons from the input_files before doing any writing. Thus, relative ordering may not be maintained.
+        :param input_files: A list of files, with each file being  a json (not jlines) file
+        :param output_file: An output file
+        :return: None
+        """
+        big_dict = dict()
+        for f in input_files:
+            inFile = codecs.open(f, 'r', 'utf-8')
+            TextPreprocessors.merge_dicts(big_dict, json.load(inFile))
+            inFile.close()
+        outFile = codecs.open(output_file, 'w', 'utf-8')
+        json.dump(big_dict, outFile)
+        outFile.close()
+
+    @staticmethod
+    def merge_dicts(dict_1, dict_2):
+        """
+        Merges dict_2 into dict_1 (hence, transforms dict_1). Only performs merging at upper level. Will raise exception if keys clash
+        :param dict_1:
+        :param dict_2:
+        :return: None
+        """
+        for k, v in dict_2.items():
+            if k in dict_1:
+                raise Exception
+            else:
+                dict_1[k] = v
+
+
+    @staticmethod
     def build_phone_objects_from_all_fields(input_file, output_file, exclude_fields = None, exclude_field_regex = None):
         """
         Be careful about the assumptions for the field structure. This function is not going to be appropriate for
@@ -306,11 +359,13 @@ class TextPreprocessors:
 
 
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
 # TextPreprocessors.preprocess_annotated_cities_file(path+'raw-data/annotated-cities-2.json',
 #                                                 path+'prepped-data/annotated-cities-2-prepped.json')
 # TextPreprocessors.convert_txt_dict_to_json(path+'dictionaries/spa-massage-words.txt', path+'dictionaries/spa-massage-words.json')
-# TextPreprocessors.build_tokens_objects_from_readability(path+'part-00000.json',
-# path+'readability_tokens-part-00000-onlyLower.json')
+# TextPreprocessors.combine_jsons([data_path+'pos_ht_data.json',data_path+'neg_ht_data.json'], data_path+'combined_ht_data.json')
+# TextPreprocessors.build_tokens_objects_from_nyu_data(data_path+'combined_ht_data.json', data_path+'tokens_combined_ht_onlyLower.json')
+# TextPreprocessors.build_tokens_objects_from_readability(path+'part-00000.json', path+'readability_tokens-part-00000-onlyLower.json')
 # exclude_fields_1 = ['high_recall_readability_text', 'identifier', 'inferlink_text', 'readability_text', 'seller']
 # exclude_field_regex = '\.*_count'
 # string = 'readability_text'
