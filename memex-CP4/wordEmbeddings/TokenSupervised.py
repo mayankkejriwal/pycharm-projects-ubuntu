@@ -26,6 +26,45 @@ class TokenSupervised:
      'hazel' and 'grey' from words like 'big' and 'sparkling'? We also use it for 'context' supervision tasks, where
      the feature vector of the word depends on its context.
     """
+    @staticmethod
+    def _compute_label_of_token(index, list_of_tokens, correct_list):
+        """
+        My testing shows that this method works. Note that the method is case insensitive, although none of the
+        original inputs are modified.
+        :param index:
+        :param list_of_tokens:
+        :param annotated_list:
+        :param correct_list:
+        :return:
+        """
+        correct_list_lower = TextPreprocessors.TextPreprocessors._preprocess_tokens(correct_list, options=['lower'])
+        list_of_tokens_lower = TextPreprocessors.TextPreprocessors._preprocess_tokens(list_of_tokens, options=['lower'])
+        global_token = list_of_tokens_lower[index]
+        # print list_of_tokens_lower
+        # print correct_list_lower
+        if global_token in correct_list_lower:
+            return True
+
+        else:
+            # could still be a multi-match
+            for token in correct_list_lower:
+                local_tokens = TextPreprocessors.TextPreprocessors.tokenize_string(token)
+                if len(local_tokens) <= 1:
+                    continue
+                elif global_token not in local_tokens:
+                    continue
+                else:
+
+                    low_index = local_tokens.index(global_token)
+                    # print low_index
+                    if index-low_index < 0 or index+(len(local_tokens)-low_index) > len(list_of_tokens_lower):
+                        # print 'got here'
+                        continue
+                    elif list_of_tokens_lower[index-low_index:(index+(len(local_tokens)-low_index))] == local_tokens:
+                        return True
+                    # print list_of_tokens_lower[index-low_index:(index+(len(local_tokens)-low_index))]
+        return False
+
 
     @staticmethod
     def _convert_string_to_float_list(string):
@@ -82,6 +121,22 @@ class TokenSupervised:
             for line in f:
                 out.write(line[0:-1]+'\t'+str(full_embeddings[line[0:-1]])+'\t1\n')
         out.close()
+
+    @staticmethod
+    def prep_preprocessed_annotated_file_for_StanfordNER(preprocessed_file, output_file, text_field, correct_field):
+        """"""
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(preprocessed_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for i in range(len(obj[text_field])):
+                    if TokenSupervised._compute_label_of_token(i, obj[text_field], obj[correct_field]):
+                        out.write(obj[text_field][i] + '\tMISC.\n')
+                    else:
+                        out.write(obj[text_field][i] + '\t0\n')
+                out.write('\n')
+        out.close()
+
 
     @staticmethod
     def prep_preprocessed_annotated_file_for_classification(preprocessed_file, embeddings_file,
@@ -929,3 +984,9 @@ class TokenSupervised:
 # TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt')
 # TokenSupervised.trial_script_binary(path+'supervised-exp-datasets/pos-neg-location-turkish.txt')
 # print TokenSupervised._rank_labels_desc({'a':0.23, 'b':0.23, 'c':0.53})
+# big_list = ['he', 'is', 'A', 'cat', 'ON', 'thE', 'Roof', 'cat']
+# correct = ['a cat on']
+# print TokenSupervised._compute_label_of_token(7, big_list, correct)
+# www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/used-datasets/'
+# TokenSupervised.prep_preprocessed_annotated_file_for_StanfordNER(www_path+'tokens/tokens-ann_city_title_state_26_50.json',
+#     www_path + 'stanfordNER-format/tagged-text_states_26_50.json', 'high_recall_readability_text', 'correct_states')

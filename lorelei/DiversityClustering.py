@@ -14,7 +14,7 @@ class DiversityClustering:
     """
 
     @staticmethod
-    def agglomerative_diversity_on_condensed(jlines_file, output_folder, featurize='01-text-hash', num_clusters=5):
+    def agglomerative_diversity_on_condensed(jlines_file, output_folder, featurize='01-text-hash', num_clusters=100):
         """
         agglomerative clustering
         :param jlines_file: the jlines condensed file.
@@ -53,6 +53,7 @@ class DiversityClustering:
 
 
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
-# DiversityClustering.agglomerative_diversity_on_condensed(path+'myanmar-italyEarthQuakeProcessed-top500.json', path+'myanmar-agg/')
+# data_path = '/Users/mayankkejriwal/datasets/lorelei_haiti/'
+# DiversityClustering.agglomerative_diversity_on_condensed(data_path+'haitiStorage-condensed.jl', data_path+'agg-100/')
 # featurize='01-text-hash'
 # print 'text' in featurize

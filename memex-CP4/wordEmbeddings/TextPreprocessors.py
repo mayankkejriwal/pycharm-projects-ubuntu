@@ -349,16 +349,56 @@ class TextPreprocessors:
                 obj = json.loads(line)
                 tokenized_field = TextPreprocessors._tokenize_field(obj, text_field)
                 if tokenized_field:
-                    obj[text_field] = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
+                    # obj[text_field] = TextPreprocessors._preprocess_tokens(tokenized_field, options=["lower"])
+                    obj[text_field] = tokenized_field
                     for k in obj.keys():
-                        obj[k] = TextPreprocessors._preprocess_tokens(obj[k], options=["lower"])
+                        if type(obj[k]) == list:
+                            # obj[k] = TextPreprocessors._preprocess_tokens(obj[k], options=["lower"])
+                            pass
+                        else:
+                            tokenized_k = TextPreprocessors._tokenize_field(obj, k)
+                            obj[k] = tokenized_k
+                            # obj[k] = TextPreprocessors._preprocess_tokens(tokenized_k, options=["lower"])
                     json.dump(obj, out)
                     out.write('\n')
         out.close()
 
+    @staticmethod
+    def preprocess_annotated_files(input_folder, input_files, text_field, output_folder, output_prefix='tokens-'):
+        """
+        We will take in a file such as annotated-cities-1.json as input and output another json that:
+        tokenizes the text( e.g. high_recall_readability_text field) and converts it to lower-case.
+        converts values in all other fields to lowercase
+
+        These preprocessed files can then be used for analysis.
+
+        Note that the field names remain the same in the output file, even though high_recall-* is now
+         a list of tokens instead of a string.
+         :param input_folder: the folder where the list of files are. Make sure to include the slash at the end.
+        :param input_files: a list of files
+        :param text_field:
+        :param output_folder: output folder. Make sure to include the slash at the end.
+        :param output_prefix: a prefix that will be attached to each input file and that becomes the output file name
+        :return:
+        """
+        for f in input_files:
+            input_file = input_folder+f
+            output_file = output_folder+output_prefix+f
+            TextPreprocessors.preprocess_annotated_file(input_file, text_field, output_file)
 
 
-# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/used-datasets/'
+# files = ['ann_city_title_state_1_25.json',
+# 'ann_city_title_state_26_50.json',
+# 'annotations_with_alt_1-25.json',
+# 'annotations_with_alt_26-50.json',
+# 'annotations_with_cities_gt_15000_1-25.json',
+# 'annotations_with_cities_gt_15000_25-50.json',
+# 'annotations_with_text_1-25.json',
+# 'annotations_with_text_26-50.json']
+# TextPreprocessors.preprocess_annotated_file(www_path+'raw/names.json', 'content', www_path+'tokens/tokens-names.json')
+# TextPreprocessors.preprocess_annotated_files(www_path+'raw/', files, 'high_recall_readability_text', www_path+'tokens/')
+
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
 # TextPreprocessors.preprocess_annotated_cities_file(path+'raw-data/annotated-cities-2.json',
 #                                                 path+'prepped-data/annotated-cities-2-prepped.json')

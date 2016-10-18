@@ -379,12 +379,13 @@ def build_enriched_entities_dataset(jlines_file, output_file):
 
 
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# data_path = '/Users/mayankkejriwal/datasets/lorelei_haiti/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
 # build_enriched_entities_dataset(RWP_path+'condensed-objects-allFields.json', RWP_path+'enriched-entities.json')
 # uuid_seeds = ['768466957527953410','768466964457152512','768467097802280961','768467207261188096','768467216761102338']
 # find_seeds_in_condensed_file(path+'italyEarthquakeProcessed-condensed.json', seeds_list=['earthquake', 'myanmar'])
 # build_uuids_file_from_json(path+'19validationresults-relevant-uuids.txt', path+'19validationresults-relevant-allFields.json')
-# condenseRWP(RWP_path+'reliefWebProcessed/', RWP_path+'reliefWebProcessed-prepped/condensed-objects-allFields.json', extractAll=True)
+# condenseRWP(data_path+'haitiStorage/', data_path+'haitiStorage-condensed.jl', extractAll=False)
 # build_tokens_file(RWP_path+'condensed-objects.json', RWP_path+'tokens/condensed-objects-lowerCase.json')
 # sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
 #                         path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)
