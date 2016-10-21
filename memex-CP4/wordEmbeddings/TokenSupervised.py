@@ -162,7 +162,12 @@ class TokenSupervised:
         with codecs.open(preprocessed_file, 'r', 'utf-8') as f:
             for line in f:
                 obj = json.loads(line)
-                for word in obj[annotated_field]:
+                obj[annotated_field] = TextPreprocessors.TextPreprocessors._preprocess_tokens(obj[annotated_field], ['lower'])
+                obj[correct_field] = TextPreprocessors.TextPreprocessors._preprocess_tokens(obj[correct_field],
+                                                                                              ['lower'])
+                obj[text_field] = TextPreprocessors.TextPreprocessors._preprocess_tokens(obj[text_field],
+                                                                                              ['lower'])
+                for word in set(obj[annotated_field]):
                     word_tokens = TextPreprocessors.TextPreprocessors.tokenize_string(word)
                     if len(word_tokens) <= 1: # we're dealing with a single word
                         if word not in obj[text_field]:
@@ -174,8 +179,6 @@ class TokenSupervised:
                         context_vecs = context_generator(word, obj[text_field], full_embeddings, multi=True)
                     else:
                         continue
-
-
                     if not context_vecs:
                         print 'context_generator did not return anything for word: ',
                         print word
@@ -921,6 +924,7 @@ class TokenSupervised:
             for i in range(0, len(k)):
                 print prf[i],
                 print k[i]
+            return [k[0][1], k[1][1], k[2][1]]
 
     @staticmethod
     def trial_script_multi(multi_file, opt=2):
@@ -947,7 +951,7 @@ class TokenSupervised:
             #                                                     ranking_mode=True, k=5)
 
     @staticmethod
-    def trial_script_binary(pos_neg_file, opt=2):
+    def trial_script_binary(pos_neg_file, opt=2, train_percent=0.3):
         """
 
         :param pos_neg_file: e.g. token-supervised/pos-neg-eyeColor.txt
@@ -958,17 +962,43 @@ class TokenSupervised:
             #Test Set 1: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             #We do NOT do any kind of feature selection.
 
-            data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
+            data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file, train_percent=train_percent)
             # print data_dict['train_labels'][0]
             data_dict['classifier_model'] = 'random_forest'
             TokenSupervised._train_and_test_classifier(**data_dict)
         elif opt == 2:
             #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             #We do feature selection.
-            data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file)
+            data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file, train_percent=train_percent)
             TokenSupervised._select_k_best_features(data_dict, k=20)
             data_dict['classifier_model'] = 'random_forest'
-            TokenSupervised._train_and_test_classifier(**data_dict)
+            results = TokenSupervised._train_and_test_classifier(**data_dict)
+            return results
+
+
+    @staticmethod
+    def trial_script_www(pos_neg_file, csv_file):
+        """
+        Computes the .csv result with both 30% and 70% training/testing data. Remember that it's the testing
+        percentage that gets recorded in the rows in the file.
+        :param pos_neg_file:
+        :param csv_file:
+        :return:
+        """
+        out = codecs.open(csv_file, 'w', 'utf-8')
+        out.write('Trial,Precision,Recall,F1-Measure\n')
+        train_percent = 30
+        for i in range(0,10):
+            results = TokenSupervised.trial_script_binary(pos_neg_file, train_percent=train_percent/100.00)
+            trial_name = str(100-train_percent)+'_'+str(i)
+            out.write(trial_name+','+str(results[0])+','+str(results[1])+','+str(results[2])+'\n')
+        out.write('\n\n')
+        train_percent = 70
+        for i in range(0, 10):
+            results = TokenSupervised.trial_script_binary(pos_neg_file, train_percent=train_percent / 100.00)
+            trial_name = str(100 - train_percent) + '_' + str(i)
+            out.write(trial_name + ',' + str(results[0])+','+str(results[1])+','+str(results[2]) + '\n')
+        out.close()
 
 
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
@@ -982,11 +1012,13 @@ class TokenSupervised:
 # TokenSupervised.construct_nationality_pos_neg_files(path+'corpora/all_extractions_july_2016.jl',
 #                             path+'embedding/unigram-embeddings-v2-10000docs.json', path+'supervised-exp-datasets/')
 # TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt')
-# TokenSupervised.trial_script_binary(path+'supervised-exp-datasets/pos-neg-location-turkish.txt')
+# www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
+# TokenSupervised.trial_script_www(www_path+'pos-neg-files/pos-neg-title-cities.txt', www_path+'results/embeddings-title-cities.csv')
+# TokenSupervised.trial_script_binary(www_path+'pos-neg-ages.txt')
 # print TokenSupervised._rank_labels_desc({'a':0.23, 'b':0.23, 'c':0.53})
 # big_list = ['he', 'is', 'A', 'cat', 'ON', 'thE', 'Roof', 'cat']
 # correct = ['a cat on']
 # print TokenSupervised._compute_label_of_token(7, big_list, correct)
-# www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/used-datasets/'
+
 # TokenSupervised.prep_preprocessed_annotated_file_for_StanfordNER(www_path+'tokens/tokens-ann_city_title_state_26_50.json',
 #     www_path + 'stanfordNER-format/tagged-text_states_26_50.json', 'high_recall_readability_text', 'correct_states')

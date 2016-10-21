@@ -2,6 +2,8 @@ from nltk.tag import StanfordNERTagger
 from nltk.tokenize import word_tokenize
 import codecs
 from random import shuffle
+import re
+import glob
 
 def trial1():
     """
@@ -111,6 +113,179 @@ def generate_testing_script(root_folder):
             out.write(command)
     out.close()
 
+def print_annotation_statistics(annotated_file):
+    neg = 0
+    pos = 0
+    with codecs.open(annotated_file, 'r', 'utf-8') as f:
+        for line in f:
+            if len(line.strip()) == 0:
+                continue
+            else:
+                fields = re.split('\t', line)
+                if fields[-1] == '0\n':
+                    neg += 1
+                elif fields[-1] == 'MISC.\n':
+                    pos += 1
+                else:
+                    print fields
+                    print 'error! Neither pos. nor neg...'
+                    continue
+    print 'pos annotations: ',
+    print pos
+    print 'neg annotations: ',
+    print neg
+
+def generate_retrained_results_csv(input_folder, output_csv):
+    """
+
+    :param input_folder: we look at .txt files, where a .txt file is an annotated Stanford NER file. this function
+    is for the re-trained models
+    :param output_csv: results
+    :return: None
+    """
+    listOfFiles = glob.glob(input_folder + '*.txt')  # I've tested this; it works
+    out = codecs.open(output_csv, 'w', 'utf-8')
+    out.write('FileName,TP,TN,FP,FN,Precision,Recall,F-Measure\n')
+    for infile in listOfFiles:
+        TP = 0
+        TN = 0
+        FP = 0
+        FN = 0
+        with codecs.open(infile, 'r', 'utf-8') as f:
+            for line in f:
+                if len(line.strip()) == 0:
+                    continue
+                else:
+                    fields = re.split('\t', line[0:-1])
+                    predicted = fields[-1]
+                    actual = fields[-2]
+                    if actual == '0':
+                        if predicted == actual:
+                            TN += 1
+                        else:
+                            FP += 1
+                    elif actual == 'MISC.':
+                        if predicted == actual:
+                            TP += 1
+                        else:
+                            FN += 1
+                    else:
+                        print 'problems with labels!'
+                        print line
+        prf = _compute_precision_recall_f1measure(TP, TN, FP, FN)
+        out.write(infile+','+str(TP)+','+str(TN)+','+str(FP)+','+str(FN)+','+str(prf[0])+','+str(prf[1])+','+str(prf[2])+'\n')
+    out.close()
+
+def generate_pretrained_results_csv(input_folder, output_csv, actual_label):
+    """
+    Do not use for age, or where actual_label is not defined
+    :param input_folder: we look at .txt files, where a .txt file is an annotated Stanford NER file. this function
+    is for the pre-trained models
+    :param output_csv: results
+    :param actual_label: e.g. LOCATION for cities and states, PERSON for names
+    :return: None
+    """
+    listOfFiles = glob.glob(input_folder + '*.txt')  # I've tested this; it works
+    out = codecs.open(output_csv, 'w', 'utf-8')
+    out.write('FileName,TP,TN,FP,FN,Precision,Recall,F-Measure\n')
+    for infile in listOfFiles:
+        TP = 0
+        TN = 0
+        FP = 0
+        FN = 0
+        with codecs.open(infile, 'r', 'utf-8') as f:
+            for line in f:
+                if len(line.strip()) == 0:
+                    continue
+                else:
+                    fields = re.split('\t', line[0:-1])
+                    predicted = fields[-1]
+                    actual = fields[-2]
+                    if actual == '0':
+                        if predicted != actual_label:
+                            TN += 1
+                        else:
+                            FP += 1
+                    elif actual == 'MISC.':
+                        if predicted == actual_label:
+                            TP += 1
+                        else:
+                            FN += 1
+                    else:
+                        print fields
+                        print 'error! Neither pos. nor neg...'
+                        continue
+
+        prf = _compute_precision_recall_f1measure(TP, TN, FP, FN)
+        out.write(infile+','+str(TP)+','+str(TN)+','+str(FP)+','+str(FN)+','+str(prf[0])+','+str(prf[1])+','+str(prf[2])+'\n')
+    out.close()
+
+def generate_pretrained_results_age_csv(input_folder, output_csv):
+    """
+    Designed for the age test files. We'll use any non-0 label as a positive label.
+    :param input_folder: we look at .txt files, where a .txt file is an annotated Stanford NER file. this function
+    is for the pre-trained models
+    :param output_csv: results
+
+    :return: None
+    """
+    listOfFiles = glob.glob(input_folder + '*.txt')  # I've tested this; it works
+    out = codecs.open(output_csv, 'w', 'utf-8')
+    out.write('FileName,TP,TN,FP,FN,Precision,Recall,F-Measure\n')
+    for infile in listOfFiles:
+        TP = 0
+        TN = 0
+        FP = 0
+        FN = 0
+        with codecs.open(infile, 'r', 'utf-8') as f:
+            for line in f:
+                if len(line.strip()) == 0:
+                    continue
+                else:
+                    fields = re.split('\t', line[0:-1])
+                    predicted = fields[-1]
+                    actual = fields[-2]
+                    if actual == '0':
+                        if predicted == '0':
+                            TN += 1
+                        else:
+                            FP += 1
+                    elif actual == 'MISC.':
+                        if predicted != '0':
+                            TP += 1
+                        else:
+                            FN += 1
+                    else:
+                        print fields
+                        print 'error! Neither pos. nor neg...'
+                        continue
+
+        prf = _compute_precision_recall_f1measure(TP, TN, FP, FN)
+        out.write(infile+','+str(TP)+','+str(TN)+','+str(FP)+','+str(FN)+','+str(prf[0])+','+str(prf[1])+','+str(prf[2])+'\n')
+    out.close()
+
+def _compute_precision_recall_f1measure(TP, TN, FP, FN):
+    """
+    I deliberately don't check for 0 denom. except when computing f1-m.
+    :param TP:
+    :param TN:
+    :param FP:
+    :param FN:
+    :return: A 3-list containing prec rec f1-m
+    """
+    if TP+FP > 0:
+        precision = TP*1.0/(TP+FP)
+    else:
+        precision = 0.0
+    recall = TP*1.0/(TP+FN)
+    if precision == 0.0 and recall == 0.0:
+        f1m= 0.0
+    else:
+        f1m = 2*precision*recall/(precision+recall)
+    answer = [precision, recall, f1m]
+    return answer
+
+
 def generate_pretrained_testing_script(root_folder):
     categories = ['ages-', 'names-', 'text-cities-', 'text-states-', 'title-cities-']
     out = codecs.open(root_folder + 'testing_script.sh', 'w', 'utf-8')
@@ -147,6 +322,9 @@ def generate_pretrained_testing_script(root_folder):
     out.close()
 
 # www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/stanford-ner-2015-12-09/'
+# generate_pretrained_results_age_csv(www_path+'ages-test/pretrained/',
+#                                 www_path+'summary_of_results/pre-trained-ages.csv')
 # generate_pretrained_testing_script(www_path)
 # generate_random_samples(www_path+'stanfordNER-full-files/tagged-title-cities.json', www_path+'stanfordNER-partitions/title-cities/30-70/')
 # trial1()
+# print_annotation_statistics(www_path+'tagged-ages.json')

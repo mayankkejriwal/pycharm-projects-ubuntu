@@ -330,7 +330,7 @@ class RandomIndexer:
                     v = val
                 print 'In document '+str(count)
                 count += 1
-                # if count>10000:
+                # if count>100000:
                 #     break
                 for i in range(0, len(v)):
                     token = v[i]
@@ -480,12 +480,12 @@ class RandomIndexer:
 # str = 'bødy'
 # print str.isalpha()
 # print RandomIndexer._find_right_dummy_v2('..,')
-# path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
-# RandomIndexer.generate_unigram_embeddings_v2(data_path+'tokens_neg_ht_onlyLower.json',
-#                                              data_path+'neg_ht_idf.txt',
-#                                              data_path+'unigram-neg-pruned.json')
+# RandomIndexer.generate_unigram_embeddings_v2(path+'readability_tokens-part-00000-onlyLower.json',
+#                                              path+'readability_tokens-part-00000-onlyLower-df.txt',
+#                                              path+'unigram-v2-100000docs.json')
 # RandomIndexer.generate_telephone_embeddings_v1(path+'all_tokens-part-00000-onlyLower-1.json',
 #                                              path+'all_tokens-part-00000-onlyLower-1-df.txt',
 #                                              path+'phone-embeddings-part-00000-v1.json')

@@ -10,6 +10,35 @@ class TextAnalyses:
     """
 
     @staticmethod
+    def print_word_statistics(tokens_file, limit=None):
+        """
+
+        :param tokens_file: The tokens file that is also used for generating the embeddings
+        :param limit: If not none, we will count statistics over only the first limit objects in tokens_file
+        :return: None
+        """
+        count = 1
+        unique_words = 0
+        total_words = 0
+        with codecs.open(tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                v = None
+                for k, val in obj.items():
+                    v = val
+                print 'In document ' + str(count)
+                count += 1
+                if limit and count>limit:
+                    break
+                unique_words += len(set(v))
+                total_words += len(v)
+        print 'num total words: ',
+        print total_words
+        print 'num unique words: ',
+        print unique_words
+
+
+    @staticmethod
     def read_in_and_prune_idf(df_file, lower_prune_ratio=0.0005, upper_prune_ratio=0.5):
         """
 
@@ -88,7 +117,8 @@ class TextAnalyses:
         out.close()
 
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/tokens/'
-# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
+# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
+# TextAnalyses.print_word_statistics(path+'readability_tokens-part-00000-onlyLower.json', 100000)
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
 # TextAnalyses.generate_document_frequencies(data_path+'tokens_neg_ht_onlyLower.json',
 #                                            data_path+'neg_ht_idf.txt')
