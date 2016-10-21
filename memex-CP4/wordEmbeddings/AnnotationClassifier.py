@@ -67,7 +67,7 @@ def classification_script_1(pos_neg_file):
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/supervised-exp-datasets/'
 # data_preparation_script_1(path+'annotated-cities-2.json', path+'unigram-part-00000-v2.json',
 #                           'high_recall_readability_text', 'annotated_cities', 'correct_cities', path+'output_folder/')
-# data_preparation_script_2(www_path+'used-datasets/tokens/tokens-ann_city_title_state_26_50.json', www_path+'embeddings/unigram-v2-all.json',
+# data_preparation_script_2(www_path+'used-datasets/tokens/tokens-ann_city_title_state_1_25.json', www_path+'embeddings/unigram-v2-100000docs.json',
 #                           'title', 'annotated_cities_title', 'correct_cities_title',
-#                           www_path+'embeddings/pos-neg-files/pos-neg-title-cities-2.txt')
+#                           www_path+'embeddings/pos-neg-files-100000/pos-neg-title-cities-1.txt')
 # classification_script_1(path+'output_folder/pos-neg-file.txt')

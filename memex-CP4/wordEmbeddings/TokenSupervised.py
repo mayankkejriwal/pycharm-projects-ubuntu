@@ -965,7 +965,7 @@ class TokenSupervised:
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file, train_percent=train_percent)
             # print data_dict['train_labels'][0]
             data_dict['classifier_model'] = 'random_forest'
-            TokenSupervised._train_and_test_classifier(**data_dict)
+            results = TokenSupervised._train_and_test_classifier(**data_dict)
         elif opt == 2:
             #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             #We do feature selection.
@@ -973,7 +973,8 @@ class TokenSupervised:
             TokenSupervised._select_k_best_features(data_dict, k=20)
             data_dict['classifier_model'] = 'random_forest'
             results = TokenSupervised._train_and_test_classifier(**data_dict)
-            return results
+
+        return results
 
 
     @staticmethod
@@ -1013,7 +1014,11 @@ class TokenSupervised:
 #                             path+'embedding/unigram-embeddings-v2-10000docs.json', path+'supervised-exp-datasets/')
 # TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt')
 # www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
-# TokenSupervised.trial_script_www(www_path+'pos-neg-files/pos-neg-title-cities.txt', www_path+'results/embeddings-title-cities.csv')
+# input_files = ['pos-neg-text-ages.txt', 'pos-neg-text-cities.txt', 'pos-neg-text-names.txt', 'pos-neg-text-states.txt', 'pos-neg-title-cities.txt']
+# result_files = ['text-ages.csv', 'text-cities.csv', 'text-names.csv', 'text-states.csv', 'title-cities.csv']
+# for i in range(0, len(input_files)):
+# TokenSupervised.trial_script_www(www_path+'pos-neg-files-all/pos-neg-ages.txt',
+#                                  www_path+'feature-selection-results-ages/ages-allEmbed-allFeatures.csv')
 # TokenSupervised.trial_script_binary(www_path+'pos-neg-ages.txt')
 # print TokenSupervised._rank_labels_desc({'a':0.23, 'b':0.23, 'c':0.53})
 # big_list = ['he', 'is', 'A', 'cat', 'ON', 'thE', 'Roof', 'cat']
