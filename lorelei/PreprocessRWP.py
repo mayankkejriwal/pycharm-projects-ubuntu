@@ -52,6 +52,9 @@ def _extract_obj_fields_into_answer(obj, answer):
     else:
         answer['loreleiJSONMapping.sourcedata.theme'] = None
 
+    if 'loreleiJSONMapping' in obj and 'category' in obj['loreleiJSONMapping']:
+        answer['loreleiJSONMapping.category'] = obj['loreleiJSONMapping']['category']
+
 
 def prune_objects_without_uuid(infile, outfile):
     """
@@ -385,7 +388,7 @@ def build_enriched_entities_dataset(jlines_file, output_file):
 # uuid_seeds = ['768466957527953410','768466964457152512','768467097802280961','768467207261188096','768467216761102338']
 # find_seeds_in_condensed_file(path+'italyEarthquakeProcessed-condensed.json', seeds_list=['earthquake', 'myanmar'])
 # build_uuids_file_from_json(path+'19validationresults-relevant-uuids.txt', path+'19validationresults-relevant-allFields.json')
-# condenseRWP(data_path+'haitiStorage/', data_path+'haitiStorage-condensed.jl', extractAll=False)
+# condenseRWP(data_path+'haitiStorage/', data_path+'haitiStorage-condensed-2.jl', extractAll=False)
 # build_tokens_file(RWP_path+'condensed-objects.json', RWP_path+'tokens/condensed-objects-lowerCase.json')
 # sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
 #                         path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)

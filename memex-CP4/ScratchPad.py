@@ -65,7 +65,18 @@ def _bulkload_json_file(input_file):
     es = Elasticsearch(url_localhost)
     res = es.bulk(body = bulk_body, refresh = True)
 
+def _dummy_function():
+    for x in range(1, 10):
+        for y in range(1, 10):
+            x = float(x)
+            y = float(y)
+            if abs((23 * x * x + 132 * x - 132 * y) / (132 * x) - 2.14395) <= 0.05:
+                print x,
+                print y
 
+
+
+# _dummy_function()
 # test_string = 'this is a test'
 # print test_string
 # path = '/home/mayankkejriwal/Downloads/dig-data/sample-datasets/escorts/'
