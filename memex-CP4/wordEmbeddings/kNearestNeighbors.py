@@ -272,7 +272,7 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
 
-# data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
+# data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/'
 # www_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # tokens_list = extract_list_from_tokens_file(data_path+'seed_tokens_pruned.txt')
 # print tokens_list[0]
@@ -280,6 +280,6 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # tmp_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/embedding/'
-# find_k_nearest_neighbors_multi(www_path+'unigram-v2-all.json', ['amy', 'california', 'avenue', 'green'], suppress_print=False)
+# find_k_nearest_neighbors_multi(data_path+'unigram-v2.json', ['earthquake', 'government'], suppress_print=False)
 # multi_embeddings_experiment(embeddings_files, tokens_file, k=50)
 # supplement_dictionary_v1(path+'dictionary-supervised/names.txt',tmp_path+'unigram-part-00000-v2.json',tmp_path+'supplemented-names.txt')

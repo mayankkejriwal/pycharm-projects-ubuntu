@@ -53,6 +53,7 @@ class TextAnalyses:
                 fields = re.split('\t',line[:-1])
                 if len(fields) != 3:
                     print 'error in splitting df file'
+                    print line
                 elif float(fields[2])>lower_prune_ratio and float(fields[2])<upper_prune_ratio:
                         idf[fields[0]] = fields[2]
         print 'total number of words in idf dict : ',
@@ -117,10 +118,11 @@ class TextAnalyses:
         out.close()
 
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/tokens/'
+# data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/'
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # TextAnalyses.print_word_statistics(path+'readability_tokens-part-00000-onlyLower.json', 100000)
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
-# TextAnalyses.generate_document_frequencies(data_path+'tokens_neg_ht_onlyLower.json',
-#                                            data_path+'neg_ht_idf.txt')
+# TextAnalyses.generate_document_frequencies(data_path+'lowerCaseTokens-sorted.json',
+#                                            data_path+'df.txt')
 # path+'all_tokens-part-00000-onlyLower-1-df.txt', inner_field='tokens_list')
 

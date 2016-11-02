@@ -54,6 +54,30 @@ def _extract_obj_fields_into_answer(obj, answer):
 
     if 'loreleiJSONMapping' in obj and 'category' in obj['loreleiJSONMapping']:
         answer['loreleiJSONMapping.category'] = obj['loreleiJSONMapping']['category']
+    else:
+        answer['loreleiJSONMapping.category'] = None
+
+    if 'loreleiJSONMapping' in obj and 'status' in obj['loreleiJSONMapping']\
+            and 'createdAt' in obj['loreleiJSONMapping']['status']:
+        answer['loreleiJSONMapping.status.createdAt'] = obj['loreleiJSONMapping']['status']['createdAt']
+    else:
+        answer['loreleiJSONMapping.status.createdAt'] = None
+
+    if 'loreleiJSONMapping' in obj and 'status' in obj['loreleiJSONMapping']\
+            and 'geolocation' in obj['loreleiJSONMapping']['status']:
+        if 'longitude' in obj['loreleiJSONMapping']['status']['geolocation']:
+            answer['loreleiJSONMapping.status.geolocation.longitude'] = \
+                obj['loreleiJSONMapping']['status']['geolocation']['longitude']
+        else:
+            answer['loreleiJSONMapping.status.geolocation.longitude'] = None
+
+        if 'latitude' in obj['loreleiJSONMapping']['status']['geolocation']:
+            answer['loreleiJSONMapping.status.geolocation.latitude'] = \
+                obj['loreleiJSONMapping']['status']['geolocation']['latitude']
+        else:
+            answer['loreleiJSONMapping.status.geolocation.latitude'] = None
+    else:
+        answer['loreleiJSONMapping.status.geolocation'] = None
 
 
 def prune_objects_without_uuid(infile, outfile):
@@ -251,6 +275,36 @@ def build_uuids_file_from_json(uuidsFile, jsonFile):
     out.close()
 
 
+def sort_RWP_objects_by_createdAt(origFile, outputFile):
+    """
+    Use this only for RWP. If you have one of the ebola or other datasets, use the generic function instead.
+    :param origFile: Must not be condensed. If condensed, try the next function.
+    :param outputFile:
+    :return:
+    """
+    objects = dict()
+    with codecs.open(origFile, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            try:
+                key = parser.parse(obj['loreleiJSONMapping']['sourcedata']['date_created'])
+                if key not in objects:
+                    objects[key] = list()
+                objects[key].append(obj)
+            except:
+                print 'error encountered in object below. Continuing...',
+                print line
+                continue
+    dates = objects.keys()
+    dates.sort()
+    out = codecs.open(outputFile, 'w', 'utf-8')
+    for date in dates:
+        for obj in objects[date]:
+            json.dump(obj, out)
+            out.write('\n')
+    out.close()
+
+
 def sort_objects_by_createdAt(origFile, outputFile):
     """
 
@@ -262,22 +316,33 @@ def sort_objects_by_createdAt(origFile, outputFile):
     with codecs.open(origFile, 'r', 'utf-8') as f:
         for line in f:
             obj = json.loads(line)
-            objects[parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])] = obj
+            try:
+                key = parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])
+                if key not in objects:
+                    objects[key] = list()
+                objects[key].append(obj)
+            except:
+                print 'error encountered in object below. Continuing...',
+                print line
+                continue
     dates = objects.keys()
     dates.sort()
     out = codecs.open(outputFile, 'w', 'utf-8')
     for date in dates:
-        json.dump(objects[date], out)
-        out.write('\n')
+        for obj in objects[date]:
+            json.dump(obj, out)
+            out.write('\n')
     out.close()
 
 
-def sort_condensed_objects_by_createdAt(condensedFile, fullFile, outputFile, allFields=True):
+def sort_condensed_RWP_objects_by_createdAt(condensedFile, fullFile, outputFile, allFields=False):
     """
-
+    Use only for RWP.
     :param condensedFile: A condensed file
     :param fullFile: The non-condensed file containing all entries
-    :param outputFile: The file to be output. It will contain all the objects, and be in the same format as, condensedF
+    :param outputFile: The file to be output. It will contain all the objects in sorted order
+    :param allFields: if allFields, then the object on fullFile will be printed out in outputFile, otherwise
+    object in condensedFile
     :return: None
     """
     objects_by_uuid = dict()
@@ -285,25 +350,97 @@ def sort_condensed_objects_by_createdAt(condensedFile, fullFile, outputFile, all
     with codecs.open(condensedFile, 'r', 'utf-8') as f:
         for line in f:
             obj = json.loads(line)
+            if 'uuid' not in obj:
+                print 'uuid not in obj...'
+                print obj
+                continue
             objects_by_uuid[obj['uuid']] = obj
     with codecs.open(fullFile, 'r', 'utf-8') as f:
         for line in f:
             obj = json.loads(line)
+            if 'uuid' not in obj:
+                print 'uuid not in obj...'
+                print obj
+                continue
             uuid = obj['uuid']
             if uuid not in objects_by_uuid:
                 continue
+            try:
+                key = parser.parse(obj['loreleiJSONMapping']['sourcedata']['date_created'])
+            except:
+                print 'error encountered in object below. Continuing...',
+                print line
+                continue
+            if key not in objects:
+                objects[key] = list()
             if allFields:
-                objects[parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])] = obj
+                objects[key].append(obj)
             else:
-                objects[parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])] = objects_by_uuid[uuid]
+                objects[key].append(objects_by_uuid[uuid])
     if len(objects) != len(objects_by_uuid):
         print 'Number of objects are unequal. Some objects are not in your full file'
     dates = objects.keys()
     dates.sort()
     out = codecs.open(outputFile, 'w', 'utf-8')
     for date in dates:
-        json.dump(objects[date], out)
-        out.write('\n')
+        for obj in objects[date]:
+            json.dump(obj, out)
+            out.write('\n')
+    out.close()
+
+
+
+def sort_condensed_objects_by_createdAt(condensedFile, fullFile, outputFile, allFields=False):
+    """
+
+    :param condensedFile: A condensed file
+    :param fullFile: The non-condensed file containing all entries
+    :param outputFile: The file to be output. It will contain all the objects in sorted order
+    :param allFields: if allFields, then the object on fullFile will be printed out in outputFile, otherwise
+    object in condensedFile
+    :return: None
+    """
+    objects_by_uuid = dict()
+    objects = dict()
+    with codecs.open(condensedFile, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            if 'uuid' not in obj:
+                print 'uuid not in obj...'
+                print obj
+                continue
+            objects_by_uuid[obj['uuid']] = obj
+    with codecs.open(fullFile, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            if 'uuid' not in obj:
+                print 'uuid not in obj...'
+                print obj
+                continue
+            uuid = obj['uuid']
+            if uuid not in objects_by_uuid:
+                continue
+            try:
+                key = parser.parse(obj['loreleiJSONMapping']['status']['createdAt'])
+            except:
+                print 'error encountered in object below. Continuing...',
+                print line
+                continue
+            if key not in objects:
+                objects[key] = list()
+            if allFields:
+                objects[key].append(obj)
+            else:
+                objects[key].append(objects_by_uuid[uuid])
+    if len(objects) != len(objects_by_uuid):
+        print 'Number of objects are unequal. Some objects are not in your full file'
+    dates = objects.keys()
+    dates.sort()
+    out = codecs.open(outputFile, 'w', 'utf-8')
+    for date in dates:
+        for obj in objects[date]:
+            json.dump(obj, out)
+            out.write('\n')
     out.close()
 
 
@@ -346,6 +483,27 @@ def find_seeds_in_condensed_file(condensed_file, seeds_list):
                 if seeds_set.intersection(wordcloud) and len(seeds_set.intersection(wordcloud)) == len(seeds_set):
                     print obj
 
+def preprocessRWPWordcloud(condensed_file, output_file):
+    """
+    I noticed that in the wordcloud of RWPs /r shows up a lot in many tokens. We will remove all instances of
+    /r /t and /n in each word and write out the new file to output_file
+    :param condensed_file:
+    :param output_file:
+    :return:
+    """
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(condensed_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            for i in range(0,len(obj['loreleiJSONMapping.wordcloud'])):
+                tmp = obj['loreleiJSONMapping.wordcloud'][i]
+                tmp = tmp.replace('\r', '')
+                tmp = tmp.replace('\t', '')
+                tmp = tmp.replace('\n', '')
+                obj['loreleiJSONMapping.wordcloud'][i] = tmp
+            json.dump(obj, out)
+            out.write('\n')
+    out.close()
 
 def build_enriched_entities_dataset(jlines_file, output_file):
     """
@@ -382,16 +540,16 @@ def build_enriched_entities_dataset(jlines_file, output_file):
 
 
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
-# data_path = '/Users/mayankkejriwal/datasets/lorelei_haiti/'
+# data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
 # build_enriched_entities_dataset(RWP_path+'condensed-objects-allFields.json', RWP_path+'enriched-entities.json')
 # uuid_seeds = ['768466957527953410','768466964457152512','768467097802280961','768467207261188096','768467216761102338']
 # find_seeds_in_condensed_file(path+'italyEarthquakeProcessed-condensed.json', seeds_list=['earthquake', 'myanmar'])
 # build_uuids_file_from_json(path+'19validationresults-relevant-uuids.txt', path+'19validationresults-relevant-allFields.json')
-# condenseRWP(data_path+'haitiStorage/', data_path+'haitiStorage-condensed-2.jl', extractAll=False)
-# build_tokens_file(RWP_path+'condensed-objects.json', RWP_path+'tokens/condensed-objects-lowerCase.json')
-# sort_condensed_objects_by_createdAt(path+'freetown-top-all.json',
-#                         path+'data/ebolaXFer-allFields.json', path+'freetown-top-all-sorted.json', allFields=False)
+# condenseRWP(data_path+'reliefWebProcessed/', data_path+'reliefWebProcessed-prepped/condensed-new.jl', extractAll=False)
+# build_tokens_file(data_path+'condensed-new-sorted-wcPrepped.jl', data_path+'lowerCaseTokens-sorted.json')
+# preprocessRWPWordcloud(data_path+'condensed-new-sorted.jl', data_path+'condensed-new-sorted-wcPrepped.jl')
+# sort_condensed_RWP_objects_by_createdAt(data_path+'condensed-new.jl',data_path+'nonCondensed.jl',data_path+'condensed-new-sorted.jl')
 # build_uuids_file_from_csv(path+'19validationresults-uuids.txt', path+'queryResultsTable-2.csv')
 # filter_file_by_uuids(path+'italyEarthquakeProcessed.json',path+'myanmar-earthquake-uuids.txt',path+'myanmar-earthquake-seeds-allFields.json')
 # build_reference_uuids_file(path+'WCjaccard-10-nn-for-first-10-uuids-FULL-nonindent.txt', path+'WCjaccard-10-10-reference-uuids.txt')
