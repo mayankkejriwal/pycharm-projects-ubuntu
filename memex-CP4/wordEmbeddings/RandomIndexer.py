@@ -477,12 +477,124 @@ class RandomIndexer:
                 out.write('\n')
             out.close()
 
+    @staticmethod
+    def generate_RWP_sliced_unigram_embeddings_v2(tokens_file, idf_file, output_folder_prefix, summary_output_file,
+            context_window_size=2, include_dummies=True, d=200, non_zero_ratio=0.01, slice_window_size=100):
+        """
+        Introduces a new parameter (slice_window_size). Currently, I am only using this for RWP. However, the
+        function can be generalized to work on other 'lorelei' datasets.
+
+        We are keeping the lower_prune and upper_prune ratios in the TextAnalyses file. Feel free to change
+        those directly. Consider adding weighting scheme in future. Right now, we assume constant weighting
+        for the tokens in the context window
+
+        This code does not assume the tokens_file is small enough to fit in memory. Note
+        that idf_file data must be read into main memory at the present time.
+
+        The difference between v1 and v2 is that we now accommodate more dummy variables. The goal is that
+        we should have vector representations for every token (no matter how bad). For the dummies I've
+        considered so far, consult notes.txt (Sept. 6th entry)
+
+
+        :param tokens_file:
+        :param idf_file:
+        :param output_folder_prefix: prefix for where the sliced embeddings will get written out
+        :param summary_output_file: the details summarizing what are in the output folder. It will be a jl file. We will
+        record (as lists) in each json the uuids and the name of the file to which the embeddings for written.
+        :param context_window_size:
+        :param include_dummies:
+        :param d:
+        :param non_zero_ratio:
+        :param slice_window_size: see the RWP embeddings data we generated to get an idea of what this means.
+        note that the window is NOT sliding. The output_file
+        :return:
+        """
+        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file, lower_prune_ratio=0.0005,
+                                                                   upper_prune_ratio=0.5)
+        token_cvs = RandomIndexer._generate_context_vectors_for_idf_v2(idf_dict, include_dummies, d, non_zero_ratio)
+        # remember, context vectors must only be generated once!
+        # tokens_dict = RandomIndexer.read_in_tokens_file(tokens_file)
+        unigram_embeddings = RandomIndexer._init_unigram_embeddings(token_cvs)
+        uuids_list = list()
+        local_count = 1
+        global_count = 1
+        embed_count = 1
+        summary_out = codecs.open(summary_output_file, 'w', 'utf-8')
+        with codecs.open(tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                v = None
+                for k, val in obj.items():
+                    v = val
+                    uuids_list.append(k)
+                print 'In document ' + str(global_count)
+
+                for i in range(0, len(v)):
+                    token = v[i]
+                    if token not in token_cvs:
+                        if include_dummies:
+                            token = RandomIndexer._find_right_dummy_v2(token)
+                            vec = unigram_embeddings[token]
+                        else:
+                            continue
+                    else:
+                        vec = unigram_embeddings[token]
+                    min = i - context_window_size
+                    if min < 0:
+                        min = 0
+                    max = i + context_window_size
+                    if max > len(v):
+                        max = len(v)
+                    for j in range(min, max):
+                        if j == i:
+                            continue
+                        context_token = v[j]
+                        if context_token not in token_cvs:
+                            if include_dummies:
+                                context_token = RandomIndexer._find_right_dummy_v2(context_token)
+                            else:
+                                continue
+                        for k in range(0, len(token_cvs[context_token])):
+                            vec[k] += token_cvs[context_token][k]
+                    unigram_embeddings[token] = vec
+
+                if local_count>=slice_window_size:
+                    local_count = 1
+                    embed_file = output_folder_prefix+str(embed_count)+'.json'
+                    embed_out = codecs.open(embed_file, 'w', 'utf-8')
+                    for kk, vv in unigram_embeddings.items():
+                        answer = dict()
+                        answer[kk] = vv
+                        json.dump(answer, embed_out)
+                        embed_out.write('\n')
+                    embed_out.close()
+                    summary_answer = dict()
+                    summary_answer['uuids'] = uuids_list
+                    summary_answer['embedding_file'] = embed_file
+                    json.dump(summary_answer, summary_out)
+                    summary_out.write('\n')
+                    del summary_answer
+                    del unigram_embeddings
+                    del uuids_list
+                    uuids_list = list()
+                    unigram_embeddings = RandomIndexer._init_unigram_embeddings(token_cvs)
+                    embed_count += 1
+                else:
+                    local_count += 1
+
+                global_count += 1
+
+
+        summary_out.close()
+
 # str = 'bødy'
 # print str.isalpha()
 # print RandomIndexer._find_right_dummy_v2(u'...')
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
 # data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/'
+# RandomIndexer.generate_RWP_sliced_unigram_embeddings_v2(data_path+'lowerCaseTokens-sorted.json',
+#                      data_path+'df.txt', data_path+'slice-100/unigrams-v2-', data_path+'slice-100-summary.json')
 # RandomIndexer.generate_unigram_embeddings_v2(data_path+'lowerCaseTokens-sorted.json',
 #                                              data_path+'df.txt',
 #                                              data_path+'unigram-v2.json')
