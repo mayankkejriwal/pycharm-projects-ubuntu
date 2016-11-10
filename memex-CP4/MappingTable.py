@@ -18,6 +18,7 @@ class MappingTable:
     @staticmethod
     def buildAdsTable_v1(output_file = None):
         """
+        Written for Summer QPR
         Note that the table logic is hard-coded in this function. Ideally, there should be one
         table per class.
 
@@ -88,6 +89,50 @@ class MappingTable:
             tmp = {}
             for v in text_props:
                 tmp[v] = 'build_match_clause_inner'
+            mappings.append(tmp)
+            dict['mappings'] = mappings
+            ads_table.append(dict)
+
+        if output_file:
+            file = codecs.open(output_file, 'w', 'utf-8')
+            for entry in ads_table:
+                json.dump(entry, file)
+                file.write('\n')
+            file.close()
+
+    @staticmethod
+    def buildAdsTable_v2(output_file=None):
+        """
+        Written in November for the final QPR of 2016
+
+        Note that the table logic is hard-coded in this function. Ideally, there should be one
+        table per class.
+
+        if output_file is not None, will write out each dictionary as a json
+
+        This is version 1.0 of the table that we will be using in the eval.
+        The dat is 1/19/2016
+        """
+        ads_table = []
+        text_props = ['raw_content', '_all']
+        onto_props_with_mapping = {
+                                   'email': ['email.result.value'],
+                                   'service': ['service.result.value'],
+                                    'names': ['names.result.value'],
+                                    'nationality': ['nationality.result.value'],
+            'text': ['raw_content']
+                                   }
+        non_readability_props = ['number_of_individuals', 'ad', 'multiple_phone', 'cluster', 'phone', 'posting_date',
+                                 'email']
+        # onto_props_without_mapping = ['image_with_email', 'image_with_phone']
+        for property, value_list in onto_props_with_mapping.iteritems():
+            dict = {}
+            dict['onto_prop'] = property
+            mappings = []
+            tmp = {}
+            for v in value_list:
+                tmp[v] = 'build_match_clause'
+
             mappings.append(tmp)
             dict['mappings'] = mappings
             ads_table.append(dict)
@@ -212,4 +257,5 @@ class MappingTable:
                 file.write('\n')
             file.close()
 
-#MappingTable.buildAdsTable_v1('/home/mayankkejriwal/Downloads/memex-cp4/adsTable-v1.jl')
+
+# MappingTable.buildAdsTable_v2('/Users/mayankkejriwal/datasets/memex-evaluation-november/adsTable-v2.jl')

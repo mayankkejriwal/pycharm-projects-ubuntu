@@ -1,5 +1,5 @@
 import SparqlTranslator, SelectExtractors, Grouper, ResultExtractors
-
+from elasticsearch.helpers import bulk
 from elasticsearch import Elasticsearch
 # import gensim
 import pprint, codecs, json
@@ -13,6 +13,8 @@ class ExecuteESQueries:
     """Anticipated starting point class. This is where a sparql query will be read in,
     serialized into internal data structures, and converted into elasticsearch queries.
     """
+
+
 
     @staticmethod
     @DeprecationWarning
@@ -605,11 +607,95 @@ class ExecuteESQueries:
         output_file.write(']')
         output_file.close()
 
+    @staticmethod
+    def bulk_load_jl_to_index(jl_file, elasticsearch_host="http://localhost:9200/", index='de-output-03-index'):
+        """
+        will delete/re-create index if it already exists. Can handle exceptions gracefully. Because we only
+        design this for serial experiments, we assume data to be loaded in is small (can be read in memory)
+        and we load each object into the index in its own call.
+        :param jl_file: to load into elasticsearch. _id field must already exist
+        :param elasticsearch_host:
+        :param index:
+        :return:
+        """
+        data = list()
+        count = 1
+        with codecs.open(jl_file, 'r', 'utf-8') as f:
+            for line in f:
+                # if count>4:
+                #     break
+                data.append(json.loads(line))
+                count += 1
 
+        es = Elasticsearch(elasticsearch_host)
+        if es.indices.exists(index):
+            print("deleting '%s' index..." % (index))
+            res = es.indices.delete(index=index)
+            print(" response: '%s'" % (res))
+
+        # since we are running locally, use one shard and no replicas
+        request_body = {
+            "settings": {
+                "number_of_shards": 1,
+                "number_of_replicas": 0
+            }
+        }
+
+        print("creating '%s' index..." % (index))
+        res = es.indices.create(index=index, body=request_body)
+        print(" response: '%s'" % (res))
+        print 'number of documents to be indexed is ',
+        print str(len(data)/2)
+        # print data
+        for i in range(0, len(data), 2):
+            print 'processing document : ',
+            print str(i/2)
+            small_data = list()
+            small_data.append(data[i])
+            small_data.append(data[i+1])
+            flag = True
+            while flag:
+                try:
+                    res = es.bulk(index=index, doc_type='ads', body=small_data, refresh=True)
+                    # print(" response: '%s'" % (res))
+                except:
+                    print 'Error in document : ',
+                    print i
+                else:
+                    flag = False
+        res = es.search(index=index, size=2, body={"query": {"match_all": {}}})
+        print(" response: '%s'" % (res))
+
+    @staticmethod
+    def _current_trial():
+        """
+        Trials for the november qpr. Just to get me pumping.
+        :return:
+        """
+        es = Elasticsearch('http://localhost:9200/')
+        path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
+        optionalTriples = [['subject', 'service', 'bdsm'],['subject', 'names', 'jessica']]
+        whereTriples = [['subject', 'text', 'escort']]
+        query = {}
+        query['query'] = SparqlTranslator.SparqlTranslator.translateFilterWhereOptionalToBool(whereTriples,None,optionalTriples,
+                                                                      path+'adsTable-v2.jl')
+        # print query
+        retrieved_frames = es.search(index='de-output-03-index', size=500, body=query)
+        print len(retrieved_frames['hits']['hits'])
+        for frame in retrieved_frames['hits']['hits']:
+            print frame['_id']
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint(retrieved_frames)
+
+
+# ExecuteESQueries._current_trial()
+# path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
+# ExecuteESQueries.bulk_load_jl_to_index(path+'de_output_03_elasticsearch_bulk_load.jl')
 #ExecuteESQueries.August3_2016__compilesubmissionfile()
-root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
-ads_table = root_path+'adsTable-v1.jl'
+# root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+# ads_table = root_path+'adsTable-v1.jl'
 # #ExecuteESQueries._parse_raw_queries(root_path+'raw-queries.txt', root_path+'parsed-queries.txt')
 # #ExecuteESQueries._trial_v2_queries()
-raw_sparql_queries = root_path+'raw-queries-ground-truth.txt'
-ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)
+# raw_sparql_queries = root_path+'raw-queries-ground-truth.txt'
+# ExecuteESQueries.trial_v3_queries(raw_sparql_queries, ads_table)
+

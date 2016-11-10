@@ -78,7 +78,7 @@ class MappingAnalyses:
 
 
     @staticmethod
-    def missing_field_statistics(elasticsearch_host, index_name, doc_type, output_file = None):
+    def missing_field_statistics(elasticsearch_host, index_name, output_file=None):
         """
         The method works by first retrieving the mapping file of the doc_type. It then poses
         field stats query and prints out results to file/console. For the definitions of the
@@ -86,7 +86,6 @@ class MappingAnalyses:
         see https://www.elastic.co/guide/en/elasticsearch/reference/1.7/search-field-stats.html
         :param elasticsearch_host: the elasticsearch host
         :param index_name: the name of the elasticsearch index
-        :param doc_type: the type in the index
         :param output_file: the file where the mapping analyses will be printed, if specified.
         :return: None
         """
@@ -128,9 +127,25 @@ class MappingAnalyses:
             appendRaw.append(field+'.raw')
         return non_raw+raw+appendRaw
 
+    @staticmethod
+    def get_mapping_for_index(elasticsearch_host='http://localhost:9200/', index_name='de-output-03-index', doc_type='ads', output_file=None):
+        es = Elasticsearch(elasticsearch_host)
+        mapping = es.indices.get_mapping(
+            index=index_name,
+            doc_type=doc_type)
+        if output_file:
+            out = codecs.open(output_file, 'w', 'utf-8')
+            json.dump(mapping, out)
+            out.close()
+        else:
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(mapping)
 
-memex_cp4_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
-MappingAnalyses.print_dense_docs_sample("http://52.42.180.215:9200/","dig", "webpage",75,10)
+
+# MappingAnalyses.get_mapping_for_index(output_file='/Users/mayankkejriwal/datasets/memex-evaluation-november/mapping-groundtruth.json')
+# memex_cp4_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
+# MappingAnalyses.print_dense_docs_sample("http://52.42.180.215:9200/","dig", "webpage",75,10)
 # MappingAnalyses.docs_density_frequency_statistics("http://52.42.180.215:9200/","dig", "webpage",
 #                                                   memex_cp4_path+'dig-index-cdf.txt')
-# MappingAnalyses.missing_field_statistics("http://52.42.180.215:9200/","dig", "webpage", memex_cp4_path+'dig-index-fieldStats.txt')
+# MappingAnalyses.missing_field_statistics("http://localhost:9200/","de-output-03-index", "ads") # doesn't work
+

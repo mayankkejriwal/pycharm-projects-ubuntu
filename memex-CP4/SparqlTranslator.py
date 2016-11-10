@@ -752,7 +752,7 @@ class SparqlTranslator:
         should = SparqlTranslator._translateTriplesToList(whereTriples, mappingTableFile)
         return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
 
-    @DeprecationWarning
+    # @DeprecationWarning
     @staticmethod
     def translateFilterWhereOptionalToBool(whereTriples, filterTriples, optionalTriples, mappingTableFile):
         """

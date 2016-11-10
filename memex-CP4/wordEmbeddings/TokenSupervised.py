@@ -239,6 +239,8 @@ class TokenSupervised:
         for f in forbidden:
             del d[f]
 
+
+
     @staticmethod
     def construct_nyu_pos_neg_files(doc_vec_file, pos_tokens_file, neg_tokens_file, output_file):
         """
@@ -396,6 +398,7 @@ class TokenSupervised:
             for line in f:
                 line = line[0:-1]
                 cols = re.split('\t',line)
+                # print cols
                 if cols[2] not in result:
                     result[cols[2]] = list()
                 result[cols[2]].append(TokenSupervised._convert_string_to_float_list(cols[1]))
@@ -478,7 +481,7 @@ class TokenSupervised:
                 TokenSupervised._select_k_best_features(v2, k=k, test_data_visible=test_data_visible)
 
     @staticmethod
-    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True, balanced_training=False):
+    def _prepare_train_test_data_multi(multi_file, train_percent = 0.3, randomize=True, balanced_training=True):
         """
         :param multi_file:
         :param train_percent:
@@ -938,9 +941,9 @@ class TokenSupervised:
             #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             #We do feature selection.
             data_dict = TokenSupervised._prepare_train_test_data_multi(multi_file)
-            TokenSupervised._select_k_best_features_multi(data_dict, k=20)
+            # TokenSupervised._select_k_best_features_multi(data_dict, k=20)
             TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='random_forest',
-                                                                ranking_mode=True,k=5)
+                                                                ranking_mode=True,k=1)
             # TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='random_forest',
             #                                                     ranking_mode=True, k=2)
             # TokenSupervised._train_and_test_allVsAll_classifier(data_dict, classifier_model='linear_regression',
@@ -1003,6 +1006,9 @@ class TokenSupervised:
 
 
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
+# dbpedia_path = '/Users/mayankkejriwal/datasets/eswc2017/LOD-ML-data/'
+# TokenSupervised.construct_dbpedia_multi_file(dbpedia_path+'embedding_vecs.jl', dbpedia_path+'aaup/CompleteDataset.tsv',
+#                                 dbpedia_path+'aaup/comp-multi-full.tsv', uri_index=-4, label_index=-2, id_index=-1)
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
 # TokenSupervised.trial_script_binary(data_path+'pos_neg_file.txt', 1)
 # TokenSupervised.construct_nyu_pos_neg_files(data_path+'idf_weighted_combined_doc_embedding.json',data_path+'tokens_pos_ht_onlyLower.json',
@@ -1012,7 +1018,7 @@ class TokenSupervised:
 #     path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt',None)
 # TokenSupervised.construct_nationality_pos_neg_files(path+'corpora/all_extractions_july_2016.jl',
 #                             path+'embedding/unigram-embeddings-v2-10000docs.json', path+'supervised-exp-datasets/')
-# TokenSupervised.trial_script_multi(path+'supervised-exp-datasets/multi-location-nationality-allclasses.txt')
+# TokenSupervised.trial_script_multi(dbpedia_path+'aaup/comp-multi-full.tsv')
 # www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # input_files = ['pos-neg-text-ages.txt', 'pos-neg-text-cities.txt', 'pos-neg-text-names.txt', 'pos-neg-text-states.txt', 'pos-neg-title-cities.txt']
 # result_files = ['text-ages.csv', 'text-cities.csv', 'text-names.csv', 'text-states.csv', 'title-cities.csv']
