@@ -11,7 +11,7 @@ class Grouper:
         A simple map-reduce style function. Each value of the group_variable in the list serves as
         a key, and the values are the elements in the lists themselves.
         :param retrieved_frames The frames. Be wary of missing fields. We will treat missing value with special
-        key 'MISSING_FIELD'
+        key
         :param group_variable: this is a 'mapped' variable (e.g. 'ethnicity'), not the original (e.g. '?ethnicity')
         :return: a dictionary in the style described above.
         """
@@ -27,7 +27,7 @@ class Grouper:
                         Grouper._add_key_value_to_dict(atom, element['_source'], answer)
                 else:
 
-                    raise Exception('group-variable references unrecognized type: not string or list!')
+                    raise Exception('group-variable references unrecognized type: not string, int, long or list!')
 
             else:
                 Grouper._add_key_value_to_dict('', element['_source'], answer)
@@ -47,6 +47,6 @@ class Grouper:
         :param dict: each value intended to be a list
         :return: None
         """
-        if not key in dict:
+        if key not in dict:
             dict[key] = []
         dict[key].append(value)

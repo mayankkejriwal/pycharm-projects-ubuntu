@@ -389,6 +389,8 @@ class ExecuteESQueries:
             pp.pprint(ExecuteESQueries._wrap_results_isd_format(results, '41'))
             #pp.pprint(results)
 
+
+
     @staticmethod
     def August3_2016__pointfactexecution():
         """
@@ -428,7 +430,7 @@ class ExecuteESQueries:
 
             if not retrieved_frames['hits']['hits']:
                 print 'no results'
-             #   continue   #unhash both these lines if we don't fill out, and hash the following if
+             #   continue   #unhash both these lines if we don't fill out, and hash them (and also indent) if you do
             #else:
             if True:
                 # pp.pprint(retrieved_frames['hits']['hits'][0])
@@ -608,16 +610,21 @@ class ExecuteESQueries:
         output_file.close()
 
     @staticmethod
-    def bulk_load_jl_to_index(jl_file, elasticsearch_host="http://localhost:9200/", index='de-output-03-index'):
+    def bulk_load_ads_jl_to_index(jl_file, elasticsearch_host="http://localhost:9200/", index='gt-index-1',
+                                  doc_type='ads', mapping_file=None):
         """
+        Use this only for bulk-loading ads! For clusters, I'm writing a separate piece of code.
         will delete/re-create index if it already exists. Can handle exceptions gracefully. Because we only
         design this for serial experiments, we assume data to be loaded in is small (can be read in memory)
         and we load each object into the index in its own call.
         :param jl_file: to load into elasticsearch. _id field must already exist
         :param elasticsearch_host:
         :param index:
+        :param mapping_file: should be a json: if this exists, we'll load it in as the request body, otherwise
+        we'll use a default request body.
         :return:
         """
+
         data = list()
         count = 1
         with codecs.open(jl_file, 'r', 'utf-8') as f:
@@ -634,12 +641,25 @@ class ExecuteESQueries:
             print(" response: '%s'" % (res))
 
         # since we are running locally, use one shard and no replicas
-        request_body = {
-            "settings": {
-                "number_of_shards": 1,
-                "number_of_replicas": 0
+        if not mapping_file:
+            request_body = {
+                "settings": {
+                    "index.mapping.total_fields.limit": 20000,
+                    "number_of_shards": 1,
+                    "number_of_replicas": 1
+                }
             }
-        }
+        else:
+            mapping_in = codecs.open(mapping_file, 'r', 'utf-8')
+            request_body = json.load(mapping_in)
+            mapping_in.close()
+            settings_dict = {
+                    "number_of_shards": 1,
+                    "number_of_replicas": 1
+                }
+            request_body['settings'] = settings_dict
+            del request_body['warmers']
+            print request_body['settings']
 
         print("creating '%s' index..." % (index))
         res = es.indices.create(index=index, body=request_body)
@@ -648,16 +668,107 @@ class ExecuteESQueries:
         print str(len(data)/2)
         # print data
         for i in range(0, len(data), 2):
-            print 'processing document : ',
-            print str(i/2)
+            # print 'processing document : ',
+            # print str(i/2)
             small_data = list()
             small_data.append(data[i])
             small_data.append(data[i+1])
             flag = True
             while flag:
                 try:
-                    res = es.bulk(index=index, doc_type='ads', body=small_data, refresh=True)
+                    res = es.bulk(index=index, doc_type=doc_type, body=small_data, refresh=True)
+                    if res:
+                        for item in res['items']:
+                            if item['index']['status'] != 201:
+                                print res
+                    # print res
+                    # print 'processed index...',
+                    # print i
                     # print(" response: '%s'" % (res))
+                except:
+                    print 'Error in document : ',
+                    print i
+                else:
+                    flag = False
+        res = es.search(index=index, size=2, body={"query": {"match_all": {}}})
+        print(" response: '%s'" % (res))
+
+    @staticmethod
+    def bulk_load_clusters_jl_to_index(jl_file, elasticsearch_host="http://localhost:9200/", index='gt-index-1',
+                                  doc_type='clusters', mapping_file=None):
+        """
+        Use this only for bulk-loading ads! For clusters, I'm writing a separate piece of code.
+        will delete/re-create index if it already exists. Can handle exceptions gracefully. Because we only
+        design this for serial experiments, we assume data to be loaded in is small (can be read in memory)
+        and we load each object into the index in its own call.
+        :param jl_file: to load into elasticsearch. _id field must already exist
+        :param elasticsearch_host:
+        :param index:
+        :param mapping_file: should be a json: if this exists, we'll load it in as the request body, otherwise
+        we'll use a default request body.
+        :return:
+        """
+
+        data = list()
+        count = 1
+        with codecs.open(jl_file, 'r', 'utf-8') as f:
+            for line in f:
+                # if count>4:
+                #     break
+                data.append(json.loads(line))
+                count += 1
+
+        es = Elasticsearch(elasticsearch_host)
+        # if es.indices.exists(index):
+        #     print("deleting '%s' index..." % (index))
+        #     res = es.indices.delete(index=index)
+        #     print(" response: '%s'" % (res))
+
+        # since we are running locally, use one shard and no replicas
+        # if not mapping_file:
+        #     request_body = {
+        #         "settings": {
+        #             "index.mapping.total_fields.limit": 20000,
+        #             "number_of_shards": 1,
+        #             "number_of_replicas": 1
+        #         }
+        #     }
+        # else:
+        #     mapping_in = codecs.open(mapping_file, 'r', 'utf-8')
+        #     request_body = json.load(mapping_in)
+        #     mapping_in.close()
+        #     settings_dict = {
+        #         "number_of_shards": 1,
+        #         "number_of_replicas": 1
+        #     }
+        #     request_body['settings'] = settings_dict
+        #     del request_body['warmers']
+        #     print request_body['settings']
+        #
+        # print("creating '%s' index..." % (index))
+        # res = es.indices.create(index=index, body=request_body)
+        # print(" response: '%s'" % (res))
+        print 'number of documents to be indexed is ',
+        print str(len(data) / 2)
+        # print data
+        for i in range(0, len(data), 2):
+            # print 'processing document : ',
+            # print str(i/2)
+            small_data = list()
+            small_data.append(data[i])
+            small_data.append(data[i + 1])
+            flag = True
+            while flag:
+                try:
+                    res = es.bulk(index=index, doc_type=doc_type, body=small_data, refresh=True)
+                    if res:
+                        for item in res['items']:
+                            if item['index']['status'] != 201:
+                                print res
+                                # print res
+                                # print 'processed index...',
+                                # print i
+                                # print(" response: '%s'" % (res))
                 except:
                     print 'Error in document : ',
                     print i
@@ -674,23 +785,118 @@ class ExecuteESQueries:
         """
         es = Elasticsearch('http://localhost:9200/')
         path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
-        optionalTriples = [['subject', 'service', 'bdsm'],['subject', 'names', 'jessica']]
-        whereTriples = [['subject', 'text', 'escort']]
-        query = {}
-        query['query'] = SparqlTranslator.SparqlTranslator.translateFilterWhereOptionalToBool(whereTriples,None,optionalTriples,
-                                                                      path+'adsTable-v2.jl')
+        optionalTriples = [#['subject', 'ethnicity', 'Asian'],
+                          #['subject', 'name', 'TINA'],
+                           ['subject', 'phone', '425-609-2235']]
+
+        whereTriples = list()
+        k = list()
+        for triple in optionalTriples:
+            k.append(triple[2])
+        whereTriples.append(['subject', 'loose_text', ' '.join(k)])
+        print whereTriples
+        print optionalTriples
+        filterTriples = None
+        query = dict()
+        query['query'] = SparqlTranslator.SparqlTranslator.translateFilterWhereOptionalToBool(
+            whereTriples, filterTriples, optionalTriples, path+'adsTable-v2.jl')
         # print query
-        retrieved_frames = es.search(index='de-output-03-index', size=500, body=query)
+        retrieved_frames = es.search(index='de-output-07-index-1', size=5, body=query)
         print len(retrieved_frames['hits']['hits'])
         for frame in retrieved_frames['hits']['hits']:
-            print frame['_id']
+            # print frame
+            print frame['_id']+'\t'+frame['_source']['url']
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(retrieved_frames)
 
 
+    @staticmethod
+    def test_ES_index(host="https://10.1.94.103:9201/", index = 'dig-nov-eval-gt-02'):
+        es = Elasticsearch(host)
+        query = dict()
+        query['query'] = TableFunctions.build_match_all_query()
+        retrieved_frames = es.search(index=index, size=10, body=query)
+        print retrieved_frames
+
+    @staticmethod
+    def print_ad_corresponding_to_id(id, host="https://10.1.94.103:9201/", index = 'dig-nov-eval-gt-02'):
+        pass
+
+    @staticmethod
+    def November_2016_pre_execution():
+        """
+        Because so much is changing between the november and august evaluations, I want to use this
+        code as a kind of 'proving ground'
+        :return:
+        """
+        root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
+        ads_table_file = root_path + 'adsTable-v3.jl'
+        # raw_query_file = root_path + 'raw-queries-ground-truth.txt'
+        # parsed_query_file = root_path + 'json_file_for_25_parsed_sparql_queries.js' # the sample queries we designed
+        parsed_query_file = root_path+'november-sample-questions.json'
+        parsed_query_file_in = codecs.open(parsed_query_file, 'r', 'utf-8')
+        parsed_PF_queries = json.load(parsed_query_file_in)['Point Fact']
+        parsed_query_file_in.close()
+        url_localhost = "http://10.1.94.103:9201/"
+        # url_localhost = "http://localhost:9200"
+        es = Elasticsearch(url_localhost)
+        index = 'dig-nov-eval-gt-02'
+        # index = 'gt-index-1'
+        results = None
+        # with codecs.open(raw_query_file, 'r', 'utf-8') as f:
+        #     raw_sparql_queries = json.loads(f.read())
+        keys = sorted(parsed_PF_queries.keys())
+        for k in keys:
+            print k
+            sparql_query = parsed_PF_queries[k]['parsed']
+            if not sparql_query:
+                continue
+            # raw_query = v['sparql']
+            pp = pprint.PrettyPrinter(indent=4)
+            # pp.pprint(v)
+            # sparql_query = SQParser.parse(raw_query, target_component='')
+            pp.pprint(sparql_query)
+            query = dict()
+            translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query, ads_table_file, False)
+            # query['query'] = TableFunctions.build_match_all_query()
+            query['query'] = translatedDS['query']
+            # outtmp= codecs.open(root_path+'queryexample.json', 'w', 'utf-8')
+            # json.dump(query, outtmp)
+            # outtmp.close()
+            # print query
+            # pp.pprint(query)
+            # out = codecs.open(root_path+'query_tmp.json', 'w', 'utf-8')
+            # json.dump(query, out)
+            # out.close()
+            try:
+                retrieved_frames = es.search(index=index, doc_type='ads', size=10, body=query)
+            except:
+                pass
+            if not retrieved_frames['hits']['hits']:
+                print 'no results'
+            else:
+                print('Number of retrieved frames ', len(retrieved_frames['hits']['hits']))
+                results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames, translatedDS,
+                                                                               sparql_query)
+                if results:
+                    # print 'Top retrieved result is :'
+                    # pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+                    # print 'Results from ResultExtractors:'
+                    bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
+                    # pp.pprint(results)
+                    output_file = root_path + 'output-folder-1/' + k + '.txt'
+                    file = codecs.open(output_file, 'w', 'utf-8')
+                    json.dump(bindings_dict, file)
+                    file.close()
+            # break
+
+
+ExecuteESQueries.November_2016_pre_execution()
+# ExecuteESQueries.test_ES_index()
 # ExecuteESQueries._current_trial()
 # path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
-# ExecuteESQueries.bulk_load_jl_to_index(path+'de_output_03_elasticsearch_bulk_load.jl')
+# ExecuteESQueries.bulk_load_clusters_jl_to_index(path+'clustering-mapping-CDR-id/phone-sim-de-24-0.1-bulk-load.jl')
+# ExecuteESQueries.bulk_load_ads_jl_to_index(path+'summer_output_24_elasticsearch_bulk_load_2.jl')
 #ExecuteESQueries.August3_2016__compilesubmissionfile()
 # root_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
 # ads_table = root_path+'adsTable-v1.jl'

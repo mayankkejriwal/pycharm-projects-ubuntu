@@ -540,13 +540,13 @@ def build_enriched_entities_dataset(jlines_file, output_file):
 
 
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
-# data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/'
+# data_path = '/Users/mayankkejriwal/datasets/companies/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
 # build_enriched_entities_dataset(RWP_path+'condensed-objects-allFields.json', RWP_path+'enriched-entities.json')
 # uuid_seeds = ['768466957527953410','768466964457152512','768467097802280961','768467207261188096','768467216761102338']
 # find_seeds_in_condensed_file(path+'italyEarthquakeProcessed-condensed.json', seeds_list=['earthquake', 'myanmar'])
 # build_uuids_file_from_json(path+'19validationresults-relevant-uuids.txt', path+'19validationresults-relevant-allFields.json')
-# condenseRWP(data_path+'reliefWebProcessed/', data_path+'reliefWebProcessed-prepped/condensed-new.jl', extractAll=False)
+# condenseRWP(data_path+'doc2vec_input_GTD/', data_path+'GTD.jl', extractAll=True)
 # build_tokens_file(data_path+'condensed-new-sorted-wcPrepped.jl', data_path+'lowerCaseTokens-sorted.json')
 # preprocessRWPWordcloud(data_path+'condensed-new-sorted.jl', data_path+'condensed-new-sorted-wcPrepped.jl')
 # sort_condensed_RWP_objects_by_createdAt(data_path+'condensed-new.jl',data_path+'nonCondensed.jl',data_path+'condensed-new-sorted.jl')

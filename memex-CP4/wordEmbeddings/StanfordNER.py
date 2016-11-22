@@ -4,6 +4,8 @@ import codecs
 from random import shuffle
 import re
 import glob
+import json
+import TextPreprocessors
 
 def trial1():
     """
@@ -20,6 +22,72 @@ def trial1():
     classified_text = st.tag(tokenized_text)
 
     print(classified_text)
+
+def _build_locations_true_positives_set(json_obj, list_of_correct_fields):
+    answer = set()
+    for field in list_of_correct_fields:
+        if field in json_obj and json_obj[field]:
+            for f in json_obj[field]:
+                answer.add(f.lower())
+    return answer
+
+def trial2():
+    """
+    Let's try using the nltk and one of the readability texts
+    :return:
+    """
+    pretrained_model_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/stanford-ner-2015-12-09/'
+    all3class = pretrained_model_path+'classifiers/english.all.3class.distsim.crf.ser.gz'
+    conll4class = pretrained_model_path+'classifiers/english.conll.4class.distsim.crf.ser.gz'
+    muc7class = pretrained_model_path+'classifiers/english.muc.7class.distsim.crf.ser.gz'
+    st_muc = StanfordNERTagger(muc7class,
+                           pretrained_model_path+'stanford-ner.jar',
+                           encoding='utf-8')
+    st_conll = StanfordNERTagger(conll4class,
+                           pretrained_model_path+'stanford-ner.jar',
+                           encoding='utf-8')
+    st_3class = StanfordNERTagger(all3class,
+                                 pretrained_model_path + 'stanford-ner.jar',
+                                 encoding='utf-8')
+    annotated_cities_file = '/Users/mayankkejriwal/datasets/memex-evaluation-november/annotated-cities/ann_city_title_state_1_50.txt'
+    TP = 0
+    FP = 0
+    FN = 0
+    with codecs.open(annotated_cities_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            text = obj['high_recall_readability_text']
+            tokenized_text = word_tokenize(text)
+            classified_text_muc = st_muc.tag(tokenized_text)
+            classified_text_conll = st_conll.tag(tokenized_text)
+            classified_text_3class = st_3class.tag(tokenized_text)
+            tagged_locations = set()
+
+            correct_locations = _build_locations_true_positives_set(obj, ['correct_cities','correct_states','correct_cities_title'])
+            # if 'correct_country' in obj and obj['correct_country']:
+            #     correct_locations = correct_locations.union(set(TextPreprocessors.TextPreprocessors._preprocess_tokens
+            #                                                     (obj['correct_country'].split(),['lower'])))
+            for i in range(0, len(classified_text_muc)):
+                tag_muc = classified_text_muc[i]
+                tag_conll = classified_text_conll[i]
+                tag_3class = classified_text_3class[i]
+                if str(tag_3class[1]) == 'LOCATION':
+                # if str(tag_muc[1]) == 'LOCATION' or str(tag_conll[1]) == 'LOCATION' or str(tag_3class[1]) == 'LOCATION':
+                    tagged_locations.add(tag_3class[0].lower())
+            # print tagged_locations
+            # print correct_locations
+            TP += len(tagged_locations.intersection(correct_locations))
+            FP += (len(tagged_locations)-len(tagged_locations.intersection(correct_locations)))
+            FN += (len(correct_locations)-len(tagged_locations.intersection(correct_locations)))
+            # print classified_text[0][1]
+            # print(classified_text)
+            # break
+    print 'TP, FP, FN are...'
+    print TP
+    print FP
+    print FN
+    # text = 'While in France, Mrs. Christine Lagarde discussed short-term stimulus efforts in a recent interview with the Wall Street Journal.'
+
 
 def generate_random_samples(tsv_file, output_path_prefix, partition_percent=30, num_samples=10):
     """
@@ -326,5 +394,5 @@ def generate_pretrained_testing_script(root_folder):
 #                                 www_path+'summary_of_results/pre-trained-ages.csv')
 # generate_pretrained_testing_script(www_path)
 # generate_random_samples(www_path+'stanfordNER-full-files/tagged-title-cities.json', www_path+'stanfordNER-partitions/title-cities/30-70/')
-# trial1()
+# trial2()
 # print_annotation_statistics(www_path+'tagged-ages.json')

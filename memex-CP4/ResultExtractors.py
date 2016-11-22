@@ -1,4 +1,4 @@
-import Grouper, SelectExtractors, pprint, PrintUtils, re
+import Grouper, SelectExtractors, pprint, PrintUtils, re, math
 
 class ResultExtractors:
     """
@@ -41,8 +41,9 @@ class ResultExtractors:
 
                     order_by_properties = order_var_list
 
-
+        # no grouping is required
         if translated_query_data_structure['simpleSelectDict'] and not group_by_var:
+            # select is a list of dicts, with each dict being a variable (e.g. ?ethnicity) ref. a string value
             select = SelectExtractors.SelectExtractors.extractSimpleSelect(retrieved_frames['hits']['hits'],
                                                         translated_query_data_structure['simpleSelectDict'])
             if order_by_var:
@@ -111,6 +112,16 @@ class ResultExtractors:
                     if order_by_var in result:
                         del result[order_by_var]
 
+        # a new addition, since we need scores in our list now
+        scores = ResultExtractors.build_score_dict(retrieved_frames['hits']['hits'], 'cdr_id', ResultExtractors.sigmoid)
+        # print scores
+        for i in range(len(flattened_list)):
+            id_val = flattened_list[i]['?ad'] # this is ad-hoc, but it should suffice.
+            if id_val not in scores:
+                raise Exception
+            else:
+                flattened_list[i]['score']=scores[id_val]
+
         if translated_query_data_structure['groupByDict'] \
          and 'limit' in translated_query_data_structure['groupByDict']: # any limit?
             limit = translated_query_data_structure['groupByDict']['limit']
@@ -120,7 +131,30 @@ class ResultExtractors:
         return flattened_list
 
     @staticmethod
-    def is_property_in_source_frame(source_frame, property):
+    def build_score_dict(list_of_results, id_field, scoring_function=None):
+        """
+
+        :param list_of_results: should be retrieved_frames['hits']['hits']
+        :param id_field: the (top-level) we will look for in '_source'. This will serve as key to the dictionary
+        we return
+        :param scoring_function: A function that will be called on the score, if it exists. e.g. sigmoid
+        :return: A dictionary with id keys referencing score values
+        """
+        answer = dict()
+        for result in list_of_results:
+            if scoring_function:
+                answer[result['_source'][id_field]] = scoring_function(result['_score'])
+            else:
+                answer[result['_source'][id_field]] = result['_score']
+        return answer
+
+    @staticmethod
+    def sigmoid(x):
+        return 1.0 / (1.0 + math.exp(-x))
+
+    @DeprecationWarning
+    @staticmethod
+    def is_property_in_source_frame_old(source_frame, property):
         """
         In the frame, only one list is expected while navigating the property, if any. If a list is encountered,
         only one member needs to have the property
@@ -157,9 +191,66 @@ class ResultExtractors:
         else:
             if property in source_frame:
                 return True
+        return False
+
+    @staticmethod
+    def is_property_in_source_frame(source_frame, property):
+        """
+        If lists are encountered while navigating the frame, only one member needs to have the property.
+        :param source_frame: a source frame
+        :param property: (possibly dot limited) property in our ontology
+        :return: True or False
+        """
+        prop = re.split('\.', property)[0]
+
+        if prop not in source_frame:
+            return False
+        inner_element = source_frame[prop]
+        # either we've reached the end or we need to keep searching
+        if len(re.split('\.', property)) == 1:
+            return True
+        rem_prop = '.'.join(re.split('\.', property)[1:])
+        if type(inner_element) == dict:
+            return ResultExtractors.is_property_in_source_frame(inner_element, rem_prop)
+        elif type(inner_element) == list:
+            for element in inner_element:
+                if type(element) == dict and ResultExtractors.is_property_in_source_frame(element, rem_prop):
+                    return True
+        return False
 
     @staticmethod
     def get_property_from_source_frame(source_frame, property):
+        """
+
+        :param source_frame:
+        :param property:
+        :return: Always a list
+        """
+        prop = re.split('\.', property)[0]
+        answer = list()
+        if prop not in source_frame:
+            return False
+        inner_element = source_frame[prop]
+        # either we've reached the end or we need to keep searching
+        if len(re.split('\.', property)) == 1:
+            if type(inner_element) == list:
+                answer+=inner_element
+            else:
+                answer.append(inner_element)
+            return answer
+
+        rem_prop = '.'.join(re.split('\.', property)[1:])
+        if type(inner_element) == dict:
+            return ResultExtractors.get_property_from_source_frame(inner_element, rem_prop)
+        elif type(inner_element) == list:
+            for element in inner_element:
+                if type(element) == dict and ResultExtractors.is_property_in_source_frame(element, rem_prop):
+                    answer+=(ResultExtractors.get_property_from_source_frame(element, rem_prop))
+        return answer
+
+    @DeprecationWarning
+    @staticmethod
+    def get_property_from_source_frame_old(source_frame, property):
         """
         Be careful. The property could be dot-delimited.See my note on the 'is' version of this function.
         :param source_frame: A source frame
@@ -279,7 +370,8 @@ class ResultExtractors:
         will only have atomic values.
         :param list_of_results: A list of dictionaries, where each value in the dictionary must reference an atomic
         value or a list (otherwise results are undefined)
-        :return: A   flattened list
+        :return: A   flattened list (of dicts, with each dict consisting of atomic key-value pairs, a key
+        representing a property)
         """
         output = []
 
@@ -334,7 +426,7 @@ class ResultExtractors:
         The subtlety in this function is that it will return None if there is a group-by variable
         but we don't need it as part of the results. This function is for internal use only.
         :param sparql_query: The original sparql query, as produced by sqparser
-        :return: a string representing the group-by variable (in original unmapped form) or None
+        :return: a string representing the group-by variable (in original unmapped form e.g. '?ethnicity') or None
         """
         # for posterity, I'm changing sparql_query['parsed'] to sparql_query to be compatible with sqparser
         if 'group-by' in sparql_query and 'group-variable' in sparql_query['group-by']:
@@ -350,7 +442,7 @@ class ResultExtractors:
         """
         Finds the order-by variable
         :param sparql_query: The original sparql query, as produced by sqparser
-        :return: a string representing the order-by variable (in original unmapped form) or None
+        :return: a string representing the order-by variable (in original unmapped form e.g. '?ethnicity') or None
         """
         # for posterity, I'm changing sparql_query['parsed'] to sparql_query to be compatible with sqparser
         if 'group-by' in sparql_query and 'order-variable' in sparql_query['group-by']:
@@ -381,5 +473,13 @@ class ResultExtractors:
             print 'count select extraction:'
             pp.pprint(countSelect)
 
-#test = {'a' : [1,2,3], 'b': [4, 5], 'c': 6}
-#print(ResultExtractors._flatten_dict(test))
+# print ResultExtractors.sigmoid(40.58288)
+# source_frame = {'a':{'b':3, 'c':{'d':[{'e':[{'f':5}, 6, 8]}]}}, 'b':5}
+# print ResultExtractors.get_property_from_source_frame(source_frame, 'a.c.d.e.f')
+# test = {'a' : [1,2,3], 'b': [4, 5], 'c': 6}
+# test1 = {'a' : [1,2]}
+# print(ResultExtractors._flatten_dict(test1))
+# property = 'a.b.c'
+# prop = re.split('\.', property)[0]
+# rem_prop = '.'.join(re.split('\.', property)[1:])
+# print rem_prop

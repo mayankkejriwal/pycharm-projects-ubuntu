@@ -128,7 +128,7 @@ class MappingAnalyses:
         return non_raw+raw+appendRaw
 
     @staticmethod
-    def get_mapping_for_index(elasticsearch_host='http://localhost:9200/', index_name='de-output-03-index', doc_type='ads', output_file=None):
+    def get_mapping_for_index(elasticsearch_host='http://localhost:9200/', index_name='de-output-07-index', doc_type='ads', output_file=None):
         es = Elasticsearch(elasticsearch_host)
         mapping = es.indices.get_mapping(
             index=index_name,
@@ -142,7 +142,7 @@ class MappingAnalyses:
             pp.pprint(mapping)
 
 
-# MappingAnalyses.get_mapping_for_index(output_file='/Users/mayankkejriwal/datasets/memex-evaluation-november/mapping-groundtruth.json')
+# MappingAnalyses.get_mapping_for_index(output_file='/Users/mayankkejriwal/datasets/memex-evaluation-november/mapping-07-groundtruth.json')
 # memex_cp4_path = "/home/mayankkejriwal/Downloads/memex-cp4/"
 # MappingAnalyses.print_dense_docs_sample("http://52.42.180.215:9200/","dig", "webpage",75,10)
 # MappingAnalyses.docs_density_frequency_statistics("http://52.42.180.215:9200/","dig", "webpage",

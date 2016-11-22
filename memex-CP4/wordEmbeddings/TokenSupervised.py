@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from random import shuffle
 import math
 from sklearn.externals import joblib
+from gensim.models.word2vec import Word2Vec
 
 class TokenSupervised:
     """
@@ -102,6 +103,19 @@ class TokenSupervised:
         return normalize(matrix)
 
     @staticmethod
+    def l2_normalize(list_of_nums):
+        """
+        l2 normalize a vector. original vector is unchanged. Meant to be used as a process_embedding function
+        in Classification.construct_dbpedia_multi_file
+        :param list_of_nums: a list of numbers.
+        :return:
+        """
+        k = list()
+        k.append(list_of_nums)
+        warnings.filterwarnings("ignore")
+        return list(normalize(np.matrix(k))[0])
+
+    @staticmethod
     def prepare_pos_neg_dictionaries_file(dictionary_file1, dictionary_file2, embeddings_file, output_file):
         """
         we will assign label 0 to all words in file 1 and label 1 to all words in file 2
@@ -137,6 +151,56 @@ class TokenSupervised:
                 out.write('\n')
         out.close()
 
+
+    @staticmethod
+    def prep_annotated_files_for_word2vec_classification(annotated_file_txt, correct_file_txt, output_file,
+        word2vec_file='/Users/mayankkejriwal/datasets/eswc2017/disasters/GoogleNews-vectors-negative300.bin'):
+        """
+        If a word is not present in word2vec, we print it out and ignore it. Otherwise, for multiple words
+        we simply add them up for the moment. The output is similar to the feature vector (pos neg) files
+        we have previously encountered.
+        :param annotated_file_txt: Must have an item in each line
+        :param correct_file_txt: Must have an item in each line
+        :param output_file: the feature vectors file
+        :param word2vec_file: at present, we use GoogleNews-vectors-negative300.bin
+        :return:
+        """
+        incorrect_items = set()
+        correct_items = set()
+        with codecs.open(correct_file_txt, 'r', 'utf-8') as f:
+            for line in f:
+                correct_items.add(line[0:-1])
+        with codecs.open(annotated_file_txt, 'r', 'utf-8') as f:
+            for line in f:
+                if line[0:-1] not in correct_items:
+                    incorrect_items.add(line[0:-1])
+        print 'finished processing items...'
+        model = Word2Vec.load_word2vec_format(word2vec_file, binary=True)
+        model.init_sims(replace=True)
+        print 'finished reading word2vec...'
+        out = codecs.open(output_file, 'w', 'utf-8')
+        for item in correct_items.union(incorrect_items):
+
+                h = item.split()
+                arr = np.array([0] * 300)
+                flag = False
+                for i in h:
+                    try:
+                        j = model[i]
+                        arr = np.sum([j, arr], axis=0)
+                        flag = True
+                    except KeyError:
+                        print 'not found...',
+                        print item
+                        continue
+                if flag:
+                    k = TokenSupervised.l2_normalize(arr)
+                    if item in correct_items:
+                        out.write(item + '\t' + str(k) + '\t1\n')
+                    else:
+                        out.write(item + '\t' + str(k) + '\t0\n')
+
+        out.close()
 
     @staticmethod
     def prep_preprocessed_annotated_file_for_classification(preprocessed_file, embeddings_file,
@@ -876,7 +940,7 @@ class TokenSupervised:
             # print predicted_labels[0:10]
             # print predicted_probabilities[0:10]
         elif classifier_model == 'knn':
-            k = 1
+            k = 9
             model = neighbors.KNeighborsClassifier(n_neighbors=k, weights='uniform')
             model.fit(train_data, train_labels)
             predicted_labels = model.predict(test_data)
@@ -967,14 +1031,14 @@ class TokenSupervised:
 
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file, train_percent=train_percent)
             # print data_dict['train_labels'][0]
-            data_dict['classifier_model'] = 'random_forest'
+            data_dict['classifier_model'] = 'knn'
             results = TokenSupervised._train_and_test_classifier(**data_dict)
         elif opt == 2:
             #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             #We do feature selection.
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file, train_percent=train_percent)
             TokenSupervised._select_k_best_features(data_dict, k=20)
-            data_dict['classifier_model'] = 'random_forest'
+            data_dict['classifier_model'] = 'logistic_regression'
             results = TokenSupervised._train_and_test_classifier(**data_dict)
 
         return results
@@ -1005,12 +1069,15 @@ class TokenSupervised:
         out.close()
 
 
+# path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/annotated-cities/'
+# TokenSupervised.prep_annotated_files_for_word2vec_classification(path+'annotated_states.txt', path+'correct_states.txt'
+#                                                                  , path+'states_pos_neg.txt')
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # dbpedia_path = '/Users/mayankkejriwal/datasets/eswc2017/LOD-ML-data/'
 # TokenSupervised.construct_dbpedia_multi_file(dbpedia_path+'embedding_vecs.jl', dbpedia_path+'aaup/CompleteDataset.tsv',
 #                                 dbpedia_path+'aaup/comp-multi-full.tsv', uri_index=-4, label_index=-2, id_index=-1)
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
-# TokenSupervised.trial_script_binary(data_path+'pos_neg_file.txt', 1)
+# TokenSupervised.trial_script_binary(path+'all_pos_neg.txt', 2)
 # TokenSupervised.construct_nyu_pos_neg_files(data_path+'idf_weighted_combined_doc_embedding.json',data_path+'tokens_pos_ht_onlyLower.json',
 #                                             data_path+'tokens_neg_ht_onlyLower.json', data_path+'pos_neg_file.txt')
 # TokenSupervised.construct_nationality_multi_file(

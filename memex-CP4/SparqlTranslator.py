@@ -7,7 +7,7 @@ class SparqlTranslator:
     parses them into an elastic search query. Data structures may evolve and returned
     ES query are expected to become more complex as time goes on.
     """
-
+    @DeprecationWarning
     @staticmethod
     def translateQueries(sparqlDataStructure, mappingTableFile, conservativeLevel):
         """
@@ -73,7 +73,8 @@ class SparqlTranslator:
             return level0DS
 
     @staticmethod
-    def translateClusterQueries(sparqlDataStructure, mappingTableFile, conservativeLevel):
+    def translateClusterQueries(sparqlDataStructure, mappingTableFile, conservativeLevel,
+                                es_host="http://localhost:9200/", index= 'gt-index-1', cluster_doc_type='clusters'):
         """
         Handles cluster queries. First, we check for a seed constraint and run a simple bool query
         to return the list of seller uris. Then we form a new sparqlDataStructure using
@@ -87,31 +88,31 @@ class SparqlTranslator:
         """
         seed_constraint = SparqlTranslator._find_seed_constraint(sparqlDataStructure)
         should = []
-        should.append(TableFunctions.build_term_clause('telephone.name', seed_constraint))
-        should.append(TableFunctions.build_term_clause('email.name', seed_constraint))
+        should.append(TableFunctions.build_term_clause('centroid_phone', seed_constraint))
+        # should.append(TableFunctions.build_term_clause('centroid_phone', seed_constraint))
 
         #this is a very simple heuristic: use with caution. In essence, we strip the first 0 iff we're
         #reasonably sure this is not an email address
         if '@' not in seed_constraint:
             seed_constraint1 = SparqlTranslator._strip_initial_zeros(seed_constraint)
             if seed_constraint1 != seed_constraint:
-                should.append(TableFunctions.build_term_clause('telephone.name', seed_constraint1))
+                should.append(TableFunctions.build_term_clause('centroid_phone', seed_constraint1))
 
         query = dict()
         query['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
-        # print query
-        index =  'dig-gt'
-        url_localhost = "http://52.42.180.215:9200/"
-        es = Elasticsearch(url_localhost)
-        retrieved_frames = es.search(index= index, doc_type = 'seller', size = 10000, body = query) #we should set a big size
-        #print(retrieved_frames['hits']['hits'][0]['_source'])
+        print query
+        # index =  'dig-gt'
+        # url_localhost = "http://52.42.180.215:9200/"
+        es = Elasticsearch(es_host)
+        retrieved_frames = es.search(index= index, doc_type = cluster_doc_type, size = 10000, body = query) #we should set a big size
+        # print(retrieved_frames['hits']['hits'][0]['_source'])
         translatedDS = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                                  mappingTableFile, conservativeLevel)
         if retrieved_frames:
             seller_uris = SparqlTranslator._extract_seller_uris(retrieved_frames)
             seller_should = []
             for uri in seller_uris:
-                seller_should.append(TableFunctions.build_term_clause('seller.uri', uri))
+                seller_should.append(TableFunctions.build_term_clause('cdr_id', uri))
             seller_bool = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = seller_should)
             seller_bool = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = [seller_bool])
             merge_bool = BuildCompoundESQueries.BuildCompoundESQueries.mergeBools(translatedDS['query'], seller_bool)
@@ -137,10 +138,12 @@ class SparqlTranslator:
         elif conservativeLevel == 2:
             return SparqlTranslator._translatePointFactAndAggregateQueries_v2_level2(sparqlDataStructure, mappingTableFile)
 
-    @staticmethod
-    def _extract_seller_uris(retrieved_frames):
-        """
 
+    @DeprecationWarning
+    @staticmethod
+    def _extract_seller_uris_old(retrieved_frames):
+        """
+        Designed for summer eval.
         :param retrieved_frames: The frames retrieved by running the first query as part of the cluster query
         execution strategy
         :return: a list of seller_uris
@@ -148,6 +151,21 @@ class SparqlTranslator:
         seller_uris = []
         for frame in retrieved_frames['hits']['hits']:
             seller_uris.append(frame['_source']['uri'])
+
+        return seller_uris
+
+    @staticmethod
+    def _extract_seller_uris(retrieved_frames):
+        """
+        Designed for november eval.
+        :param retrieved_frames: The frames retrieved by running the first query as part of the cluster query
+        execution strategy
+        :return: a list of seller_uris
+        """
+        seller_uris = []
+        for frame in retrieved_frames['hits']['hits']:
+            for CDRID_dict in frame['_source']['CDRIDs']:
+                seller_uris.append(CDRID_dict['uri'])
 
         return seller_uris
 
@@ -183,10 +201,12 @@ class SparqlTranslator:
         (possibly after some processing)
         """
         initialDS= SparqlTranslator._populate_list_set_data_structure(sparqlDataStructure, mappingTableFile)
+
         # at present, do not distinguish between optional and nonoptional properties.
         propertiesSet = initialDS['optionalPropertiesSet'].union(initialDS['nonOptionalPropertiesSet'])
         for pr in propertiesSet:
             initialDS['existsList'].append(TableFunctions.build_exists_clause(pr))
+
         # a key difference between level 0 and level 1
         constant_score_clauses = BuildCompoundESQueries.BuildCompoundESQueries.build_constant_score_filters(
             initialDS['existsList'])
@@ -392,16 +412,19 @@ class SparqlTranslator:
         optionalPropertiesSet, optionalList, nonoptionalList, simpleSelectDict, countSelectDict,
         groupConcatSelectDict, groupByDict, filterQueries, bindQuery
 
+        existsList is an empty list at the moment.
+
         Each field (with variable as key)
         in {simple, count}SelectDict maps to a set of the 'properties' that the variable
         maps to. The class variable (e.g. Ad), if asked for, will be mapped to a singleton
-        set containing 'identifier'
+        set containing 'cdr_id'
 
         groupConcatSelectDict has three inner fields: 'properties' maps to a set of the 'properties' that the variable
         maps to, while 'distinct' and 'separator' are carried over from the original data structure. The key
         in the groupConcatSelectDict is the original dependent-variable
 
-        groupByDict, at present, only contains a 'group-variable' field, mapped to the set of our properties.
+        groupByDict, at present, only contains 'group-variable' and 'order-variable' fields,
+        mapped to the set of our properties.
 
         filterQueries is a list of boolean queries that should be embedded in a filter query eventually.
 
@@ -411,21 +434,36 @@ class SparqlTranslator:
         We do not purge any text variables (e.g. readability_text) from any of the sets.
         """
         mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
+
+        # each triple is a list where the first element is always 'subject', the second element is a mapped ES property
+        # and the value is some literal. If non-optional, we place in whereTriples.
         optionalTriples = []
-        whereTriples = [] #non-optional
-        filterQueries = []  #a list of bool queries. They must be (event.) embedded in a bool filter
+        whereTriples = []
+
+        # a list of bool queries. They must be (event.) embedded in a bool filter
+        filterQueries = []
+
+        # each key is a WHERE variable (e.g. ?posting-date) and the value is a list of (ES) properties to which it maps.
+        # if the constraint is optional, the key-value goes into var_to_property_optional.
+        #var_to_property is always non-empty (see my comment for type_var)
         var_to_property = {}
         var_to_property_optional = {}
+
+        # variables mapping to sets of properties in our ES index
         simpleSelectDict = {}
         countSelectDict = {}
         groupConcatSelectDict = {}
         groupByDict = {}
+
+        # although this seems to be special, it is only because it does not occur in where.clauses. Otherwise,
+        # once parsed, we will put it into var_to_property.
         type_var = None
+
         #remove 'parsed'
         if 'type' in sparqlDataStructure['where'] and 'variable' in sparqlDataStructure['where']:
                 type_var = sparqlDataStructure['where']['variable']
                 if sparqlDataStructure['where']['type'].lower() == 'ad':
-                    var_to_property[type_var] = ['identifier']
+                    var_to_property[type_var] = ['cdr_id']
                 elif sparqlDataStructure['where']['type'].lower() == 'cluster':
                     var_to_property[type_var] = ['seller.uri']
 
@@ -480,7 +518,7 @@ class SparqlTranslator:
                 elif var in var_to_property_optional:
                     groupByDict['group-variable'] = set(var_to_property_optional[var])
                 elif var == type_var:
-                    groupByDict['group-variable'] = set(['identifier'])
+                    groupByDict['group-variable'] = set(['cdr_id'])
                 else:
                     raise Exception('Unmapped group-variable in group-by')
             if 'order-variable' in sparqlDataStructure['group-by']:
@@ -490,7 +528,7 @@ class SparqlTranslator:
                 elif var in var_to_property_optional:
                     groupByDict['order-variable'] = set(var_to_property_optional[var])
                 elif var == type_var:
-                    groupByDict['order-variable'] = set(['identifier'])
+                    groupByDict['order-variable'] = set(['cdr_id'])
                 elif SparqlTranslator._is_dependent_variable(var, sparqlDataStructure):
                     groupByDict['order-variable'] = set([var])
                 else:
@@ -514,7 +552,7 @@ class SparqlTranslator:
                 elif var in var_to_property_optional:
                     tmp['properties'] = set(var_to_property_optional[var])
                 elif var == type_var:
-                    tmp['properties'] = set(['identifier'])
+                    tmp['properties'] = set(['cdr_id'])
                 else:
                     raise Exception(var+' :Unmapped variable in group-concat select')
                 tmp['distinct'] = vars['distinct']
@@ -528,7 +566,7 @@ class SparqlTranslator:
                 elif var in var_to_property_optional:
                     countSelectDict[dependent_var] = set(var_to_property_optional[var])
                 elif var == type_var:
-                    countSelectDict[dependent_var] = set(['identifier'])
+                    countSelectDict[dependent_var] = set(['cdr_id'])
                 else:
                     raise Exception(var+' :Unmapped variable in count select')
             elif vars['type'] == 'simple':
@@ -538,7 +576,7 @@ class SparqlTranslator:
                 elif var in var_to_property_optional:
                     simpleSelectDict[var] = set(var_to_property_optional[var])
                 elif var == type_var:
-                    simpleSelectDict[var] = set(['identifier'])
+                    simpleSelectDict[var] = set(['cdr_id'])
                 else:
                     raise Exception(var+' :Unmapped variable in simple select')
             else:
@@ -590,7 +628,7 @@ class SparqlTranslator:
             mappingTable: This is a mapping table file. 
             
         Returns:
-                The list
+                A list of 'TableFunction-composed' queries
         """
         mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
         list = []
@@ -748,7 +786,7 @@ class SparqlTranslator:
         mappings are to readability or inferlink text fields. Used for
         executing Pedro's queries.
         """
-        mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
+        # mappingTable = MappingTable.MappingTable.readMappingTable(mappingTableFile)
         should = SparqlTranslator._translateTriplesToList(whereTriples, mappingTableFile)
         return BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
 

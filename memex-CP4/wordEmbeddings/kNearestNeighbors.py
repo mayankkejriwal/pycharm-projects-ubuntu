@@ -3,6 +3,7 @@ import json
 import math
 import SimFunctions
 import pprint
+import numpy as np
 
 
 def _extract_top_k(scored_results_dict, k, disable_k=False, reverse=True):
@@ -63,7 +64,7 @@ def read_in_embeddings(embeddings_file):
         for line in f:
             obj = json.loads(line)
             for k, v in obj.items():
-                unigram_embeddings[k] = v
+                unigram_embeddings[k] = np.array(v)
     return unigram_embeddings
 
 
@@ -81,7 +82,7 @@ def find_k_nearest_neighbors(embeddings_file, seed_token, k=10):
     print _extract_top_k(scored_dict, k=k, disable_k=False)
 
 
-def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10, output_file=None, suppress_print=True):
+def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10, output_file=None, suppress_print=True, remove_list=None):
     """
 
     :param embeddings_file: e.g.
@@ -92,14 +93,17 @@ def find_k_nearest_neighbors_multi(embeddings_file, seed_tokens, k=10, output_fi
     """
     results = dict()
     unigram_embeddings = read_in_embeddings(embeddings_file)
-
+    print 'finished reading embeddings file...'
     # let's remove the dummies.
-    del unigram_embeddings['dummy_punct']
-    del unigram_embeddings['dummy_alpha_num']
-    del unigram_embeddings['dummy_alpha_punct']
-    del unigram_embeddings['dummy_idf']
-    del unigram_embeddings['dummy_num']
-    del unigram_embeddings['dummy_unicode']
+    unigram_embeddings.pop('dummy_punct', None)
+    unigram_embeddings.pop('dummy_alpha_num', None)
+    unigram_embeddings.pop('dummy_alpha_punct', None)
+    unigram_embeddings.pop('dummy_idf', None)
+    unigram_embeddings.pop('dummy_num', None)
+    unigram_embeddings.pop('dummy_unicode', None)
+    if remove_list:
+        for item in remove_list:
+            del unigram_embeddings[item]
 
     for seed_token in seed_tokens:
         if seed_token not in unigram_embeddings:
@@ -272,7 +276,10 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
 
-# data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/slice-100/'
+# data_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
+# eswc_path = '/Users/mayankkejriwal/datasets/eswc2017/embeddings/'
+# companiesTextPath = '/Users/mayankkejriwal/datasets/companies/'
+# bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
 # www_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # tokens_list = extract_list_from_tokens_file(data_path+'seed_tokens_pruned.txt')
 # print tokens_list[0]
@@ -280,6 +287,12 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # tmp_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/embedding/'
-# find_k_nearest_neighbors_multi(data_path+'unigrams-v2-4.json', ['geneva'], suppress_print=False)
+# find_k_nearest_neighbors_multi(bioInfoPath+'mgiIntact_unigram-v2.jl', ['requirement', 'metabolic', 'acid'], suppress_print=False)
+# find_k_nearest_neighbors_multi(bioInfoPath+'mgiIntact_docEmbeddings.jl', ['1', '2', '-1', '-2'], suppress_print=False)
+# find_k_nearest_neighbors_multi(companiesTextPath+'result-unigram-v2.jl', ['corporate', 'brand', 'beer'], suppress_print=False)
+# find_k_nearest_neighbors_multi(eswc_path+'RIclassEmbeddings-v1-normSum.jl',
+#             ["http://dbpedia.org/ontology/Grape"], suppress_print=False)
+# find_k_nearest_neighbors_multi(data_path+'hrr_unigram-v2.json', ['brunette', 'dominican'], suppress_print=False)
+# find_k_nearest_neighbors(data_path+'hrr_unigram-v2.json', 'screaming')
 # multi_embeddings_experiment(embeddings_files, tokens_file, k=50)
 # supplement_dictionary_v1(path+'dictionary-supervised/names.txt',tmp_path+'unigram-part-00000-v2.json',tmp_path+'supplemented-names.txt')

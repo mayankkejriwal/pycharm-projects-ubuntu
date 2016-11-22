@@ -28,7 +28,7 @@ def build_match_all_query():
 
 def build_term_clause(field, string):
     """
-    Example: suppose field = 'status' and string = ''
+    Example: suppose field = 'status' and string = 'normal'
     Returns something like
     {
           "term": {
@@ -92,6 +92,13 @@ def build_match_phrase_clause(field, string):
     tmp[field] = string
     answer['match_phrase'] = tmp
     return answer
+
+
+def build_phone_or_email_match_clause(field, string):
+    if '@' in string:
+        return build_email_match_clause(field, string)
+    else:
+        return build_phone_match_clause(field, string)
 
 
 def build_phone_match_clause(field, string):
@@ -262,17 +269,7 @@ def build_match_phrase_clause_inner(field, string):
 
 def build_phone_match_clause_inner(field, string):
     """
-    Best demonstrated by example. Suppose field = 'itemOffered.name' and string = 'jasmine',
-    the function will return a dictionary d:
-    d = {"meta":["inner"],
-         "match":   {
-            "itemOffered.name" :
-            {
-            "query":"jasmine"
 
-            }
-          }
-        }
     The intent is that this dictionary should be PROCESSED and then embedded into a valid elasticsearch query.
     Currently, the semantics indicate that all inner matches should be placed in a bool-should, which is
     then embedded in some way in an outer bool.

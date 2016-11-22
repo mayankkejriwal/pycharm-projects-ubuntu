@@ -1,4 +1,6 @@
 import math
+from scipy.spatial.distance import cosine
+from scipy.linalg import norm
 
 class SimFunctions:
     """
@@ -16,21 +18,25 @@ class SimFunctions:
 
     @staticmethod
     def abs_cosine_sim(vector1, vector2):
-        if len(vector1) != len(vector2):
-            raise Exception
-        total1 = 0.0
-        total2 = 0.0
-        sim = 0.0
-        for i in range(0, len(vector1)):
-            sim += (vector1[i]*vector2[i])
-            total1 += (vector1[i]*vector1[i])
-            total2 += (vector2[i]*vector2[i])
-        total1 = math.sqrt(total1)
-        total2 = math.sqrt(total2)
-        if total1 == 0.0 or total2 == 0.0:
-            # print 'divide by zero problem. Returning 0.0'
-            # print vector1
-            # print vector2
+        if norm(vector1)==0.0 or norm(vector2)==0.0:
             return 0.0
         else:
-            return math.fabs(sim/(total1*total2))
+            return 1.0 - cosine(vector1, vector2)
+        # if len(vector1) != len(vector2):
+        #     raise Exception
+        # total1 = 0.0
+        # total2 = 0.0
+        # sim = 0.0
+        # for i in range(0, len(vector1)):
+        #     sim += (vector1[i]*vector2[i])
+        #     total1 += (vector1[i]*vector1[i])
+        #     total2 += (vector2[i]*vector2[i])
+        # total1 = math.sqrt(total1)
+        # total2 = math.sqrt(total2)
+        # if total1 == 0.0 or total2 == 0.0:
+        #     # print 'divide by zero problem. Returning 0.0'
+        #     # print vector1
+        #     # print vector2
+        #     return 0.0
+        # else:
+        #     return math.fabs(sim/(total1*total2))

@@ -1,6 +1,9 @@
 import codecs
 import json
 import re
+# import matplotlib.pyplot as plt
+import pylab as plt
+import numpy as np
 
 
 class TextAnalyses:
@@ -8,6 +11,41 @@ class TextAnalyses:
     Use this once the text tokens have been extracted; e.g. on the readability_tokens.json file. The most
     important thing we need to do is document frequency generation
     """
+
+    @staticmethod
+    def print_doc_histogram_tokens_count(tokens_file):
+        """
+        get tokens count in each doc in tokens file and plot histogram. Will display file.
+        """
+        count = 1
+        tokens_count = dict()
+        tokens_count[0] = 0
+        tokens_count[1000] = 0
+        tokens_count[5000] = 0
+        tokens_count[10000] = 0
+        keys = [0,1000,5000,10000]
+        with codecs.open(tokens_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+
+                for k, val in obj.items():
+                    if len(val) >= keys[-1]:
+                        tokens_count[keys[-1]] += 1
+                        break
+                    for i in range(0, len(keys)-1):
+                        if len(val)>=keys[i] and len(val)<keys[i+1]:
+                            tokens_count[keys[i]] += 1
+
+                if count % 10000 == 0:
+                    print count
+                count += 1
+        # plt.hist(np.array(tokens_count))
+        print tokens_count
+        # plt.title("Docs histogram per tokens-count")
+        # plt.xlabel("Value")
+        # plt.ylabel("Frequency")
+        # # fig = plt.gcf()
+        # plt.show()
 
     @staticmethod
     def print_word_statistics(tokens_file, limit=None):
@@ -59,6 +97,9 @@ class TextAnalyses:
         print 'total number of words in idf dict : ',
         print len(idf)
         return idf
+
+    # @staticmethod
+    # def convolve_idf_dicts():
 
     @staticmethod
     def generate_document_frequencies(tokens_list_file, output_file, inner_field = None):
@@ -118,11 +159,13 @@ class TextAnalyses:
         out.close()
 
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/tokens/'
-# data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/'
-# path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
+# data_path = '/Users/mayankkejriwal/datasets/companies/'
+# bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
+# path='/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
+# companiesPath = '/Users/mayankkejriwal/datasets/companies/'
+# TextAnalyses.print_doc_histogram_tokens_count(companiesPath+'result-prepped.jl')
 # TextAnalyses.print_word_statistics(path+'readability_tokens-part-00000-onlyLower.json', 100000)
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
-# TextAnalyses.generate_document_frequencies(data_path+'lowerCaseTokens-sorted.json',
-#                                            data_path+'df.txt')
+# TextAnalyses.generate_document_frequencies(bioInfoPath+'mgiPos_intactNeg_tokens.jl', bioInfoPath+'mgiIntact_df.txt')
 # path+'all_tokens-part-00000-onlyLower-1-df.txt', inner_field='tokens_list')
 

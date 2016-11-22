@@ -4,6 +4,7 @@ import codecs
 import json
 import TextAnalyses
 import string
+import numpy as np
 
 class RandomIndexer:
     """
@@ -71,7 +72,7 @@ class RandomIndexer:
             answer[indices[i]] = 1
         for i in range(k, 2*k):
             answer[indices[i]] = -1
-        return answer
+        return np.array(answer)
 
     @staticmethod
     def _generate_context_vectors_for_idf(idf_dict, include_dummy, d, non_zero_ratio):
@@ -148,7 +149,7 @@ class RandomIndexer:
             # if k == '':  # don't forget to exclude the dummy value (if there)
             #     continue
             # else:
-                unigram_embeddings[k] = list(v)  # deep copy of list
+                unigram_embeddings[k] = np.array([0]*len(v))  # deep copy of list
         return unigram_embeddings
 
     @staticmethod
@@ -166,7 +167,7 @@ class RandomIndexer:
             for line in f:
                 obj = json.loads(line)
                 phone = obj.values()[0]['phone']
-                phone_embeddings[phone] = [0.0]*d
+                phone_embeddings[phone] = np.array([0.0]*d)
         return phone_embeddings
 
     @staticmethod
@@ -296,7 +297,7 @@ class RandomIndexer:
 
     @staticmethod
     def generate_unigram_embeddings_v2(tokens_file, idf_file, output_file=None, context_window_size=2,
-                                    include_dummies=True, d=200, non_zero_ratio=0.01):
+                                    include_dummies=True, d=200, non_zero_ratio=0.01,lower_prune_ratio=0.0005, upper_prune_ratio=0.7, max_length=1000):
         """
         We are keeping the lower_prune and upper_prune ratios in the TextAnalyses file. Feel free to change
         those directly. Consider adding weighting scheme in future. Right now, we assume constant weighting
@@ -317,10 +318,12 @@ class RandomIndexer:
         :param non_zero_ratio:
         :return:
         """
-        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file, lower_prune_ratio=0.005, upper_prune_ratio=0.5)
+        idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(idf_file, lower_prune_ratio, upper_prune_ratio)
         token_cvs = RandomIndexer._generate_context_vectors_for_idf_v2(idf_dict, include_dummies, d, non_zero_ratio)
+        print 'finished generating context vectors...'
         # tokens_dict = RandomIndexer.read_in_tokens_file(tokens_file)
         unigram_embeddings = RandomIndexer._init_unigram_embeddings(token_cvs)
+        print 'finished initializing embeddings vectors...'
         count = 1
         with codecs.open(tokens_file, 'r', 'utf-8') as f:
             for line in f:
@@ -328,11 +331,20 @@ class RandomIndexer:
                 v = None
                 for k, val in obj.items():
                     v = val
-                print 'In document '+str(count)
+                if count%500==0:
+                    print 'In document '+str(count)
                 count += 1
-                # if count>100000:
+                k=None
+                # if count>100:
                 #     break
-                for i in range(0, len(v)):
+                # limit = len(v)
+                increment = 1
+                if max_length:
+                    if len(v) > max_length:
+                        increment = len(v) / max_length
+                # elif len(v) > 1000:
+                #     increment = len(v)/1000
+                for i in range(0, len(v), increment):
                     token = v[i]
                     if token not in token_cvs:
                         if include_dummies:
@@ -348,6 +360,7 @@ class RandomIndexer:
                     max = i+context_window_size
                     if max>len(v):
                         max = len(v)
+                    context_window_vecs = list()
                     for j in range(min, max):
                         if j == i:
                             continue
@@ -357,14 +370,16 @@ class RandomIndexer:
                                 context_token = RandomIndexer._find_right_dummy_v2(context_token)
                             else:
                                 continue
-                        for k in range(0, len(token_cvs[context_token])):
-                            vec[k] += token_cvs[context_token][k]
-                    unigram_embeddings[token] = vec
+                        context_window_vecs.append(token_cvs[context_token])
+                        # for k in range(0, len(token_cvs[context_token])):
+                    context_window_vecs.append(vec)
+                    unigram_embeddings[token] = np.sum(context_window_vecs,axis=0)
+
         if output_file:
             out = codecs.open(output_file, 'w', 'utf-8')
             for k, v in unigram_embeddings.items():
                 answer = dict()
-                answer[k] = v
+                answer[k] = v.tolist()
                 json.dump(answer, out)
                 out.write('\n')
             out.close()
@@ -592,12 +607,24 @@ class RandomIndexer:
 # print RandomIndexer._find_right_dummy_v2(u'...')
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
-# data_path = '/Users/mayankkejriwal/datasets/lorelei/RWP/reliefWebProcessed-prepped/'
+# data_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
+# companiesTextPath = '/Users/mayankkejriwal/datasets/companies/'
+# idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(companiesTextPath+'result_df.txt', lower_prune_ratio=0.005, upper_prune_ratio=0.7)
+# idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(data_path+'hrr_df.txt', lower_prune_ratio=0.0005, upper_prune_ratio=0.7)
+# bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
 # RandomIndexer.generate_RWP_sliced_unigram_embeddings_v2(data_path+'lowerCaseTokens-sorted.json',
 #                      data_path+'df.txt', data_path+'slice-100/unigrams-v2-', data_path+'slice-100-summary.json')
-# RandomIndexer.generate_unigram_embeddings_v2(data_path+'lowerCaseTokens-sorted.json',
-#                                              data_path+'df.txt',
-#                                              data_path+'unigram-v2.json')
+# RandomIndexer.generate_unigram_embeddings_v2(data_path+'lrr_output_all.jl',
+#                                              data_path+'lrr_df.txt',
+#                                              data_path+'lrr_unigram-v2.json')
+# RandomIndexer.generate_unigram_embeddings_v2(data_path+'hrr_output_all.jl',
+#                                              data_path+'hrr_df.txt',
+#                                              data_path+'hrr_unigram-v2.json')
+# RandomIndexer.generate_unigram_embeddings_v2(companiesTextPath+'result-prepped.jl',companiesTextPath+'result_df.txt',
+#                                         companiesTextPath+'result-unigram-v2.jl',d=100)
+# RandomIndexer.generate_unigram_embeddings_v2(bioInfoPath+'mgiPos_intactNeg_tokens.jl',bioInfoPath+'mgiIntact_df.txt',
+#                                         bioInfoPath+'mgiIntact_unigram-v2.jl', d=100, non_zero_ratio=0.01,
+#                                             lower_prune_ratio=0.0, upper_prune_ratio=1.0, max_length=None)
 # RandomIndexer.generate_telephone_embeddings_v1(path+'all_tokens-part-00000-onlyLower-1.json',
 #                                              path+'all_tokens-part-00000-onlyLower-1-df.txt',
 #                                              path+'phone-embeddings-part-00000-v1.json')

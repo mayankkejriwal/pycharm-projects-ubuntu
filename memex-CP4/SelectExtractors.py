@@ -33,6 +33,7 @@ class SelectExtractors:
                     if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], v):
                         extracted_values[v] = ResultExtractors.ResultExtractors.\
                             get_property_from_source_frame(frame['_source'], v)
+                        break # this line was added for the november evaluation, given we want to priotize one extr.
                 #print extracted_values
                 cross_product = ResultExtractors.ResultExtractors._flatten_dict(extracted_values)
                 #print cross_product
@@ -112,8 +113,9 @@ class SelectExtractors:
 
         return answer
 
+    @DeprecationWarning
     @staticmethod
-    def _prune_properties_set_to_singleton(properties_set):
+    def _prune_properties_set_to_singleton_old(properties_set):
         """
         This method is currently predicated on heuristics, and in support of count and group-concat
         :param properties_set: a non-empty set of properties
@@ -141,6 +143,29 @@ class SelectExtractors:
                     return answer
 
     @staticmethod
+    def _prune_properties_set_to_singleton(properties_set):
+        """
+        This method calls _prune_property_set and returns the first element, since we know that
+        _prune_property_set already does the sorting.
+        :param properties_set: a non-empty set of properties
+        :return: Another set of properties, one that is guaranteed to contain exactly 1 element. The
+        set of properties returned will ALWAYS be a different reference than the one passed in, for safety.
+        """
+        if not properties_set:
+            raise Exception('We have an empty/non-existent properties-set to prune')
+        answer = set()
+        p = list(properties_set)
+        if len(p) == 1:
+            answer.add(p[0])
+            return answer
+        else:
+            answer_list = SelectExtractors._prune_property_set(properties_set)
+            if answer_list:
+                return set(answer_list[0])
+            else:
+                raise Exception('The pruned properties-set does not contain any elements')
+
+    @staticmethod
     def _convert_cross_product(cross_product_list):
         """
 
@@ -155,7 +180,7 @@ class SelectExtractors:
                else:
                     k[key] = str(val)
             answer.append(' '.join(k.values()))
-        return answer
+        return list(set(answer))
 
     @staticmethod
     def _init_count_vars(count_vars, countSelectDict):
@@ -262,21 +287,96 @@ class SelectExtractors:
         if l[3]=='xsd:integer':
             return int(l[1])
 
+
+    @DeprecationWarning
     @staticmethod
-    def _prune_property_set(set_of_properties):
+    def _prune_property_set_old(set_of_properties):
         """
         The 'pruning' must be rule-based at the moment.
         :param set_of_properties:
         :return: A list of pruned properties
         """
+
         answer = []
         for property in set_of_properties:
-            if property in ['readability_text', '_all']: # sync this list with text_props in MappingTable
+            if property in ['high_precision.description.result.value','high_precision.readability.result.value',
+                      'high_recall.readability.result.value',
+                      'extracted_text', '_all']: # sync this list with text_props in MappingTable
                 continue
-            elif 'raw' in property:
-                continue
-            elif property == 'url' and 'telephone.name' in set_of_properties:
-                continue
+            # elif 'raw' in property:
+            #     continue
+            # elif property == 'url' and 'telephone.name' in set_of_properties:
+            #     continue
             else:
                 answer.append(property)
+        # print answer
+        # if answer:
+        #     answer.sort()
         return answer
+
+    @staticmethod
+    def _prune_property_set(set_of_properties):
+        """
+        The 'pruning' must be rule-based at the moment. We will also sort the properties in order of (desc.) priority
+        :param set_of_properties:
+        :return: A list of pruned properties
+        """
+
+        answer = []
+        for property in set_of_properties: # remove text properties
+            if property in ['high_precision.description.result.value', 'high_precision.readability.result.value',
+                            'high_recall.readability.result.value',
+                            'extracted_text', '_all']:  # sync this list with text_props in MappingTable
+                continue
+            # elif 'raw' in property:
+            #     continue
+            # elif property == 'url' and 'telephone.name' in set_of_properties:
+            #     continue
+            else:
+                answer.append(property)
+        # print answer
+        if answer:
+
+            return SelectExtractors._sort_property_list(answer)
+
+    @staticmethod
+    def _sort_property_list(list_of_props):
+        """
+        We'll give preference to inferlink properties if any, then high precision, finally high recall
+        and anything else that comes after that.
+        :param list_of_props:
+        :return:
+        """
+        priority_dict = dict()
+        for prop in list_of_props:
+            if 'inferlink' in prop:
+                if 1 not in priority_dict:
+                    priority_dict[1] = list()
+                priority_dict[1].append(prop)
+            elif 'precision' in prop:
+                if 2 not in priority_dict:
+                    priority_dict[2] = list()
+                priority_dict[2].append(prop)
+            elif 'recall' in prop:
+                if 3 not in priority_dict:
+                    priority_dict[3] = list()
+                priority_dict[3].append(prop)
+            else:
+                if 4 not in priority_dict:
+                    priority_dict[4] = list()
+                priority_dict[4].append(prop)
+        answer = list()
+        keys = priority_dict.keys()
+        keys.sort()
+        for k in keys:
+            answer += priority_dict[k]
+        return answer
+
+
+# properties = set(['inferlink_review-id.result.value',
+#                                                 'high_precision.review-id.result.value.identifier',
+#                                                 'high_precision.review-id.result.value.site',
+#                                                 'high_recall.review-id.result.value.identifier',
+#                                                 'high_recall.review-id.result.value.site'])
+# print SelectExtractors._prune_property_set(properties)
+
