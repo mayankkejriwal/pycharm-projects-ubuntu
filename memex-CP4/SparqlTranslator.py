@@ -74,7 +74,7 @@ class SparqlTranslator:
 
     @staticmethod
     def translateClusterQueries(sparqlDataStructure, mappingTableFile, conservativeLevel,
-                                es_host="http://localhost:9200/", index= 'gt-index-1', cluster_doc_type='clusters'):
+                                es_host="http://10.1.94.103:9201/", index= 'dig-nov-eval-gt-03', cluster_doc_type='clusters'):
         """
         Handles cluster queries. First, we check for a seed constraint and run a simple bool query
         to return the list of seller uris. Then we form a new sparqlDataStructure using
@@ -100,7 +100,7 @@ class SparqlTranslator:
 
         query = dict()
         query['query'] = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(should = should)
-        print query
+        # print query
         # index =  'dig-gt'
         # url_localhost = "http://52.42.180.215:9200/"
         es = Elasticsearch(es_host)
@@ -109,6 +109,7 @@ class SparqlTranslator:
         translatedDS = SparqlTranslator.translatePointFactAndAggregateQueries_v2(sparqlDataStructure,
                                                                                  mappingTableFile, conservativeLevel)
         if retrieved_frames:
+            # print retrieved_frames
             seller_uris = SparqlTranslator._extract_seller_uris(retrieved_frames)
             seller_should = []
             for uri in seller_uris:
@@ -117,7 +118,9 @@ class SparqlTranslator:
             seller_bool = BuildCompoundESQueries.BuildCompoundESQueries.build_bool_arbitrary(filter = [seller_bool])
             merge_bool = BuildCompoundESQueries.BuildCompoundESQueries.mergeBools(translatedDS['query'], seller_bool)
             translatedDS['query'] = merge_bool
-
+        # else:
+        #     print 'no results from cluster queries'
+        # print translatedDS
         return translatedDS
 
     @staticmethod
@@ -354,15 +357,20 @@ class SparqlTranslator:
         """
         # process simpleSelectDict, groupByDict (remove readability_text). In future, we may want to be
         # more ambitious with how we process simpleSelectDict
+        text_props = ['high_precision.description.result.value', 'high_precision.readability.result.value',
+                      'high_recall.readability.result.value',
+                      'extracted_text', '_all']
         for properties in initialDS['simpleSelectDict'].itervalues():
-            properties.discard('readability_text')
-            properties.discard('_all')
+            for text_prop in text_props:
+                properties.discard(text_prop)
         if 'group-variable' in initialDS['groupByDict']:
-            initialDS['groupByDict']['group-variable'].discard('readability_text')
-            initialDS['groupByDict']['group-variable'].discard('_all')
+            for text_prop in text_props:
+                initialDS['groupByDict']['group-variable'].discard(text_prop)
+            # initialDS['groupByDict']['group-variable'].discard('_all')
         if 'order-variable' in initialDS['groupByDict']:
-            initialDS['groupByDict']['order-variable'].discard('readability_text')
-            initialDS['groupByDict']['order-variable'].discard('_all')
+            for text_prop in text_props:
+                initialDS['groupByDict']['order-variable'].discard(text_prop)
+            # initialDS['groupByDict']['order-variable'].discard('_all')
 
     @staticmethod
     def _populate_inner_outer_data_structure(initialDS):
@@ -465,7 +473,7 @@ class SparqlTranslator:
                 if sparqlDataStructure['where']['type'].lower() == 'ad':
                     var_to_property[type_var] = ['cdr_id']
                 elif sparqlDataStructure['where']['type'].lower() == 'cluster':
-                    var_to_property[type_var] = ['seller.uri']
+                    var_to_property[type_var] = ['CDRIDs.uri']
 
         for clause in sparqlDataStructure['where']['clauses']:
             tmp = []
@@ -533,14 +541,14 @@ class SparqlTranslator:
                     groupByDict['order-variable'] = set([var])
                 else:
                     raise Exception('Unmapped order-variable in group-by')
-                #we should only check for limit if there's an order-variable
-                if 'limit' in sparqlDataStructure['group-by'] and sparqlDataStructure['group-by']['limit'] >= 1:
-                    groupByDict['limit'] = sparqlDataStructure['group-by']['limit']
-                #sorted order will always be there if order-variable is there.
-                if 'sorted-order' in sparqlDataStructure['group-by']:
-                    groupByDict['sorted-order'] = sparqlDataStructure['group-by']['sorted-order']
-                else:
-                    groupByDict['sorted-order'] = 'asc' #the default, if nothing is specified
+                #previously, we only checked for limit if there was an order-variable. That changed in the nov. eval.
+            if 'limit' in sparqlDataStructure['group-by'] and sparqlDataStructure['group-by']['limit'] >= 1:
+                groupByDict['limit'] = sparqlDataStructure['group-by']['limit']
+            #sorted order will always be there if order-variable is there.
+            if 'sorted-order' in sparqlDataStructure['group-by']:
+                groupByDict['sorted-order'] = sparqlDataStructure['group-by']['sorted-order']
+            else:
+                groupByDict['sorted-order'] = 'asc' #the default, if nothing is specified
 
         for vars in sparqlDataStructure['select']['variables']:
             if vars['type'] == 'group-concat':

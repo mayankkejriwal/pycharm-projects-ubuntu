@@ -88,13 +88,16 @@ def idf_weighted_embedding(embeddings_file, tokens_file, idf_file, output_file):
             out.write('\n')
     out.close()
 
+# CP1Path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/CP-1-november/'
 # companiesTextPath = '/Users/mayankkejriwal/datasets/companies/'
+# sum_and_normalize(CP1Path+'unigram-part-00000-v2.json',CP1Path+'negative_tokens.json',
+#                        CP1Path+'external_doc_embeddings_negative.jl')
 # idf_weighted_embedding(companiesTextPath+'result-unigram-v2.jl',companiesTextPath+'gt-tokens-prepped.jl',
 #                        companiesTextPath+'gt_df.txt', companiesTextPath+'gt_doc_full_embeddings_gt_idf.jl')
 # bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
 # sum_and_normalize(bioInfoPath+'mgiIntact_unigram-v2.jl',bioInfoPath+'mgiPos_intactNeg_tokens.jl',bioInfoPath+'mgiIntact_docEmbeddings.jl')
 # idf_weighted_embedding(bioInfoPath+'mgiIntact_unigram-v2.jl',bioInfoPath+'mgiPos_intactNeg_tokens.jl',
 #                        bioInfoPath+'mgiIntact_df.txt', bioInfoPath+'mgiIntact_docEmbeddings_idf.jl')
-# data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
-# idf_weighted_embedding(data_path+'unigram-combined-pruned.json', data_path+'tokens_combined_ht_onlyLower.json',
-#                        data_path+'combined_ht_idf.txt', data_path+'idf_weighted_combined_doc_embedding.json')
+# data_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/persona-linking/'
+# idf_weighted_embedding(data_path+'tokens-all-unigram-v2-liberal.json', data_path+'tokens-14.jl',
+#                        data_path+'tokens-all-df.txt', data_path+'liberal-doc-embedding-14-idf.json')

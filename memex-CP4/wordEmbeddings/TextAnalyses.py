@@ -161,11 +161,13 @@ class TextAnalyses:
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/tokens/'
 # data_path = '/Users/mayankkejriwal/datasets/companies/'
 # bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
-# path='/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
+# path='/Users/mayankkejriwal/datasets/memex-evaluation-november/persona-linking/'
 # companiesPath = '/Users/mayankkejriwal/datasets/companies/'
 # TextAnalyses.print_doc_histogram_tokens_count(companiesPath+'result-prepped.jl')
 # TextAnalyses.print_word_statistics(path+'readability_tokens-part-00000-onlyLower.json', 100000)
 # data_path = '/Users/mayankkejriwal/datasets/nyu_data/'
-# TextAnalyses.generate_document_frequencies(bioInfoPath+'mgiPos_intactNeg_tokens.jl', bioInfoPath+'mgiIntact_df.txt')
+# CP1SummerPath = '/Users/mayankkejriwal/datasets/memex-evaluation-november/CP-1-november/'
+# TextAnalyses.generate_document_frequencies(path+'tokens-all.jl',
+#                                            path+'tokens-all-df.txt')
 # path+'all_tokens-part-00000-onlyLower-1-df.txt', inner_field='tokens_list')
 

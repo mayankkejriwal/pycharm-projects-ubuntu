@@ -1,4 +1,5 @@
 import re, SparqlTranslator, SelectExtractors
+import json, codecs
 
 
 def build_exists_clause(field):
@@ -59,6 +60,61 @@ def build_match_clause(field, string):
     answer['match'] = tmp
     return answer
 
+def build_match_clause_with_keyword_expansion(field, string):
+    """
+    Best demonstrated by example. Suppose field = 'itemOffered.ethnicity' and string = 'ebony',
+    the function will return a dictionary d:
+    d = {
+         "match":   {
+            "itemOffered.ethnicity" : "ebony chocolate"
+            }
+        }
+        (assuming that chocolate is the only way to expand ebony)
+    The intent is that this dictionary should be embedded into a valid elasticsearch query.
+    We will identify the field, use the string to get another string, then embed that string into
+    an ordinary match clause. The path to the keyword-expansion dictionaries is hard-coded.
+    """
+    keyword_file_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/expanded-dictionaries.json'
+    keyword_dict = _read_in_keyword_file(keyword_file_path)
+    answer = {}
+    tmp = {}
+    if 'ethnicity' in field:
+        if string in keyword_dict['ethnicity']:
+            tmp[field] = keyword_dict['ethnicity'][string]
+        else:
+            tmp[field] = string
+        answer['match'] = tmp
+        return answer
+    elif 'eye_color' in field:
+        if string in keyword_dict['eye_color']:
+            tmp[field] = keyword_dict['eye_color'][string]
+        else:
+            tmp[field] = string
+        answer['match'] = tmp
+        return answer
+    elif 'hair_color' in field:
+        if string in keyword_dict['hair_color']:
+            tmp[field] = keyword_dict['hair_color'][string]
+        else:
+            tmp[field] = string
+        answer['match'] = tmp
+        return answer
+    else:
+        print 'I didn\'t find a field that I can keyword expand. Returning an ordinary match clause'
+        tmp[field] = string
+        answer['match'] = tmp
+        return answer
+
+def _read_in_keyword_file(keyword_file_path):
+    """
+    Reads in the file and returns a dict
+    :param keyword_file_path:
+    :return:
+    """
+    inf = codecs.open(keyword_file_path, 'r', 'utf-8')
+    k = json.load(inf)
+    inf.close()
+    return k
 
 def build_count_match_clause(field, string):
     """

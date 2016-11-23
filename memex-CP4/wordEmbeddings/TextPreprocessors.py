@@ -181,6 +181,19 @@ class TextPreprocessors:
         out.close()
 
     @staticmethod
+    def build_tokens_objects_for_persona_linking(string_converted_file, output_file):
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(string_converted_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                answer = dict()
+                for k, v in obj.items():
+                    answer[k] = TextPreprocessors._preprocess_tokens(TextPreprocessors.tokenize_string(v))
+                json.dump(answer, out)
+                out.write('\n')
+        out.close()
+
+    @staticmethod
     def build_tokens_objects_from_bioinfo_abstracts(input_file, output_file):
         """
         Designed for processing intact and mgi.jl files. At present only use abstracts. We'll use the line number
@@ -239,6 +252,81 @@ class TextPreprocessors:
         print key_errors
 
     @staticmethod
+    def build_cluster_id_lists_for_CP1_summer(input_file, output_file):
+        """
+        Each cluster id will be a key in the json lines file output, and doc_id will be in the list of values
+        that the key references
+        :param input_file:  the original input file
+        :param output_file:
+        :return:
+        """
+        cluster_dict = dict()
+        count = 1
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                if count % 1000 == 0:
+                    print count
+                obj = json.loads(line)
+                cluster_id = obj['cluster_id']
+                doc_id = obj['doc_id']
+                if cluster_id not in cluster_dict:
+                    cluster_dict[cluster_id] = list()
+                cluster_dict[cluster_id].append(doc_id)
+                count += 1
+        out = codecs.open(output_file, 'w', 'utf-8')
+        for k, v in cluster_dict.items():
+            answer = dict()
+            answer[k] = v
+            json.dump(answer, out)
+            out.write('\n')
+        out.close()
+
+    @staticmethod
+    def build_cluster_id_lists_for_CP1_november(input_file, output_file_pos, output_file_neg):
+        """
+        Each cluster id will be a key in the json lines file output, and _id will be in the list of values
+        that the key references
+        :param input_file:  the original input file
+        :param output_file_pos:
+        :return:
+        """
+        cluster_dict_pos = dict()
+        cluster_dict_neg = dict()
+        count = 1
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                if count % 1000 == 0:
+                    print count
+                obj = json.loads(line)
+                cluster_id = obj['cluster_id']
+                doc_id = obj['_id']
+                if obj['class'] == 1:
+                    if cluster_id not in cluster_dict_pos:
+                        cluster_dict_pos[cluster_id] = list()
+                    cluster_dict_pos[cluster_id].append(doc_id)
+                else:
+                    if cluster_id not in cluster_dict_neg:
+                        cluster_dict_neg[cluster_id] = list()
+                    cluster_dict_neg[cluster_id].append(doc_id)
+                count += 1
+
+        out = codecs.open(output_file_pos, 'w', 'utf-8')
+        for k, v in cluster_dict_pos.items():
+            answer = dict()
+            answer[k] = v
+            json.dump(answer, out)
+            out.write('\n')
+        out.close()
+
+        out = codecs.open(output_file_neg, 'w', 'utf-8')
+        for k, v in cluster_dict_neg.items():
+            answer = dict()
+            answer[k] = v
+            json.dump(answer, out)
+            out.write('\n')
+        out.close()
+
+    @staticmethod
     def build_tokens_objects_from_CP1_summer(input_file, output_file):
         out = codecs.open(output_file, 'w', 'utf-8')
         count = 1
@@ -273,7 +361,51 @@ class TextPreprocessors:
         print found
         print 'objects processed unsuccessfully...',
         print not_found
+        out.close()
 
+    @staticmethod
+    def build_tokens_objects_from_CP1_november(input_file, output_file_pos, output_file_neg):
+        pos = codecs.open(output_file_pos, 'w', 'utf-8')
+        neg = codecs.open(output_file_neg, 'w', 'utf-8')
+        count = 1
+        not_found = 0
+        found = 0
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                tokens_obj = dict()
+                if count % 1000 == 0:
+                    print count
+                try:
+                    if 'extracted_text' in obj:
+
+                        tokens_obj[obj['_id']] = TextPreprocessors._preprocess_tokens(
+                            TextPreprocessors.tokenize_string(obj['extracted_text']))
+                        found += 1
+                        if 'class' in obj:
+                            if obj['class'] == 1:
+                                json.dump(tokens_obj, pos)
+                                pos.write('\n')
+                            else:
+                                json.dump(tokens_obj, neg)
+                                neg.write('\n')
+                        count += 1
+                    else:
+                        print 'No extracted text in doc...',
+                        print obj['doc_id']
+                        not_found += 1
+                        count += 1
+                except:
+                    print 'some exception occurred...',
+                    print line
+                    not_found += 1
+                    continue
+        print 'objects processed successfully...',
+        print found
+        print 'objects processed unsuccessfully...',
+        print not_found
+        pos.close()
+        neg.close()
 
 
     @staticmethod
@@ -581,9 +713,13 @@ class TextPreprocessors:
 
 # www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/used-datasets/'
 # nyuTextPath='/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
-# CP1SummerPath = '/Users/mayankkejriwal/datasets/memex-evaluation-november/CP-1-summer/'
-# TextPreprocessors.build_tokens_objects_from_CP1_summer(CP1SummerPath+'cp1_negative_train_UPDATED.json',
-#                                                 CP1SummerPath+'CP1_negative_train_ads_extracted_text_tokens.json')
+# personaPath = '/Users/mayankkejriwal/datasets/memex-evaluation-november/persona-linking/'
+# TextPreprocessors.build_tokens_objects_for_persona_linking(personaPath+'str-users-posts14.jl',personaPath+'tokens-14.jl')
+# CP1Path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/CP-1-summer/'
+# TextPreprocessors.build_tokens_objects_from_CP1_november(CP1Path+'CP1_train_ads_labelled_fall2016.jsonl',
+#                         CP1Path+'positive_tokens.json', CP1Path+'negative_tokens.json')
+# TextPreprocessors.build_cluster_id_lists_for_CP1_summer(CP1Path+'cp1_negative_train_UPDATED.json',
+#                                                 CP1Path + 'negative_clusters.jl')
 # companiesTextPath = '/Users/mayankkejriwal/datasets/companies/'
 # bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
 # TextPreprocessors.concat_bioinfo_tokens_objects(bioInfoPath+'mgi_tokens.jl', bioInfoPath+'intact_tokens.jl', bioInfoPath+'mgiPos_intactNeg_tokens.jl')

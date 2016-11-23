@@ -7,7 +7,8 @@ class ResultExtractors:
     """
 
     @staticmethod
-    def standard_extractor(retrieved_frames, translated_query_data_structure, original_sparql_query, verbose = False):
+    def standard_extractor(retrieved_frames, translated_query_data_structure, original_sparql_query, verbose = False,
+                           classifier_dict=None):
         """
 
         :param retrieved_frames The frames as exactly retrieved by elasticsearch (not sub-indexed)
@@ -16,6 +17,7 @@ class ResultExtractors:
         :param original_sparql_query We use this for resolving a number of things, including the
         group-by variable
         :param verbose Only make True if you want to print out a lot of things.
+        :param classifier_dict: a dictionary referencing rahul's classifiers. Should be passed into SelectExtractors
         :return: A list of results, where each result is a dictionary that contains the variables
         requested in the select. Each value in the dictionary is necessarily atomic. The list is ordered if
          there is an order-by in the groupByDict. If there is no limit, or the limit is smaller than
@@ -44,8 +46,9 @@ class ResultExtractors:
         # no grouping is required
         if translated_query_data_structure['simpleSelectDict'] and not group_by_var:
             # select is a list of dicts, with each dict being a variable (e.g. ?ethnicity) ref. a string value
+
             select = SelectExtractors.SelectExtractors.extractSimpleSelect(retrieved_frames['hits']['hits'],
-                                                        translated_query_data_structure['simpleSelectDict'])
+                                                        translated_query_data_structure['simpleSelectDict'], classifier_dict)
             if order_by_var:
                 for i in range(0, len(retrieved_frames['hits']['hits'])):
                     if order_by_var not in select[i]:
@@ -113,7 +116,7 @@ class ResultExtractors:
                         del result[order_by_var]
 
         # a new addition, since we need scores in our list now
-        scores = ResultExtractors.build_score_dict(retrieved_frames['hits']['hits'], 'cdr_id', ResultExtractors.sigmoid)
+        scores = ResultExtractors.build_score_dict(retrieved_frames['hits']['hits'], 'cdr_id', None)
         # print scores
         for i in range(len(flattened_list)):
             id_val = flattened_list[i]['?ad'] # this is ad-hoc, but it should suffice.

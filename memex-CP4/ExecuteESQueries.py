@@ -9,6 +9,7 @@ from os import listdir
 from os.path import isfile, join
 import TableFunctions
 
+
 class ExecuteESQueries:
     """Anticipated starting point class. This is where a sparql query will be read in,
     serialized into internal data structures, and converted into elasticsearch queries.
@@ -820,21 +821,102 @@ class ExecuteESQueries:
 
     @staticmethod
     def print_ad_corresponding_to_id(id, host="https://10.1.94.103:9201/", index = 'dig-nov-eval-gt-02'):
-        pass
+        match = TableFunctions.build_match_clause('cdr_id', id)
+        query = dict()
+        query['query'] = match
+
+
 
     @staticmethod
-    def November_2016_pre_execution():
+    def read_embedding_file(embeddings_file):
+        unigram_embeddings = dict()
+        with codecs.open(embeddings_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for k, v in obj.items():
+                    unigram_embeddings[k] = v
+        return unigram_embeddings
+
+    @staticmethod
+    def train_embedding_classifiers(training_folder, embeddings_file, use_embeddings=False):
+        """
+        We will read in dictionaries required for both Rahul and Majid's code.
+        :param training_folder: Contains the training files we need
+        :return: A dictionary of classifiers; also, embeddings_dict
+        """
+        country_dict = training_folder+'city_country_dict_15000.json'
+        city_state_dict = training_folder+'city_state_dict.json'
+        city_dict = training_folder+'city_dict_over1K.json'
+        answer = dict()
+
+        if use_embeddings:
+            from rankingExtractions import train_ranker # avoid unnecessary installation of nltk, if this is not used.
+
+            TRAINING_FILE_CITIES = training_folder+'manual_7_cities.jl'
+            TRAINING_FILE_NAMES = training_folder+'manual_50_names.jl'
+            TRAINING_FILE_ETHNICITIES = training_folder+'manual_50_ethnicities.jl'
+            # ACTUAL_FILE_CITIES = training_folder+'manual_50_cities.jl' # testing data that Rahul used.
+            # ACTUAL_FILE_NAMES = training_folder+'manual_50_names.jl'
+            # ACTUAL_FILE_ETHNICITIES = training_folder+'manual_50_ethnicities.jl'
+
+            EMBEDDINGS_FILE = embeddings_file
+            FIELD_NAMES_CITIES = {
+                "text_field": "readability_text",
+                "annotated_field": "annotated_cities",
+                "correct_field": "correct_cities"
+            }
+            FIELD_NAMES_NAMES = {
+                "text_field": "readability_text",
+                "annotated_field": "annotated_names",
+                "correct_field": "correct_names"
+            }
+            FIELD_NAMES_ETHNICITIES = {
+                "text_field": "readability_text",
+                "annotated_field": "annotated_ethnicities",
+                "correct_field": "correct_ethnicities"
+            }
+
+            embeddings_dict = ExecuteESQueries.read_embedding_file(EMBEDDINGS_FILE)
+
+            classifier_cities = train_ranker.train_ranker(embeddings_dict, TRAINING_FILE_CITIES, FIELD_NAMES_CITIES)
+            classifier_names = train_ranker.train_ranker(embeddings_dict, TRAINING_FILE_NAMES, FIELD_NAMES_NAMES)
+            classifier_ethnicities = train_ranker.train_ranker(embeddings_dict, TRAINING_FILE_ETHNICITIES, FIELD_NAMES_ETHNICITIES)
+
+
+
+            answer['city'] = classifier_cities # warning, this property does not actually exist in our mapping table.
+            answer['name'] = classifier_names
+            answer['ethnicity'] = classifier_ethnicities
+            answer['embeddings'] = embeddings_dict
+
+
+        # if you make changes here, you must make equivalent changes in SelectExtractors.extract_locations (go right to the end of that func.)
+        answer['city_dict'] = city_dict # dictionary required by Majid
+        # answer['city_state_dict'] = json.load(open(city_state_dict))
+        # answer['country_dict'] = json.load(open(country_dict))
+        # print type(classifier_cities)
+        # print type(classifier_names)
+        # print type(classifier_ethnicities)
+        return answer
+
+    @staticmethod
+    def November_2016_pre_execution1():
         """
         Because so much is changing between the november and august evaluations, I want to use this
         code as a kind of 'proving ground'
         :return:
         """
         root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
+        classifiers = ExecuteESQueries.train_embedding_classifiers(root_path + 'embedding_training_files/',
+                                                                   root_path + 'unigram-part-00000-v2.json')
         ads_table_file = root_path + 'adsTable-v3.jl'
         # raw_query_file = root_path + 'raw-queries-ground-truth.txt'
         # parsed_query_file = root_path + 'json_file_for_25_parsed_sparql_queries.js' # the sample queries we designed
         parsed_query_file = root_path+'november-sample-questions.json'
+        # parsed_query_file = root_path + 'parsed-queries-2.txt'
         parsed_query_file_in = codecs.open(parsed_query_file, 'r', 'utf-8')
+        # parsed_PF_queries = json.load(parsed_query_file_in)
+        # print parsed_PF_queries
         parsed_PF_queries = json.load(parsed_query_file_in)['Point Fact']
         parsed_query_file_in.close()
         url_localhost = "http://10.1.94.103:9201/"
@@ -846,8 +928,10 @@ class ExecuteESQueries:
         # with codecs.open(raw_query_file, 'r', 'utf-8') as f:
         #     raw_sparql_queries = json.loads(f.read())
         keys = sorted(parsed_PF_queries.keys())
+        # for k in range(0, len(parsed_PF_queries)):
         for k in keys:
             print k
+            # sparql_query = parsed_PF_queries[k]['parsed']
             sparql_query = parsed_PF_queries[k]['parsed']
             if not sparql_query:
                 continue
@@ -869,7 +953,7 @@ class ExecuteESQueries:
             # json.dump(query, out)
             # out.close()
             try:
-                retrieved_frames = es.search(index=index, doc_type='ads', size=10, body=query)
+                retrieved_frames = es.search(index=index, doc_type='ads', size=1000, body=query)
             except:
                 pass
             if not retrieved_frames['hits']['hits']:
@@ -877,7 +961,8 @@ class ExecuteESQueries:
             else:
                 print('Number of retrieved frames ', len(retrieved_frames['hits']['hits']))
                 results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames, translatedDS,
-                                                                               sparql_query)
+                                                                               sparql_query,
+                                                                               classifier_dict=classifiers)
                 if results:
                     # print 'Top retrieved result is :'
                     # pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
@@ -888,10 +973,111 @@ class ExecuteESQueries:
                     file = codecs.open(output_file, 'w', 'utf-8')
                     json.dump(bindings_dict, file)
                     file.close()
+                    # break
+
+    @staticmethod
+    def November_2016_pre_execution2():
+        """
+        If necessary:
+
+        1. Paths must be changed in: this function, TableFunctions.build_match_clause_with_keyword_expansion,
+        MappingTable (if you change the table)
+
+        2. Index, elasticsearch IP must be changed in: this function, SparqlTranslator.translateClusterQueries
+
+        3. If attributes in schema change (e.g. hair-color instead of hair_color), you should go through all the
+        code in this package to replace. Attribute-name changes are not limited to MappingTable anymore.
+
+        4.  If Majid posts new code, copy paste into GetLocation and MAKE SURE to hash out anything that declares
+        it as a main file (see the current GetLocation). If he needs new dictionaries, you'll need to change
+        train_embedding
+
+        ONLY if you're desperate (queries are not returning results, and you need to short-circuit):
+
+        Look at the code in _current_trial. You can construct a simpler query using optional, filter, where
+        triples, but you'll have to build wrapper code to make it work. If things become that bad, just route
+        all constraints to the text props and make everything optional (a simple version of the IR strategy).
+        :return: None
+        """
+        root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
+
+        # set use_embeddings to True if you want to use Rahul's code. You can replace the unigram file with a different
+        # one if it improves performance (e.g. lrr, hrr, ground-truth etc.)
+        #the function name is a complete misnomer. We must call it for Majid's code.
+        classifiers = ExecuteESQueries.train_embedding_classifiers(root_path+'embedding_training_files/',
+                                root_path+'embedding_training_files/lrr_unigram-v2.json', use_embeddings=True)
+
+        # if anything changes in the mapping table, regenerate this file; see the last line in MappingTable.py
+        ads_table_file = root_path + 'adsTable-v3.jl'
+
+        parsed_query_file = root_path + 'parsed-queries-3.txt'
+        parsed_query_file_in = codecs.open(parsed_query_file, 'r', 'utf-8')
+        parsed_PF_queries = json.load(parsed_query_file_in)#[0:1]
+        # print len(parsed_PF_queries)
+        # print parsed_PF_queries
+        parsed_query_file_in.close()
+        url_localhost = "http://10.1.94.103:9201/"
+        # url_localhost = "http://localhost:9200"
+        es = Elasticsearch(url_localhost)
+        index = 'dig-nov-eval-gt-03'
+        # index = 'gt-index-1'
+        results = None
+
+        # if something goes wrong, you'll know where in the list it occurred
+        for k in range(0, len(parsed_PF_queries)):
+            print k
+            sparql_query = parsed_PF_queries[k]['SPARQL']
+            print 'processing query...',
+            print parsed_PF_queries[k]['id']
+            if not sparql_query:
+                print 'Nothing to query!'
+                continue
+
+            pp = pprint.PrettyPrinter(indent=4)
+            # pp.pprint(sparql_query)
+            query = dict()
+            translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query, ads_table_file, False)
+            # query['query'] = TableFunctions.build_match_all_query()
+            query['query'] = translatedDS['query']
+
+            ## use these print statements for debugging
+            # pp.pprint(query['query']['dis_max']['queries'][2])
+            # outtmp= codecs.open(root_path+'queryexample.json', 'w', 'utf-8')
+            # json.dump(query['query']['dis_max']['queries'][2], outtmp)
+            # outtmp.close()
+            # print query
+            # pp.pprint(query)
+            # out = codecs.open(root_path+'query_tmp.json', 'w', 'utf-8')
+            # json.dump(query, out)
+            # out.close()
+            try:
+
+                retrieved_frames = es.search(index=index, doc_type='ads', size=500, body=query)
+            except:
+                pass
+            if not retrieved_frames['hits']['hits']:
+                print 'no results'
+            else:
+                print('Number of retrieved frames ', len(retrieved_frames['hits']['hits']))
+                results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames, translatedDS,
+                                                                               sparql_query, classifier_dict=classifiers)
+                if results:
+                    # print 'Top retrieved result is :'
+                    # pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+
+                    bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
+
+                    # everything gets written out to a folder
+                    output_file = root_path + 'output-folder-2/' + str(parsed_PF_queries[k]['id'])
+                    file = codecs.open(output_file, 'w', 'utf-8')
+                    json.dump(bindings_dict, file)
+                    file.close()
             # break
 
-
-ExecuteESQueries.November_2016_pre_execution()
+# root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
+# classifiers = ExecuteESQueries.train_embedding_classifiers(root_path + 'embedding_training_files/',
+#                                                                        root_path + 'unigram-part-00000-v2.json')
+ExecuteESQueries.November_2016_pre_execution2()
 # ExecuteESQueries.test_ES_index()
 # ExecuteESQueries._current_trial()
 # path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'

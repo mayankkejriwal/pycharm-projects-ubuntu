@@ -51,6 +51,83 @@ class Serializer:
          file.close()
 
     @staticmethod
+    def convert_list_json_to_jlines(input_file, output_file):
+        inf = codecs.open(input_file, 'r', 'utf-8')
+        out = codecs.open(output_file, 'w', 'utf-8')
+        obj = json.load(inf)
+        # print len(obj.keys())
+        for element in obj:
+            json.dump(element, out)
+            out.write('\n')
+        inf.close()
+        out.close()
+
+    @staticmethod
+    def convert_dict_json_to_jlines(input_file, output_file):
+        inf = codecs.open(input_file, 'r', 'utf-8')
+        out = codecs.open(output_file, 'w', 'utf-8')
+        obj = json.load(inf)
+        # print len(obj.keys())
+        for k,v in obj.items():
+            element = dict()
+            element[k] = v
+            json.dump(element, out)
+            out.write('\n')
+        inf.close()
+        out.close()
+
+    @staticmethod
+    def join_users_posts(user_jlines_file, post_jlines_file, output_file):
+        user_dict = dict()
+        posts_dict = dict()
+        with codecs.open(user_jlines_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                user_dict[obj['userName']] = obj
+        with codecs.open(post_jlines_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for k, v in obj.items():
+                    posts_dict[k] = v
+        out = codecs.open(output_file, 'w', 'utf-8')
+        for k, v in user_dict.items():
+            if k in posts_dict:
+                v['post-stuff']= posts_dict[k]
+
+            answer = dict()
+            answer[k] = v
+            json.dump(answer, out)
+            out.write('\n')
+
+    @staticmethod
+    def convert_json_to_raw_document(jlines_file, output_file):
+        """
+        A string serialization of the json document
+        :param jlines:
+        :return:
+        """
+        out = codecs.open(output_file, 'w', 'utf-8')
+        with codecs.open(jlines_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                for k, v in obj.items():
+                    # v is always a dictionary itself
+                    string = ''
+                    keys = v.keys()
+                    keys.sort()
+                    for key in keys:
+                        if not v[key]:
+                            continue
+                        string += (key + unicode(v[key])+'\n')
+                    answer = dict()
+                    answer[k] = string
+                    json.dump(answer, out)
+                    out.write('\n')
+        out.close()
+
+
+
+    @staticmethod
     def _flatten(l):
         """
         Unwraps one 'layer' of listing. Will print an error message and return None if input is not a list.
@@ -78,5 +155,6 @@ class Serializer:
 
         return answer
 
-#upper_path = '/home/mayankkejriwal/Downloads/memex-cp2/'
+# upper_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/persona-linking/'
+# Serializer.convert_json_to_raw_document(upper_path+'users-posts14.jl', upper_path+'str-users-posts14.jl')
 #Serializer.extract_tokens(upper_path+'postsAFiltered-latinized.jl', upper_path+'postsASerialized.jl', 'userName')

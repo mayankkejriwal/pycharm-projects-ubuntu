@@ -1,4 +1,5 @@
-import re, six, ResultExtractors
+import re, six, ResultExtractors, FieldIdentifiers
+from GetLocation import get_location
 
 class SelectExtractors:
     """
@@ -8,7 +9,7 @@ class SelectExtractors:
     """
 
     @staticmethod
-    def extractSimpleSelect(frames_list, simpleSelectDict):
+    def extractSimpleSelect(frames_list, simpleSelectDict, classifier_dict=None):
         """
 
         :param frames_list: the retrieved_frames
@@ -23,6 +24,21 @@ class SelectExtractors:
         for frame in frames_list:
             tmp = {}
             for key, val in simpleSelectDict.items():
+
+                if FieldIdentifiers.is_location(val): # should be treated distinctly
+                    tmp[key] = SelectExtractors.extract_locations(frame, classifier_dict)
+                    continue
+
+                if FieldIdentifiers.is_height(val):
+                    val.add('high_precision.height.result.value.centimeter')
+                    val.add('high_recall.height.result.value.centimeter')
+                if FieldIdentifiers.is_weight(val):
+                    val.add('high_precision.weight.result.value.kilogram')
+                    val.add('high_recall.weight.result.value.kilogram')
+                if FieldIdentifiers.is_price(val):
+                    val.add('high_precision.price.result.value.price_per_hour')
+                    val.add('high_recall.price.result.value.price_per_hour')
+
                 if len(val) != 1:
                     new_val = SelectExtractors._prune_property_set(val)
                 else:
@@ -33,13 +49,157 @@ class SelectExtractors:
                     if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], v):
                         extracted_values[v] = ResultExtractors.ResultExtractors.\
                             get_property_from_source_frame(frame['_source'], v)
-                        break # this line was added for the november evaluation, given we want to priotize one extr.
-                #print extracted_values
+                        break # this line was added for the november evaluation, given we want to prioritize one extr.
+                # print extracted_values
                 cross_product = ResultExtractors.ResultExtractors._flatten_dict(extracted_values)
-                #print cross_product
-                tmp[key] = SelectExtractors._convert_cross_product(cross_product)
+                # print cross_product
+
+                # this entire segment of code assumes that Rahul's code is integrated.
+                if classifier_dict and 'embeddings' in classifier_dict:
+                    from rankingExtractions import rank
+                    if FieldIdentifiers.is_name(val):
+                            list_of_texts = SelectExtractors.extract_list_of_texts(frame)
+                            # print list_of_texts
+                            # print SelectExtractors._convert_cross_product_to_raw_list(cross_product)
+                            if list_of_texts:
+                                ranked_names = rank.rank(classifier_dict['embeddings'], list_of_texts,
+                                  SelectExtractors._convert_cross_product_to_raw_list(cross_product), classifier_dict['name'])
+                                if ranked_names:
+                                    tmp[key] = ranked_names
+                                else:
+                                    print 'ranking of names did not work! Reverting to default...'
+                                    tmp[key] = SelectExtractors._convert_cross_product(cross_product)
+                    elif FieldIdentifiers.is_ethnicity(val):
+                            list_of_texts = SelectExtractors.extract_list_of_texts(frame)
+                            if list_of_texts:
+                                ranked_ethnicities = rank.rank(classifier_dict['embeddings'], list_of_texts,
+                                  SelectExtractors._convert_cross_product_to_raw_list(cross_product), classifier_dict['ethnicity'])
+                                if ranked_ethnicities:
+                                    tmp[key] = ranked_ethnicities
+                                else:
+                                    print 'ranking of ethnicities did not work! Reverting to default...'
+                                    tmp[key] = SelectExtractors._convert_cross_product(cross_product)
+                    else:
+                        tmp[key] = SelectExtractors._convert_cross_product(cross_product)
+                else:
+                    tmp[key] = SelectExtractors._convert_cross_product(cross_product) # if we bypass Rahul's code
             answer.append(tmp)
         return answer
+
+    @staticmethod
+    def extract_list_of_texts(frame, text_props=['high_precision.description.result.value',
+                'high_precision.readability.result.value', 'high_recall.readability.result.value',
+                      'extracted_text']):
+        """
+        Designed for Rahul's classifier. Currently compatible with AdsTable-v3 fields. We convert text to lower
+        case.
+        :param frame:
+        :param text_props:
+        :return: A list of extracted texts (could be empty)
+        """
+        answer_list = list()
+        for prop in text_props:
+            tmp = list()
+            if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], prop):
+                tmp += ResultExtractors.ResultExtractors.get_property_from_source_frame(frame['_source'], prop)
+            if not tmp:
+                continue
+            else:
+                f = ''
+                for t in tmp:
+                    f += (t.lower()+'\n')
+                answer_list.append(f)
+        if answer_list:
+            if len(answer_list) == 1:
+                return answer_list
+            else:
+                for i in range(1, len(answer_list)):
+                    answer_list[i] = (answer_list[i-1]+'\n'+answer_list[i])
+                k = answer_list[-1]
+                return [k]
+
+        else:
+            print 'no text props!'
+            return answer_list
+
+    @staticmethod
+    def extract_locations(frame, classifier_dict=None):
+        """
+        Extract locations from the frame, using Majid's and possibly Rahul's code. This code is only compatible
+        with MappingTale-AdsTable-v3. Change if necessary.
+
+        Be wary of semantics. If I see high_precision city, I will only look for high_precision states
+        and countries (not high_recall)
+        :param frame:
+        :return: A list of strings
+        """
+        inferlink_flag = False
+        precision_flag = False
+        recall_flag = True
+        city = list()
+        state = list()
+        country = list()
+
+        # let's get city first.
+        if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], 'inferlink_city.result.value'):
+            city = ResultExtractors.ResultExtractors. \
+                get_property_from_source_frame(frame['_source'], 'inferlink_city.result.value')
+            inferlink_flag = True
+            precision_flag = True
+        elif ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], 'high_precision.city.result.value'):
+            city = ResultExtractors.ResultExtractors. \
+                get_property_from_source_frame(frame['_source'], 'high_precision.city.result.value')
+            precision_flag = True
+        else:
+            if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'],
+                                                                          'high_recall.city.result.value'):
+                city = ResultExtractors.ResultExtractors. \
+                    get_property_from_source_frame(frame['_source'], 'high_recall.city.result.value')
+            recall_flag = True
+
+        # now we'll get state
+        if precision_flag:
+            if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'],
+                                                                             'high_precision.state.result.value'):
+                state = ResultExtractors.ResultExtractors. \
+                    get_property_from_source_frame(frame['_source'], 'high_precision.state.result.value')
+        else:
+            if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'],
+                                                                             'high_recall.state.result.value'):
+                state = ResultExtractors.ResultExtractors. \
+                    get_property_from_source_frame(frame['_source'], 'high_recall.state.result.value')
+
+        # country
+        if precision_flag:
+            if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'],
+                                                                             'high_precision.country.result.value'):
+                country = ResultExtractors.ResultExtractors. \
+                    get_property_from_source_frame(frame['_source'], 'high_precision.country.result.value')
+        else:
+            if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'],
+                                                                             'high_recall.country.result.value'):
+                country = ResultExtractors.ResultExtractors. \
+                    get_property_from_source_frame(frame['_source'], 'high_recall.country.result.value')
+
+        # call Rahul's code here and re-order strings if you have to.
+        if city and classifier_dict and 'embeddings' in classifier_dict:
+            list_of_texts = SelectExtractors.extract_list_of_texts(frame)
+            if list_of_texts:
+                from rankingExtractions import rank
+                ranked_cities = rank.rank(classifier_dict['embeddings'], list_of_texts, city, classifier_dict['city'])
+                if ranked_cities:
+                    city = ranked_cities
+                else:
+                    print 'ranking of cities did not work! Reverting to default...'
+        try:
+            # call Majid's code here and return the list of strings.
+            locations = get_location(classifier_dict['city_dict'], city, state, country)
+            return locations
+        except:
+            print 'Error in get location code! Returning cities only...'
+            return city
+
+
 
     @staticmethod
     def extractCountSelect(grouped_frames, countSelectDict):
@@ -181,6 +341,23 @@ class SelectExtractors:
                     k[key] = str(val)
             answer.append(' '.join(k.values()))
         return list(set(answer))
+
+    @staticmethod
+    def _convert_cross_product_to_raw_list(cross_product_list):
+        """
+
+        :param cross_product_list: List of flattened dictionaries
+        :return: A list of strings. Unlike _convert_cross_product, we do not do any space joining.
+        """
+        answer = []
+        for k in cross_product_list:
+            for key, val in k.items():
+                if isinstance(val, six.string_types):
+                    k[key] = val
+                else:
+                    k[key] = str(val)
+            answer += k.values()
+        return list(set(answer)) # order does not matter
 
     @staticmethod
     def _init_count_vars(count_vars, countSelectDict):
@@ -369,6 +546,7 @@ class SelectExtractors:
         keys = priority_dict.keys()
         keys.sort()
         for k in keys:
+            priority_dict[k].sort()
             answer += priority_dict[k]
         return answer
 

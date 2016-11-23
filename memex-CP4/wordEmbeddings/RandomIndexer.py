@@ -605,18 +605,21 @@ class RandomIndexer:
 # str = 'bødy'
 # print str.isalpha()
 # print RandomIndexer._find_right_dummy_v2(u'...')
+# CP1SummerPath = '/Users/mayankkejriwal/datasets/memex-evaluation-november/CP-1-november/'
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/embeddings/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
-# data_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
+# data_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/persona-linking/'
 # companiesTextPath = '/Users/mayankkejriwal/datasets/companies/'
-# idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(companiesTextPath+'result_df.txt', lower_prune_ratio=0.005, upper_prune_ratio=0.7)
+# idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(data_path+'tokens-all-df.txt',
+# lower_prune_ratio=0.01, upper_prune_ratio=0.1)
 # idf_dict = TextAnalyses.TextAnalyses.read_in_and_prune_idf(data_path+'hrr_df.txt', lower_prune_ratio=0.0005, upper_prune_ratio=0.7)
 # bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
 # RandomIndexer.generate_RWP_sliced_unigram_embeddings_v2(data_path+'lowerCaseTokens-sorted.json',
 #                      data_path+'df.txt', data_path+'slice-100/unigrams-v2-', data_path+'slice-100-summary.json')
-# RandomIndexer.generate_unigram_embeddings_v2(data_path+'lrr_output_all.jl',
-#                                              data_path+'lrr_df.txt',
-#                                              data_path+'lrr_unigram-v2.json')
+# RandomIndexer.generate_unigram_embeddings_v2(data_path+'tokens-all.jl',
+#                                              data_path+'tokens-all-df.txt',
+#                                              data_path+'tokens-all-unigram-v2-liberal.json',lower_prune_ratio=0.001,
+#                                              upper_prune_ratio=0.1, max_length=None)
 # RandomIndexer.generate_unigram_embeddings_v2(data_path+'hrr_output_all.jl',
 #                                              data_path+'hrr_df.txt',
 #                                              data_path+'hrr_unigram-v2.json')
@@ -625,6 +628,10 @@ class RandomIndexer:
 # RandomIndexer.generate_unigram_embeddings_v2(bioInfoPath+'mgiPos_intactNeg_tokens.jl',bioInfoPath+'mgiIntact_df.txt',
 #                                         bioInfoPath+'mgiIntact_unigram-v2.jl', d=100, non_zero_ratio=0.01,
 #                                             lower_prune_ratio=0.0, upper_prune_ratio=1.0, max_length=None)
+# RandomIndexer.generate_unigram_embeddings_v2(CP1SummerPath+'positive_tokens.json',
+#                                              CP1SummerPath+'CP1_november_positive_df.txt',
+#                                         CP1SummerPath+'CP1Positive_unigram-v2.jl', d=200, non_zero_ratio=0.01,
+#                                             lower_prune_ratio=0.00005, upper_prune_ratio=0.4, max_length=None)
 # RandomIndexer.generate_telephone_embeddings_v1(path+'all_tokens-part-00000-onlyLower-1.json',
 #                                              path+'all_tokens-part-00000-onlyLower-1-df.txt',
 #                                              path+'phone-embeddings-part-00000-v1.json')

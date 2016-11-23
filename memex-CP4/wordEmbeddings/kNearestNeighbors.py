@@ -276,7 +276,7 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
     pp.pprint(_extract_top_k(score_dict, k=0, disable_k=True))
 
 
-# data_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
+# data_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
 # eswc_path = '/Users/mayankkejriwal/datasets/eswc2017/embeddings/'
 # companiesTextPath = '/Users/mayankkejriwal/datasets/companies/'
 # bioInfoPath = '/Users/mayankkejriwal/datasets/bioInfo/2016-11-08-intact_mgi_comparison/'
@@ -292,7 +292,8 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
 # find_k_nearest_neighbors_multi(companiesTextPath+'result-unigram-v2.jl', ['corporate', 'brand', 'beer'], suppress_print=False)
 # find_k_nearest_neighbors_multi(eswc_path+'RIclassEmbeddings-v1-normSum.jl',
 #             ["http://dbpedia.org/ontology/Grape"], suppress_print=False)
-# find_k_nearest_neighbors_multi(data_path+'hrr_unigram-v2.json', ['brunette', 'dominican'], suppress_print=False)
+# find_k_nearest_neighbors_multi(data_path+'unigram-part-00000-v2.json', ['brunette', 'dominican'], suppress_print=False)
+# find_k_nearest_neighbors_multi(data_path+'CP1Positive_unigram-v2.jl', ['brunette', 'dominican'], suppress_print=False)
 # find_k_nearest_neighbors(data_path+'hrr_unigram-v2.json', 'screaming')
 # multi_embeddings_experiment(embeddings_files, tokens_file, k=50)
 # supplement_dictionary_v1(path+'dictionary-supervised/names.txt',tmp_path+'unigram-part-00000-v2.json',tmp_path+'supplemented-names.txt')

@@ -76,7 +76,11 @@ def _dummy_function():
 
 
 
-
+# infile = '/Users/mayankkejriwal/datasets/memex-evaluation-november/expanded-dictionaries.json'
+# inf = codecs.open(infile, 'r', 'utf-8')
+# k = json.load(inf)
+# inf.close()
+# print k
 # _dummy_function()
 # test_string = 'this is a test'
 # print test_string
