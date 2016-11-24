@@ -5,6 +5,39 @@ import json
 import VectorUtils
 import numpy as np
 
+
+def cluster_embeddings(doc_embeddings_file, cluster_file, output_file):
+    """
+    Uses a doc embedding file to generate cluster embeddings. The cluster_file is a jlines file where a cluster
+    id refers to doc ids. We get the embedding by looking up the doc_embeddings; we ignore docs that don't have
+    embeddings. We do a sum and normalize.
+    :param doc_embeddings_file:
+    :param cluster_file:
+    :return:
+    """
+    doc_embeddings_dict = kNearestNeighbors.read_in_embeddings(doc_embeddings_file)
+    cluster_dict = dict()
+    with codecs.open(cluster_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line)
+            for k, v in obj.items():
+                cluster_dict[k] = v
+
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for k, v in cluster_dict.items():
+        list_of_vecs = list()
+        for doc in v:
+            if doc in doc_embeddings_dict:
+                list_of_vecs.append(doc_embeddings_dict[doc])
+            else:
+                print 'doc not in doc embedding ',
+                print doc
+        tmp = dict()
+        tmp[k] = VectorUtils.normalize_vector(np.sum(list_of_vecs, axis=0)).tolist()
+        json.dump(tmp, out)
+        out.write('\n')
+    out.close()
+
 def sum_and_normalize(embeddings_file, tokens_file, output_file):
     """
     Doc embeddings are computed by doing summing all tokens that exist in the embeddings file, following
@@ -88,7 +121,9 @@ def idf_weighted_embedding(embeddings_file, tokens_file, idf_file, output_file):
             out.write('\n')
     out.close()
 
-# CP1Path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/CP-1-november/'
+# CP1Path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/CP-1-summer/positive/'
+# cluster_embeddings(CP1Path+'external_doc_embeddings.jl',CP1Path+'positive_clusters.jl',
+#                    CP1Path+'external_cluster_embeddings.jl')
 # companiesTextPath = '/Users/mayankkejriwal/datasets/companies/'
 # sum_and_normalize(CP1Path+'unigram-part-00000-v2.json',CP1Path+'negative_tokens.json',
 #                        CP1Path+'external_doc_embeddings_negative.jl')
