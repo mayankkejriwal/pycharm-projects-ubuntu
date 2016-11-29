@@ -117,6 +117,7 @@ class ResultExtractors:
 
         # a new addition, since we need scores in our list now
         scores = ResultExtractors.build_score_dict(retrieved_frames['hits']['hits'], 'cdr_id', None)
+        # print len(flattened_list)
         # print scores
         for i in range(len(flattened_list)):
             id_val = flattened_list[i]['?ad'] # this is ad-hoc, but it should suffice.
@@ -124,7 +125,7 @@ class ResultExtractors:
                 raise Exception
             else:
                 flattened_list[i]['score']=scores[id_val]
-
+        flattened_list = ResultExtractors._limit_num_extractions_per_id(flattened_list, 50, '?ad')
         if translated_query_data_structure['groupByDict'] \
          and 'limit' in translated_query_data_structure['groupByDict']: # any limit?
             limit = translated_query_data_structure['groupByDict']['limit']
@@ -132,6 +133,45 @@ class ResultExtractors:
                 return flattened_list[0:limit]
 
         return flattened_list
+
+    @staticmethod
+    def _limit_num_extractions_per_id(flattened_list, extr_per_id=50, id_field='?ad'):
+        """
+        For each unique id, we want max. extr_per_id rows.
+        :param flattened_list:
+        :param extr_per_id: if None, we'll just return the original flattened list.
+        :return: pruned list
+        """
+        if not extr_per_id:
+            return flattened_list
+        else:
+            pruned_list = list()
+            new_id = None
+            count = 0
+            # stop_adding = True
+            for i in range(len(flattened_list)):
+                print count, i, flattened_list[i][id_field]
+
+                if count >= extr_per_id:
+                    if flattened_list[i][id_field] == new_id:
+                        continue
+                    else:
+                        new_id = None
+                        count = 0
+                if not new_id:
+                    new_id = flattened_list[i][id_field]
+                    pruned_list.append(flattened_list[i])
+                    count += 1
+                else:
+                    if flattened_list[i][id_field] == new_id:
+                        pruned_list.append(flattened_list[i])
+                        count += 1
+                    else: # we're starting over
+                        new_id = flattened_list[i][id_field]
+                        pruned_list.append(flattened_list[i])
+                        count = 1
+        return pruned_list
+
 
     @staticmethod
     def build_score_dict(list_of_results, id_field, scoring_function=None):

@@ -133,7 +133,7 @@ class SelectExtractors:
         :param frame:
         :return: A list of strings
         """
-        inferlink_flag = False
+        # inferlink_flag = False
         precision_flag = False
         recall_flag = True
         city = list()
@@ -144,7 +144,7 @@ class SelectExtractors:
         if ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], 'inferlink_city.result.value'):
             city = ResultExtractors.ResultExtractors. \
                 get_property_from_source_frame(frame['_source'], 'inferlink_city.result.value')
-            inferlink_flag = True
+            # inferlink_flag = True
             precision_flag = True
         elif ResultExtractors.ResultExtractors.is_property_in_source_frame(frame['_source'], 'high_precision.city.result.value'):
             city = ResultExtractors.ResultExtractors. \
@@ -191,13 +191,26 @@ class SelectExtractors:
                     city = ranked_cities
                 else:
                     print 'ranking of cities did not work! Reverting to default...'
-        try:
-            # call Majid's code here and return the list of strings.
-            locations = get_location(classifier_dict['city_dict'], city, state, country)
-            return locations
-        except:
-            print 'Error in get location code! Returning cities only...'
-            return city
+        # not using Majid's code this time around.
+        # try:
+        #     # call Majid's code here and return the list of strings.
+        #     print city
+        #     print state
+        #     print country
+        #     locations = get_location(classifier_dict['city_dict'], city, state, country)
+        #     print locations
+        #     return locations
+        # except:
+        #     print 'Error in get location code! Returning cities only...'
+        #     return city
+        allowed = set(city)
+        new_city = list()
+        for element in city:
+            if element in allowed:
+                new_city.append(element)
+                allowed.remove(element)
+        # print new_city
+        return new_city
 
 
 
@@ -524,8 +537,10 @@ class SelectExtractors:
         :param list_of_props:
         :return:
         """
+        # print list_of_props
         priority_dict = dict()
         for prop in list_of_props:
+
             if 'inferlink' in prop:
                 if 1 not in priority_dict:
                     priority_dict[1] = list()
@@ -546,8 +561,15 @@ class SelectExtractors:
         keys = priority_dict.keys()
         keys.sort()
         for k in keys:
-            priority_dict[k].sort()
+            if FieldIdentifiers.is_ethnicity(set(list_of_props)):   # we're making an exception for this one
+                if k == 2:
+                    priority_dict[k].sort(reverse=True)
+                else:
+                    priority_dict[k].sort()
+            else:
+                priority_dict[k].sort()
             answer += priority_dict[k]
+
         return answer
 
 

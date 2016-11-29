@@ -122,7 +122,7 @@ class MappingTable:
                                                'high_recall.country.result.value',
                                                'high_recall.location.result.value'],
                                    'ad': ['cdr_id'],
-
+                                   'services': ['high_precision.service.result.value', 'high_recall.service.result.value'],
                                    'review_site_id':['inferlink_review-id.result.value',
                                                 'high_precision.review-id.result.value.identifier',
                                                 'high_precision.review-id.result.value.site',
@@ -131,7 +131,8 @@ class MappingTable:
                                    'social_media_id': ['high_precision.social-media-id.result.value.instagram',
                                                        'high_precision.social-media-id.result.value.twitter',
                                                        'high_recall.social-media-id.result.value.instagram',
-                                                       'high_recall.social-media-id.result.value.twitter'
+                                                       'high_recall.social-media-id.result.value.twitter',
+                                                       'tokens_extracted_text.result.value'
                                                        ],
                                     'title': ['high_precision.title.result.value'],
                                    'content': ['high_precision.description.result.value',
@@ -184,7 +185,9 @@ class MappingTable:
                 elif property == 'post_date':
                     tmp[v] = 'build_match_phrase_clause'
                 elif property in keyword_expansion_props:
-                    tmp[v] = 'build_match_clause_with_keyword_expansion'
+                    tmp[v] = 'build_match_clause_inner_with_keyword_expansion'
+                elif property == 'social_media_id':
+                    tmp[v] = 'build_social_media_match_clause'
                 else:
                     tmp[v] = 'build_match_clause'
             if property not in non_readability_props:
@@ -362,4 +365,4 @@ class MappingTable:
             file.close()
 
 
-# MappingTable.buildAdsTable_v3('/Users/mayankkejriwal/datasets/memex-evaluation-november/adsTable-v3.jl')
+# MappingTable.buildAdsTable_v3('/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/adsTable-v3.jl')

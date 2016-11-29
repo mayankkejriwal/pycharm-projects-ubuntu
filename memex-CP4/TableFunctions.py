@@ -74,11 +74,19 @@ def build_match_clause_with_keyword_expansion(field, string):
     We will identify the field, use the string to get another string, then embed that string into
     an ordinary match clause. The path to the keyword-expansion dictionaries is hard-coded.
     """
-    keyword_file_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/expanded-dictionaries.json'
+    keyword_file_path = '/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/expanded-dictionaries.json'
     keyword_dict = _read_in_keyword_file(keyword_file_path)
     answer = {}
     tmp = {}
+    string = string.lower()
     if 'ethnicity' in field:
+        if string in keyword_dict['ethnicity']:
+            tmp[field] = keyword_dict['ethnicity'][string]
+        else:
+            tmp[field] = string
+        answer['match'] = tmp
+        return answer
+    elif 'nationality' in field:
         if string in keyword_dict['ethnicity']:
             tmp[field] = keyword_dict['ethnicity'][string]
         else:
@@ -104,6 +112,47 @@ def build_match_clause_with_keyword_expansion(field, string):
         tmp[field] = string
         answer['match'] = tmp
         return answer
+
+
+def build_match_clause_inner_with_keyword_expansion(field, string):
+    """
+    Best demonstrated by example. Suppose field = 'itemOffered.ethnicity' and string = 'ebony',
+    the function will return a dictionary d:
+    d = {
+         "match":   {
+            "itemOffered.ethnicity" : "ebony chocolate"
+            }
+        }
+        (assuming that chocolate is the only way to expand ebony)
+    The intent is that this dictionary should be embedded into a valid elasticsearch query.
+    We will identify the field, use the string to get another string, then embed that string into
+    an ordinary match clause. The path to the keyword-expansion dictionaries is hard-coded.
+    """
+    keyword_file_path = '/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/expanded-dictionaries.json'
+    keyword_dict = _read_in_keyword_file(keyword_file_path)
+    answer = {}
+    tmp = {}
+    string = string.lower()
+    if 'ethnicity' in field or 'nationality' in field:
+        if string in keyword_dict['ethnicity']:
+            return build_match_clause_inner(field, keyword_dict['ethnicity'][string])
+        else:
+            return build_match_clause_inner(field, string)
+        # answer['match'] = tmp
+
+    elif 'eye_color' in field:
+        if string in keyword_dict['eye_color']:
+            return build_match_clause_inner(field, keyword_dict['eye_color'][string])
+        else:
+            return build_match_clause_inner(field, string)
+    elif 'hair_color' in field:
+        if string in keyword_dict['hair_color']:
+            return build_match_clause_inner(field, keyword_dict['hair_color'][string])
+        else:
+            return build_match_clause_inner(field, string)
+    else:
+        print 'I didn\'t find a field that I can keyword expand. Returning an ordinary match-inner clause'
+        return build_match_clause_inner(field, string)
 
 def _read_in_keyword_file(keyword_file_path):
     """
@@ -203,6 +252,20 @@ def build_email_match_clause(field, string):
     tmp[field] = dict()
     tmp[field]['query'] = string
     tmp[field]['boost'] = 3.0
+    tmp[field]['operator'] = 'and'
+    answer['match'] = tmp
+    return answer
+
+def build_social_media_match_clause(field, string, boost=30.0):
+    """
+    Meant for social-id field. Will have and semantics, and be boosted.
+    The intent is that this dictionary should be embedded into a valid elasticsearch query.
+    """
+    answer = {}
+    tmp = {}
+    tmp[field] = dict()
+    tmp[field]['query'] = string
+    tmp[field]['boost'] = boost
     tmp[field]['operator'] = 'and'
     answer['match'] = tmp
     return answer

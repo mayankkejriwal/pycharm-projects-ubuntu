@@ -891,7 +891,7 @@ class ExecuteESQueries:
 
 
         # if you make changes here, you must make equivalent changes in SelectExtractors.extract_locations (go right to the end of that func.)
-        answer['city_dict'] = city_dict # dictionary required by Majid
+        answer['city_dict'] = json.load(open(city_dict)) # dictionary required by Majid
         # answer['city_state_dict'] = json.load(open(city_state_dict))
         # answer['country_dict'] = json.load(open(country_dict))
         # print type(classifier_cities)
@@ -999,33 +999,42 @@ class ExecuteESQueries:
         all constraints to the text props and make everything optional (a simple version of the IR strategy).
         :return: None
         """
-        root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
-
+        root_path = '/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/'
+        embedding_training_folder = 'embedding_training_files/'
+        embedding_training_file = 'lrr_unigram-v2.json'
+        ads_table_file = 'adsTable-v3.jl'
+        url_localhost = "http://memex:digdig@52.36.12.77:8080/"
+        index = 'dig-nov-eval-gt-04'
+        parsed_query_file = 'post_point_fact_parsed_fixed_3.json'
+        ads_table_file = root_path +  ads_table_file
+        parsed_query_file = root_path + parsed_query_file
+        output_folder = 'output-folder-1/'
         # set use_embeddings to True if you want to use Rahul's code. You can replace the unigram file with a different
         # one if it improves performance (e.g. lrr, hrr, ground-truth etc.)
         #the function name is a complete misnomer. We must call it for Majid's code.
-        classifiers = ExecuteESQueries.train_embedding_classifiers(root_path+'embedding_training_files/',
-                                root_path+'embedding_training_files/lrr_unigram-v2.json', use_embeddings=True)
+
+        classifiers = ExecuteESQueries.train_embedding_classifiers(root_path+embedding_training_folder,
+                                root_path+embedding_training_folder+embedding_training_file, use_embeddings=True)
 
         # if anything changes in the mapping table, regenerate this file; see the last line in MappingTable.py
-        ads_table_file = root_path + 'adsTable-v3.jl'
 
-        parsed_query_file = root_path + 'parsed-queries-3.txt'
         parsed_query_file_in = codecs.open(parsed_query_file, 'r', 'utf-8')
         parsed_PF_queries = json.load(parsed_query_file_in)#[0:1]
         # print len(parsed_PF_queries)
         # print parsed_PF_queries
         parsed_query_file_in.close()
-        url_localhost = "http://10.1.94.103:9201/"
+
         # url_localhost = "http://localhost:9200"
         es = Elasticsearch(url_localhost)
-        index = 'dig-nov-eval-gt-03'
+
         # index = 'gt-index-1'
         results = None
 
         # if something goes wrong, you'll know where in the list it occurred
         for k in range(0, len(parsed_PF_queries)):
-            print k
+            # print k
+            if parsed_PF_queries[k]['id'] != "107-1":
+                continue
             sparql_query = parsed_PF_queries[k]['SPARQL']
             print 'processing query...',
             print parsed_PF_queries[k]['id']
@@ -1039,6 +1048,12 @@ class ExecuteESQueries:
             translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query, ads_table_file, False)
             # query['query'] = TableFunctions.build_match_all_query()
             query['query'] = translatedDS['query']
+            query['_source'] = dict()
+            query['_source']['exclude'] = ["tokens_extracted_text",
+                                                           "tokens_high_precision",
+                                                           "tokens_high_recall",
+                                                           "tokens_title",
+                                                           "tokens"]
 
             ## use these print statements for debugging
             # pp.pprint(query['query']['dis_max']['queries'][2])
@@ -1052,7 +1067,7 @@ class ExecuteESQueries:
             # out.close()
             try:
 
-                retrieved_frames = es.search(index=index, doc_type='ads', size=500, body=query)
+                retrieved_frames = es.search(index=index, doc_type='ads', size=10, body=query)
             except:
                 pass
             if not retrieved_frames['hits']['hits']:
@@ -1068,7 +1083,7 @@ class ExecuteESQueries:
                     bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
 
                     # everything gets written out to a folder
-                    output_file = root_path + 'output-folder-2/' + str(parsed_PF_queries[k]['id'])
+                    output_file = root_path + output_folder + str(parsed_PF_queries[k]['id'])
                     file = codecs.open(output_file, 'w', 'utf-8')
                     json.dump(bindings_dict, file)
                     file.close()
@@ -1077,7 +1092,7 @@ class ExecuteESQueries:
 # root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
 # classifiers = ExecuteESQueries.train_embedding_classifiers(root_path + 'embedding_training_files/',
 #                                                                        root_path + 'unigram-part-00000-v2.json')
-# ExecuteESQueries.November_2016_pre_execution2()
+ExecuteESQueries.November_2016_pre_execution2()
 # ExecuteESQueries.test_ES_index()
 # ExecuteESQueries._current_trial()
 # path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
