@@ -139,12 +139,13 @@ class MappingTable:
                                                'high_precision.readability.result.value','high_recall.readability.result.value','extracted_text'],
                                    'cluster': ['CDRIDs.uri'],
                                    'seed': ['centroid_phone', 'high_precision.phone.result.value','high_recall.phone.result.value',
-                                            'high_precision.email.result.value', 'high_recall.email.result.value'] # centroid_phone can also contain emails
+                                            'high_precision.email.result.value', 'high_recall.email.result.value',
+                                            'tokens_extracted_text.result.value'] # centroid_phone can also contain emails
                                    }
         non_readability_props = ['ad','cluster', 'phone', 'post_date','email']
         keyword_expansion_props = ['ethnicity','eye_color','hair_color']
         # onto_props_without_mapping = ['image_with_email', 'image_with_phone']
-        unmapped_props = ['height', 'weight', 'price', 'tattoo', 'multiple_providers'] # it is important to keep track of this
+        unmapped_props = ['height', 'weight', 'price', 'tattoos', 'multiple_providers'] # it is important to keep track of this
         for attribute in attributes:
             m = list()
             # if attribute not in ['phone', 'email']:

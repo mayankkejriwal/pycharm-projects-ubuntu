@@ -150,7 +150,7 @@ class ResultExtractors:
             count = 0
             # stop_adding = True
             for i in range(len(flattened_list)):
-                print count, i, flattened_list[i][id_field]
+                # print count, i, flattened_list[i][id_field]
 
                 if count >= extr_per_id:
                     if flattened_list[i][id_field] == new_id:

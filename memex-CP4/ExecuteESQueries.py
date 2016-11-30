@@ -1005,7 +1005,7 @@ class ExecuteESQueries:
         ads_table_file = 'adsTable-v3.jl'
         url_localhost = "http://memex:digdig@52.36.12.77:8080/"
         index = 'dig-nov-eval-gt-04'
-        parsed_query_file = 'post_point_fact_parsed_fixed_3.json'
+        parsed_query_file = 'aggregate-queries-parsed.json'
         ads_table_file = root_path +  ads_table_file
         parsed_query_file = root_path + parsed_query_file
         output_folder = 'output-folder-1/'
@@ -1033,7 +1033,7 @@ class ExecuteESQueries:
         # if something goes wrong, you'll know where in the list it occurred
         for k in range(0, len(parsed_PF_queries)):
             # print k
-            if parsed_PF_queries[k]['id'] != "107-1":
+            if parsed_PF_queries[k]['id'] != "94-2":
                 continue
             sparql_query = parsed_PF_queries[k]['SPARQL']
             print 'processing query...',
@@ -1067,7 +1067,7 @@ class ExecuteESQueries:
             # out.close()
             try:
 
-                retrieved_frames = es.search(index=index, doc_type='ads', size=10, body=query)
+                retrieved_frames = es.search(index=index, doc_type='ads', size=150, body=query)
             except:
                 pass
             if not retrieved_frames['hits']['hits']:

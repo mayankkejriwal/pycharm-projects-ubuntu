@@ -230,6 +230,16 @@ def build_phone_match_clause(field, string):
         answer['match'] = tmp
         return answer
     candidates = list()
+    if 'tokens' in field and '000' in string1 and len(string1)==10: # we do not extract this, so we need to do this
+        k = string1[0:3]+' '+string1[3:6]+' '+string[6:]
+        candidates.append(k)
+        tmp[field] = dict()
+        tmp[field]['query'] = ' '.join(candidates)
+        tmp[field]['operator'] = 'and'
+        # tmp[field]['boost'] = 3.0
+        answer['match'] = tmp
+        return answer
+    # not tokens, we proceed now on a stricter basis
     candidates.append(string1)
     if len(string1) > 10:
         candidates.append(string1[2:])
