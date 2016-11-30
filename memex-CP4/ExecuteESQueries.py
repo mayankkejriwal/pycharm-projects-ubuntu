@@ -1003,12 +1003,14 @@ class ExecuteESQueries:
         embedding_training_folder = 'embedding_training_files/'
         embedding_training_file = 'lrr_unigram-v2.json'
         ads_table_file = 'adsTable-v3.jl'
-        url_localhost = "http://memex:digdig@52.36.12.77:8080/"
-        index = 'dig-nov-eval-gt-04'
-        parsed_query_file = 'aggregate-queries-parsed.json'
+        # url_localhost = "http://memex:digdig@52.36.12.77:8080/"
+        url_localhost = "http://10.1.94.103:9201/"
+        # index = 'dig-nov-eval-gt-04'
+        index = 'dig-nov-eval-nyu-01'
+        parsed_query_file = 'parsed-queries/aggregate-queries-parsed.json'
         ads_table_file = root_path +  ads_table_file
         parsed_query_file = root_path + parsed_query_file
-        output_folder = 'output-folder-1/'
+        output_folder = 'nyu-aggregate/'
         # set use_embeddings to True if you want to use Rahul's code. You can replace the unigram file with a different
         # one if it improves performance (e.g. lrr, hrr, ground-truth etc.)
         #the function name is a complete misnomer. We must call it for Majid's code.
@@ -1033,8 +1035,8 @@ class ExecuteESQueries:
         # if something goes wrong, you'll know where in the list it occurred
         for k in range(0, len(parsed_PF_queries)):
             # print k
-            if parsed_PF_queries[k]['id'] != "94-2":
-                continue
+            # if parsed_PF_queries[k]['id'] != "94-2":
+            #     continue
             sparql_query = parsed_PF_queries[k]['SPARQL']
             print 'processing query...',
             print parsed_PF_queries[k]['id']

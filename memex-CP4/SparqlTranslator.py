@@ -74,7 +74,7 @@ class SparqlTranslator:
 
     @staticmethod
     def translateClusterQueries(sparqlDataStructure, mappingTableFile, conservativeLevel,
-                                es_host="http://memex:digdig@52.36.12.77:8080/", index= 'dig-nov-eval-gt-04', cluster_doc_type='clusters'):
+                                es_host="http://10.1.94.103:9201/", index= 'dig-nov-eval-nyu-01', cluster_doc_type='clusters'):
         """
         Handles cluster queries. First, we check for a seed constraint and run a simple bool query
         to return the list of seller uris. Then we form a new sparqlDataStructure using
