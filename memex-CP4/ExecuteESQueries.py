@@ -1002,20 +1002,20 @@ class ExecuteESQueries:
         root_path = '/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/'
         embedding_training_folder = 'embedding_training_files/'
         embedding_training_file = 'lrr_unigram-v2.json'
-        ads_table_file = 'lattice-adsTable-v1.jl'
-        # url_localhost = "http://memex:digdig@52.36.12.77:8080/"
-        url_localhost = "http://10.1.94.103:9201/"
+        ads_table_file = 'lattice-isi-adsTable-v1.jl'
+        url_localhost = "http://memex:digdig@52.36.12.77:8080/"
+        # url_localhost = "http://10.1.94.103:9201/"
         index = 'dig-nov-eval-gt-05'
-        parsed_query_file = 'parsed-queries/cluster-facet-queries-parsed.json'
+        parsed_query_file = 'parsed-queries/PF-queries-parsed.json'
         ads_table_file = root_path +  ads_table_file
         parsed_query_file = root_path + parsed_query_file
-        output_folder = 'output-folder-lattice-cluster-facet/'
+        output_folder = 'lattice-isi-point-fact/'
         # set use_embeddings to True if you want to use Rahul's code. You can replace the unigram file with a different
         # one if it improves performance (e.g. lrr, hrr, ground-truth etc.)
         #the function name is a complete misnomer. We must call it for Majid's code.
 
         classifiers = ExecuteESQueries.train_embedding_classifiers(root_path+embedding_training_folder,
-                                root_path+embedding_training_folder+embedding_training_file, use_embeddings=False)
+                                root_path+embedding_training_folder+embedding_training_file, use_embeddings=True)
 
         # if anything changes in the mapping table, regenerate this file; see the last line in MappingTable.py
 
@@ -1068,7 +1068,7 @@ class ExecuteESQueries:
             # out.close()
             try:
 
-                retrieved_frames = es.search(index=index, doc_type='ads', size=150, body=query)
+                retrieved_frames = es.search(index=index, doc_type='ads', size=10, body=query)
             except:
                 pass
             if not retrieved_frames['hits']['hits']:
