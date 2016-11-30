@@ -108,6 +108,7 @@ class MappingTable:
         :return:
         """
         ads_table = []
+
         text_props = ['high_precision.description.result.value','high_precision.readability.result.value',
                       'high_recall.readability.result.value',
                       'extracted_text', '_all']
@@ -366,4 +367,73 @@ class MappingTable:
             file.close()
 
 
+    @staticmethod
+    def lattice_buildAdsTable_v1(output_file=None):
+        """
+        This is the table we're using for the november lattice evals, so make sure its all prim and proper.
+        we will ONLY be using lattice extractions in this table. For combining extractions, we use a different
+        approach.
+        :param output_file:
+        :return:
+        """
+        ads_table = []
+        text_props = ['lattice_extractions.lattice-content.results.value',
+                      'extracted_text']
+        attributes = set(['phone', 'age', 'email', 'content', 'name', 'title'])
+        onto_props_with_mapping = {'location':['lattice_extractions.lattice-location.results.context.location.name'],
+                                   'post_date': ['lattice_extractions.lattice-postdatetime.results.value'],
+                                   'price': ['lattice_extractions.lattice-rate.results.value'],
+                                   'social_media_id': ['lattice_extractions.lattice-username.results.value'],
+                                     'ad': ['cdr_id'],
+                                   'cluster': ['CDRIDs.uri'],
+                                   'seed': ['centroid_phone','lattice_extractions.lattice-phone.results.value'] # centroid_phone can also contain emails
+                                   }
+        non_readability_props = ['ad','cluster', 'phone', 'post_date','email']
+        unmapped_props = ['height', 'weight', 'tattoos', 'multiple_providers','ethnicity','eye_color','hair_color',
+                          'nationality', 'services', 'street_address','review_site_id']
+        for attribute in attributes:
+            m = list()
+            m.append('lattice_extractions.lattice-' + attribute + '.results.value')
+            onto_props_with_mapping[attribute] = m
+        for unmapped_prop in unmapped_props:
+            m = list(text_props)
+            onto_props_with_mapping[unmapped_prop] = m
+
+        for property, value_list in onto_props_with_mapping.iteritems():
+            dict = {}
+            dict['onto_prop'] = property
+            mappings = []
+            tmp = {}
+            for v in value_list:
+                if property == 'seed':
+                    tmp[v] = 'build_phone_or_email_match_clause'
+                elif property == 'phone':
+                    tmp[v] = 'build_phone_match_clause'
+                    tmp['extracted_text'] = 'build_phone_match_clause'
+                    # tmp['url'] = 'build_phone_regexp_clause'
+                elif property == 'email':
+                    tmp[v] = 'build_email_match_clause'
+                    tmp['_all'] = 'build_match_phrase_clause'
+                elif property == 'ad':
+                    tmp[v] = 'build_term_clause'
+                elif property == 'post_date':
+                    tmp[v] = 'build_match_phrase_clause'
+                elif property == 'social_media_id':
+                    tmp[v] = 'build_social_media_match_clause'
+                else:
+                    tmp[v] = 'build_match_clause'
+            if property not in non_readability_props:
+                for v in text_props:    # will overwrite for seller.telephone.name
+                    tmp[v] = 'build_match_clause_inner'
+            mappings.append(tmp)
+            dict['mappings'] = mappings
+            ads_table.append(dict)
+        if output_file:
+            out = codecs.open(output_file, 'w', 'utf-8')
+            for entry in ads_table:
+                json.dump(entry, out)
+                out.write('\n')
+            out.close()
+
 # MappingTable.buildAdsTable_v3('/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/adsTable-v3.jl')
+# MappingTable.lattice_buildAdsTable_v1('/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/lattice-adsTable-v1.jl')

@@ -25,19 +25,19 @@ class SelectExtractors:
             tmp = {}
             for key, val in simpleSelectDict.items():
 
-                if FieldIdentifiers.is_location(val): # should be treated distinctly
-                    tmp[key] = SelectExtractors.extract_locations(frame, classifier_dict)
-                    continue
-
-                if FieldIdentifiers.is_height(val):
-                    val.add('high_precision.height.result.value.centimeter')
-                    val.add('high_recall.height.result.value.centimeter')
-                if FieldIdentifiers.is_weight(val):
-                    val.add('high_precision.weight.result.value.kilogram')
-                    val.add('high_recall.weight.result.value.kilogram')
-                if FieldIdentifiers.is_price(val):
-                    val.add('high_precision.price.result.value.price_per_hour')
-                    val.add('high_recall.price.result.value.price_per_hour')
+                # if FieldIdentifiers.is_location(val): # should be treated distinctly
+                #     tmp[key] = SelectExtractors.extract_locations(frame, classifier_dict)
+                #     continue
+                #
+                # if FieldIdentifiers.is_height(val):
+                #     val.add('high_precision.height.result.value.centimeter')
+                #     val.add('high_recall.height.result.value.centimeter')
+                # if FieldIdentifiers.is_weight(val):
+                #     val.add('high_precision.weight.result.value.kilogram')
+                #     val.add('high_recall.weight.result.value.kilogram')
+                # if FieldIdentifiers.is_price(val):
+                #     val.add('high_precision.price.result.value.price_per_hour')
+                #     val.add('high_recall.price.result.value.price_per_hour')
 
                 if len(val) != 1:
                     new_val = SelectExtractors._prune_property_set(val)
@@ -87,8 +87,7 @@ class SelectExtractors:
         return answer
 
     @staticmethod
-    def extract_list_of_texts(frame, text_props=['high_precision.description.result.value',
-                'high_precision.readability.result.value', 'high_recall.readability.result.value',
+    def extract_list_of_texts(frame, text_props=['lattice_extractions.lattice-content.results.value',
                       'extracted_text']):
         """
         Designed for Rahul's classifier. Currently compatible with AdsTable-v3 fields. We convert text to lower
@@ -514,9 +513,8 @@ class SelectExtractors:
 
         answer = []
         for property in set_of_properties: # remove text properties
-            if property in ['high_precision.description.result.value', 'high_precision.readability.result.value',
-                            'high_recall.readability.result.value',
-                            'extracted_text', '_all']:  # sync this list with text_props in MappingTable
+            if property in ['lattice_extractions.lattice-content.results.value',
+                      'extracted_text']:  # sync this list with text_props in MappingTable
                 continue
             # elif 'raw' in property:
             #     continue
@@ -524,10 +522,10 @@ class SelectExtractors:
             #     continue
             else:
                 answer.append(property)
-        # print answer
-        if answer:
-
-            return SelectExtractors._sort_property_list(answer)
+        return answer
+        # if answer:
+        #
+        #     return SelectExtractors._sort_property_list(answer)
 
     @staticmethod
     def _sort_property_list(list_of_props):

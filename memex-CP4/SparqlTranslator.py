@@ -357,9 +357,8 @@ class SparqlTranslator:
         """
         # process simpleSelectDict, groupByDict (remove readability_text). In future, we may want to be
         # more ambitious with how we process simpleSelectDict
-        text_props = ['high_precision.description.result.value', 'high_precision.readability.result.value',
-                      'high_recall.readability.result.value',
-                      'extracted_text', '_all']
+        text_props = ['lattice_extractions.lattice-content.results.value',
+                      'extracted_text']
         for properties in initialDS['simpleSelectDict'].itervalues():
             for text_prop in text_props:
                 properties.discard(text_prop)
