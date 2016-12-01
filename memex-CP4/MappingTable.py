@@ -435,5 +435,111 @@ class MappingTable:
                 out.write('\n')
             out.close()
 
+    @staticmethod
+    def lattice_isi_buildAdsTable_v1(output_file=None):
+        ads_table = []
+
+        text_props = ['high_precision.description.result.value','high_precision.readability.result.value',
+                      'high_recall.readability.result.value','lattice_extractions.lattice-content.results.value',
+                      'extracted_text', '_all']
+        attributes = set(['phone', 'age', 'email', 'ethnicity', 'eye_color', 'hair_color',
+            'name', 'post_date', 'services', 'street_address'])
+        onto_props_with_mapping = {'location':['lattice_extractions.lattice-location.results.context.location.name',
+                'inferlink_city.result.value','high_precision.city.result.value',
+                                               'high_precision.state.result.value',
+                                               'high_precision.country.result.value',
+                                               'high_precision.location.result.value',
+                                               'high_recall.city.result.value',
+                                               'high_recall.state.result.value',
+                                               'high_recall.country.result.value',
+                                               'high_recall.location.result.value'],
+                                   'ad': ['cdr_id'],
+                                   'services': ['high_precision.service.result.value', 'high_recall.service.result.value'],
+                                   'review_site_id':['inferlink_review-id.result.value',
+                                                'high_precision.review-id.result.value.identifier',
+                                                'high_precision.review-id.result.value.site',
+                                                'high_recall.review-id.result.value.identifier',
+                                                'high_recall.review-id.result.value.site'],
+                                   'social_media_id': ['lattice_extractions.lattice-username.results.value',
+                                        'high_precision.social-media-id.result.value.instagram',
+                                                       'high_precision.social-media-id.result.value.twitter',
+                                                       'high_recall.social-media-id.result.value.instagram',
+                                                       'high_recall.social-media-id.result.value.twitter',
+                                                       'tokens_extracted_text.result.value'
+                                                       ],
+                                    'title': ['high_precision.title.result.value'],
+                                   'content': ['high_precision.description.result.value',
+                                               'high_precision.readability.result.value',
+                                               'high_recall.readability.result.value','extracted_text'],
+                                   'cluster': ['CDRIDs.uri'],
+                                   'seed': ['centroid_phone', 'lattice_extractions.lattice-phone.results.value',
+                                            'high_precision.phone.result.value','high_recall.phone.result.value',
+                                            'high_precision.email.result.value', 'high_recall.email.result.value',
+                                            'tokens_extracted_text.result.value'] # centroid_phone can also contain emails
+                                   }
+        non_readability_props = ['ad','cluster', 'phone', 'post_date','email']
+        keyword_expansion_props = ['ethnicity','eye_color','hair_color']
+        # onto_props_without_mapping = ['image_with_email', 'image_with_phone']
+        unmapped_props = ['height', 'weight', 'price', 'tattoos', 'multiple_providers'] # it is important to keep track of this
+        for attribute in attributes:
+            m = list()
+            # if attribute not in ['phone', 'email']:
+            #     m.append('inferlink_'+attribute+'.result.value')
+            m.append('high_precision.'+attribute+'.result.value')
+            m.append('high_recall.' + attribute + '.result.value')
+            if attribute == 'ethnicity':
+                # print attribute
+                m.append('high_precision.nationality.result.value')
+                m.append('high_recall.nationality.result.value')
+            onto_props_with_mapping[attribute] = m
+        onto_props_with_mapping['nationality'] = list(onto_props_with_mapping['ethnicity'])
+        for unmapped_prop in unmapped_props:
+            m = list()
+            m.append('inferlink_' + unmapped_prop + '.result.value')
+            # m += text_props
+            onto_props_with_mapping[unmapped_prop] = m
+        onto_props_with_mapping['price'].append('lattice_extractions.lattice-rate.results.value')
+        onto_props_with_mapping['post_date'].append('lattice_extractions.lattice-postdatetime.results.value')
+        for property, value_list in onto_props_with_mapping.iteritems():
+            dict = {}
+            dict['onto_prop'] = property
+            mappings = []
+            tmp = {}
+            for v in value_list:
+                # if property in unmapped_props:
+                #     tmp['cdr_id'] = 'build'
+                if property == 'seed':
+                    tmp[v] = 'build_phone_or_email_match_clause'
+                elif property == 'phone':
+                    tmp[v] = 'build_phone_match_clause'
+                    tmp['_all'] = 'build_phone_match_clause'
+                    # tmp['url'] = 'build_phone_regexp_clause'
+                elif property == 'email':
+                    tmp[v] = 'build_email_match_clause'
+                    tmp['_all'] = 'build_match_phrase_clause'
+                elif property == 'ad':
+                    tmp[v] = 'build_term_clause'
+                elif property == 'post_date':
+                    tmp[v] = 'build_match_phrase_clause'
+                elif property in keyword_expansion_props:
+                    tmp[v] = 'build_match_clause_inner_with_keyword_expansion'
+                elif property == 'social_media_id':
+                    tmp[v] = 'build_social_media_match_clause'
+                else:
+                    tmp[v] = 'build_match_clause'
+            if property not in non_readability_props:
+                for v in text_props:    # will overwrite for seller.telephone.name
+                    tmp[v] = 'build_match_clause_inner'
+            mappings.append(tmp)
+            dict['mappings'] = mappings
+            ads_table.append(dict)
+        if output_file:
+            out = codecs.open(output_file, 'w', 'utf-8')
+            for entry in ads_table:
+                json.dump(entry, out)
+                out.write('\n')
+            out.close()
+
 # MappingTable.buildAdsTable_v3('/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/adsTable-v3.jl')
 # MappingTable.lattice_buildAdsTable_v1('/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/lattice-adsTable-v1.jl')
+# MappingTable.lattice_isi_buildAdsTable_v1('/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/lattice-isi-adsTable-v1.jl')

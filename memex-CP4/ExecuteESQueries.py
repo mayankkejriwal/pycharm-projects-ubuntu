@@ -1003,13 +1003,13 @@ class ExecuteESQueries:
         embedding_training_folder = 'embedding_training_files/'
         embedding_training_file = 'lrr_unigram-v2.json'
         ads_table_file = 'lattice-isi-adsTable-v1.jl'
-        url_localhost = "http://memex:digdig@52.36.12.77:8080/"
-        # url_localhost = "http://10.1.94.103:9201/"
+        # url_localhost = "http://memex:digdig@52.36.12.77:8080/"
+        url_localhost = "http://10.1.94.103:9201/"
         index = 'dig-nov-eval-gt-05'
-        parsed_query_file = 'parsed-queries/PF-queries-parsed.json'
+        parsed_query_file = 'parsed-queries/cluster-identification-queries-parsed.json'
         ads_table_file = root_path +  ads_table_file
         parsed_query_file = root_path + parsed_query_file
-        output_folder = 'lattice-isi-point-fact/'
+        output_folder = 'lattice-isi-cluster-identification/'
         # set use_embeddings to True if you want to use Rahul's code. You can replace the unigram file with a different
         # one if it improves performance (e.g. lrr, hrr, ground-truth etc.)
         #the function name is a complete misnomer. We must call it for Majid's code.
@@ -1032,9 +1032,11 @@ class ExecuteESQueries:
         results = None
 
         # if something goes wrong, you'll know where in the list it occurred
+        # ids = ['3-2', '9-2', '10-2', '19-2', '26-2', '32-2', '33-2', '35-2', '41-2', '53-2', '58-2', '59-2', '61-2',
+        #        '66-2', '67-2', '69-2', '74-2', '78-2', '80-2', '84-2', '89-2', '90-2', '92-2', '97-2', '100-2']
         for k in range(0, len(parsed_PF_queries)):
             # print k
-            # if parsed_PF_queries[k]['id'] != "94-2":
+            # if parsed_PF_queries[k]['id'] not in ids:
             #     continue
             sparql_query = parsed_PF_queries[k]['SPARQL']
             print 'processing query...',
@@ -1068,9 +1070,15 @@ class ExecuteESQueries:
             # out.close()
             try:
 
-                retrieved_frames = es.search(index=index, doc_type='ads', size=10, body=query)
-            except:
-                pass
+                retrieved_frames = es.search(index=index, doc_type='ads', size=150, body=query, request_timeout=60)
+            except Exception as e:
+                print e
+                continue
+                # try:
+                #     retrieved_frames = es.search(index=index, doc_type='ads', size=10, body=query, request_timeout=60)
+                # except:
+                #     print 'second try also failed. continuing...'
+                #     continue
             if not retrieved_frames['hits']['hits']:
                 print 'no results'
             else:

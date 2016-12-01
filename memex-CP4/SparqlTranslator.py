@@ -74,7 +74,7 @@ class SparqlTranslator:
 
     @staticmethod
     def translateClusterQueries(sparqlDataStructure, mappingTableFile, conservativeLevel,
-                                es_host="http://memex:digdig@52.36.12.77:8080/", index= 'dig-nov-eval-gt-05', cluster_doc_type='clusters'):
+                                es_host="http://10.1.94.103:9201/", index= 'dig-nov-eval-gt-05', cluster_doc_type='clusters'):
         """
         Handles cluster queries. First, we check for a seed constraint and run a simple bool query
         to return the list of seller uris. Then we form a new sparqlDataStructure using
@@ -357,8 +357,9 @@ class SparqlTranslator:
         """
         # process simpleSelectDict, groupByDict (remove readability_text). In future, we may want to be
         # more ambitious with how we process simpleSelectDict
-        text_props = ['lattice_extractions.lattice-content.results.value',
-                      'extracted_text']
+        text_props = ['high_precision.description.result.value','high_precision.readability.result.value',
+                      'high_recall.readability.result.value','lattice_extractions.lattice-content.results.value',
+                      'extracted_text', '_all']
         for properties in initialDS['simpleSelectDict'].itervalues():
             for text_prop in text_props:
                 properties.discard(text_prop)

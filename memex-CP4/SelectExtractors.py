@@ -25,19 +25,20 @@ class SelectExtractors:
             tmp = {}
             for key, val in simpleSelectDict.items():
 
-                # if FieldIdentifiers.is_location(val): # should be treated distinctly
-                #     tmp[key] = SelectExtractors.extract_locations(frame, classifier_dict)
-                #     continue
-                #
-                # if FieldIdentifiers.is_height(val):
-                #     val.add('high_precision.height.result.value.centimeter')
-                #     val.add('high_recall.height.result.value.centimeter')
-                # if FieldIdentifiers.is_weight(val):
-                #     val.add('high_precision.weight.result.value.kilogram')
-                #     val.add('high_recall.weight.result.value.kilogram')
-                # if FieldIdentifiers.is_price(val):
-                #     val.add('high_precision.price.result.value.price_per_hour')
-                #     val.add('high_recall.price.result.value.price_per_hour')
+                if FieldIdentifiers.is_location(val): # should be treated distinctly
+                    tmp[key] = SelectExtractors.extract_locations(frame, classifier_dict)
+                    continue
+
+                if FieldIdentifiers.is_height(val):
+                    val.add('high_precision.height.result.value.centimeter')
+                    val.add('high_recall.height.result.value.centimeter')
+                if FieldIdentifiers.is_weight(val):
+                    val.add('high_precision.weight.result.value.kilogram')
+                    val.add('high_recall.weight.result.value.kilogram')
+                if FieldIdentifiers.is_price(val):
+                    val.add('lattice_extractions.lattice-rate.results.value')
+                    val.add('high_precision.price.result.value.price_per_hour')
+                    val.add('high_recall.price.result.value.price_per_hour')
 
                 if len(val) != 1:
                     new_val = SelectExtractors._prune_property_set(val)
@@ -87,8 +88,9 @@ class SelectExtractors:
         return answer
 
     @staticmethod
-    def extract_list_of_texts(frame, text_props=['lattice_extractions.lattice-content.results.value',
-                      'extracted_text']):
+    def extract_list_of_texts(frame, text_props=['high_precision.description.result.value','high_precision.readability.result.value',
+                      'high_recall.readability.result.value','lattice_extractions.lattice-content.results.value',
+                      'extracted_text', '_all']):
         """
         Designed for Rahul's classifier. Currently compatible with AdsTable-v3 fields. We convert text to lower
         case.
@@ -513,8 +515,9 @@ class SelectExtractors:
 
         answer = []
         for property in set_of_properties: # remove text properties
-            if property in ['lattice_extractions.lattice-content.results.value',
-                      'extracted_text']:  # sync this list with text_props in MappingTable
+            if property in ['high_precision.description.result.value','high_precision.readability.result.value',
+                      'high_recall.readability.result.value','lattice_extractions.lattice-content.results.value',
+                      'extracted_text', '_all']:  # sync this list with text_props in MappingTable
                 continue
             # elif 'raw' in property:
             #     continue
@@ -538,8 +541,11 @@ class SelectExtractors:
         # print list_of_props
         priority_dict = dict()
         for prop in list_of_props:
-
-            if 'inferlink' in prop:
+            if 'lattice' in prop:
+                if 0 not in priority_dict:
+                    priority_dict[0] = list()
+                priority_dict[0].append(prop)
+            elif 'inferlink' in prop:
                 if 1 not in priority_dict:
                     priority_dict[1] = list()
                 priority_dict[1].append(prop)
