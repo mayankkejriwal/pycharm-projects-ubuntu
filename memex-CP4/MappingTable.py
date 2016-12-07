@@ -110,8 +110,8 @@ class MappingTable:
         ads_table = []
         text_props = ['high_precision.description.result.value','high_precision.readability.result.value',
                       'high_recall.readability.result.value',
-                      'extracted_text', '_all']
-        attributes = set(['phone', 'age', 'email', 'ethnicity', 'eye_color', 'hair_color',
+                      'extracted_text']
+        attributes = set(['phone', 'email', 'ethnicity', 'eye_color', 'hair_color',
             'name', 'post_date', 'services', 'street_address'])
         onto_props_with_mapping = {'location':['inferlink_city.result.value','high_precision.city.result.value',
                                                'high_precision.state.result.value',
@@ -142,10 +142,10 @@ class MappingTable:
                                             'high_precision.email.result.value', 'high_recall.email.result.value',
                                             'tokens_extracted_text.result.value'] # centroid_phone can also contain emails
                                    }
-        non_readability_props = ['ad','cluster', 'phone', 'post_date','email']
+        non_readability_props = ['ad','cluster', 'post_date', 'title']
         keyword_expansion_props = ['ethnicity','eye_color','hair_color']
         # onto_props_without_mapping = ['image_with_email', 'image_with_phone']
-        unmapped_props = ['height', 'weight', 'price', 'tattoos', 'multiple_providers'] # it is important to keep track of this
+        unmapped_props = ['height', 'weight', 'age', 'price', 'tattoos', 'multiple_providers'] # it is important to keep track of this
         for attribute in attributes:
             m = list()
             # if attribute not in ['phone', 'email']:
@@ -176,11 +176,11 @@ class MappingTable:
                     tmp[v] = 'build_phone_or_email_match_clause'
                 elif property == 'phone':
                     tmp[v] = 'build_phone_match_clause'
-                    tmp['_all'] = 'build_phone_match_clause'
+                    # tmp['_all'] = 'build_phone_match_clause'
                     # tmp['url'] = 'build_phone_regexp_clause'
                 elif property == 'email':
                     tmp[v] = 'build_email_match_clause'
-                    tmp['_all'] = 'build_match_phrase_clause'
+                    # tmp['_all'] = 'build_match_phrase_clause'
                 elif property == 'ad':
                     tmp[v] = 'build_term_clause'
                 elif property == 'post_date':
@@ -191,7 +191,7 @@ class MappingTable:
                     tmp[v] = 'build_social_media_match_clause'
                 else:
                     tmp[v] = 'build_match_clause'
-            if property not in non_readability_props:
+            if property not in set(non_readability_props).union(set(unmapped_props)):
                 for v in text_props:    # will overwrite for seller.telephone.name
                     tmp[v] = 'build_match_clause_inner'
             mappings.append(tmp)

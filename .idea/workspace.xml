@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2234a929-d28a-4235-84af-0039f019e938" name="Default" comment="" />
+    <list default="true" id="2234a929-d28a-4235-84af-0039f019e938" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/memex-CP4/ExecuteESQueries.py" afterPath="$PROJECT_DIR$/memex-CP4/ExecuteESQueries.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/memex-CP4/MappingTable.py" afterPath="$PROJECT_DIR$/memex-CP4/MappingTable.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/memex-CP4/ResultExtractors.py" afterPath="$PROJECT_DIR$/memex-CP4/ResultExtractors.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/memex-CP4/SparqlTranslator.py" afterPath="$PROJECT_DIR$/memex-CP4/SparqlTranslator.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/memex-CP4/TableFunctions.py" afterPath="$PROJECT_DIR$/memex-CP4/TableFunctions.py" />
+    </list>
     <ignored path="pycharm-projects-ubuntu.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -25,7 +31,7 @@
         <entry file="file://$PROJECT_DIR$/memex-CP4/ExecuteESQueries.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="1006" column="33" selection-start-line="1006" selection-start-column="33" selection-end-line="1006" selection-end-column="33" />
+              <caret line="1095" column="50" selection-start-line="1095" selection-start-column="50" selection-end-line="1095" selection-end-column="50" />
               <folding>
                 <element signature="e#0#68#0" expanded="true" />
               </folding>
@@ -33,11 +39,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SparqlTranslator.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SparqlTranslator.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/memex-CP4/SparqlTranslator.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.34157652">
-              <caret line="82" column="60" selection-start-line="82" selection-start-column="60" selection-end-line="82" selection-end-column="60" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="76" column="78" selection-start-line="76" selection-start-column="78" selection-end-line="76" selection-end-column="78" />
               <folding>
                 <element signature="e#0#73#0" expanded="true" />
               </folding>
@@ -49,7 +55,7 @@
         <entry file="file://$PROJECT_DIR$/memex-CP4/SelectExtractors.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="213" column="0" selection-start-line="213" selection-start-column="0" selection-end-line="213" selection-end-column="0" />
+              <caret line="212" column="0" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
               <folding>
                 <element signature="e#0#50#0" expanded="true" />
               </folding>
@@ -61,12 +67,9 @@
         <entry file="file://$PROJECT_DIR$/memex-CP4/TableFunctions.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="233" column="27" selection-start-line="233" selection-start-column="27" selection-end-line="233" selection-end-column="27" />
+              <caret line="232" column="30" selection-start-line="232" selection-start-column="30" selection-end-line="232" selection-end-column="30" />
               <folding>
                 <element signature="e#0#45#0" expanded="true" />
-                <element signature="e#1417#3387#0" expanded="false" />
-                <marker date="1480540007214" expanded="true" signature="6809:7206" placeholder="..." />
-                <marker date="1480540007214" expanded="true" signature="6814:7162" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
               </folding>
             </state>
           </provider>
@@ -76,20 +79,18 @@
         <entry file="file://$PROJECT_DIR$/memex-CP4/ResultExtractors.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="153" column="0" selection-start-line="153" selection-start-column="0" selection-end-line="153" selection-end-column="0" />
+              <caret line="145" column="33" selection-start-line="145" selection-start-column="33" selection-end-line="145" selection-end-column="33" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MappingTable.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MappingTable.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/memex-CP4/MappingTable.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="259" column="0" selection-start-line="259" selection-start-column="0" selection-end-line="259" selection-end-column="0" />
-              <folding>
-                <marker date="1480540007214" expanded="true" signature="16957:16962" placeholder="..." />
-              </folding>
+            <state vertical-scroll-proportion="0.53125">
+              <caret line="153" column="66" selection-start-line="153" selection-start-column="66" selection-end-line="153" selection-end-column="66" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -103,11 +104,11 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/memex-CP4/SelectExtractors.py" />
-        <option value="$PROJECT_DIR$/memex-CP4/TableFunctions.py" />
-        <option value="$PROJECT_DIR$/memex-CP4/MappingTable.py" />
         <option value="$PROJECT_DIR$/memex-CP4/ResultExtractors.py" />
         <option value="$PROJECT_DIR$/memex-CP4/SparqlTranslator.py" />
         <option value="$PROJECT_DIR$/memex-CP4/ExecuteESQueries.py" />
+        <option value="$PROJECT_DIR$/memex-CP4/TableFunctions.py" />
+        <option value="$PROJECT_DIR$/memex-CP4/MappingTable.py" />
       </list>
     </option>
   </component>
@@ -142,7 +143,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -177,6 +177,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -356,20 +357,20 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="64" y="-4" width="1537" height="775" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1984127" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39940828" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2943787" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33136094" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
@@ -392,6 +393,62 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/memex-CP4/ExecuteESQueries.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="1006" column="33" selection-start-line="1006" selection-start-column="33" selection-end-line="1006" selection-end-column="33" />
+          <folding>
+            <element signature="e#0#68#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/memex-CP4/SparqlTranslator.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#73#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/memex-CP4/SelectExtractors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="213" column="0" selection-start-line="213" selection-start-column="0" selection-end-line="213" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#50#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/memex-CP4/TableFunctions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="233" column="27" selection-start-line="233" selection-start-column="27" selection-end-line="233" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#45#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/memex-CP4/ResultExtractors.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="153" column="0" selection-start-line="153" selection-start-column="0" selection-end-line="153" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/memex-CP4/MappingTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="259" column="0" selection-start-line="259" selection-start-column="0" selection-end-line="259" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/memex-CP4/ExecuteESQueries.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -428,9 +485,6 @@
           <caret line="235" column="27" selection-start-line="235" selection-start-column="27" selection-end-line="235" selection-end-column="27" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#1417#3387#0" expanded="false" />
-            <marker date="1480540007214" expanded="true" signature="6809:7206" placeholder="..." />
-            <marker date="1480540007214" expanded="true" signature="6814:7162" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
@@ -447,9 +501,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="298" column="0" selection-start-line="298" selection-start-column="0" selection-end-line="298" selection-end-column="0" />
-          <folding>
-            <marker date="1480540007214" expanded="true" signature="16957:16962" placeholder="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -489,9 +541,6 @@
           <caret line="235" column="27" selection-start-line="235" selection-start-column="27" selection-end-line="235" selection-end-column="27" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#1417#3387#0" expanded="false" />
-            <marker date="1480540007214" expanded="true" signature="6809:7206" placeholder="..." />
-            <marker date="1480540007214" expanded="true" signature="6814:7162" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
@@ -508,9 +557,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="298" column="0" selection-start-line="298" selection-start-column="0" selection-end-line="298" selection-end-column="0" />
-          <folding>
-            <marker date="1480540007214" expanded="true" signature="16957:16962" placeholder="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -550,9 +597,6 @@
           <caret line="237" column="38" selection-start-line="237" selection-start-column="38" selection-end-line="237" selection-end-column="38" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#1417#3387#0" expanded="false" />
-            <marker date="1480540007214" expanded="true" signature="6809:7206" placeholder="..." />
-            <marker date="1480540007214" expanded="true" signature="6814:7162" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
@@ -569,9 +613,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="368" column="0" selection-start-line="368" selection-start-column="0" selection-end-line="368" selection-end-column="0" />
-          <folding>
-            <marker date="1480540007214" expanded="true" signature="16957:16962" placeholder="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -611,9 +653,6 @@
           <caret line="154" column="54" selection-start-line="154" selection-start-column="54" selection-end-line="154" selection-end-column="54" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#1417#3387#0" expanded="false" />
-            <marker date="1480540007214" expanded="true" signature="6809:7206" placeholder="..." />
-            <marker date="1480540007214" expanded="true" signature="6814:7162" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
@@ -630,9 +669,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="367" column="80" selection-start-line="367" selection-start-column="80" selection-end-line="367" selection-end-column="80" />
-          <folding>
-            <marker date="1480540007214" expanded="true" signature="16957:16962" placeholder="..." />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -646,7 +683,7 @@
     <entry file="file://$PROJECT_DIR$/memex-CP4/SelectExtractors.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="213" column="0" selection-start-line="213" selection-start-column="0" selection-end-line="213" selection-end-column="0" />
+          <caret line="212" column="0" selection-start-line="212" selection-start-column="0" selection-end-line="212" selection-end-column="0" />
           <folding>
             <element signature="e#0#50#0" expanded="true" />
           </folding>
@@ -656,30 +693,19 @@
     <entry file="file://$PROJECT_DIR$/memex-CP4/TableFunctions.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="233" column="27" selection-start-line="233" selection-start-column="27" selection-end-line="233" selection-end-column="27" />
+          <caret line="232" column="30" selection-start-line="232" selection-start-column="30" selection-end-line="232" selection-end-column="30" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
-            <element signature="e#1417#3387#0" expanded="false" />
-            <marker date="1480540007214" expanded="true" signature="6809:7206" placeholder="..." />
-            <marker date="1480540007214" expanded="true" signature="6814:7162" placeholder="&quot;&quot;&quot;...&quot;&quot;&quot;" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/memex-CP4/ResultExtractors.py">
+    <entry file="file://$PROJECT_DIR$/memex-CP4/SparqlTranslator.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="153" column="0" selection-start-line="153" selection-start-column="0" selection-end-line="153" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/memex-CP4/MappingTable.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="259" column="0" selection-start-line="259" selection-start-column="0" selection-end-line="259" selection-end-column="0" />
+          <caret line="76" column="78" selection-start-line="76" selection-start-column="78" selection-end-line="76" selection-end-column="78" />
           <folding>
-            <marker date="1480540007214" expanded="true" signature="16957:16962" placeholder="..." />
+            <element signature="e#0#73#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -687,20 +713,26 @@
     <entry file="file://$PROJECT_DIR$/memex-CP4/ExecuteESQueries.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="1006" column="33" selection-start-line="1006" selection-start-column="33" selection-end-line="1006" selection-end-column="33" />
+          <caret line="1095" column="50" selection-start-line="1095" selection-start-column="50" selection-end-line="1095" selection-end-column="50" />
           <folding>
             <element signature="e#0#68#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/memex-CP4/SparqlTranslator.py">
+    <entry file="file://$PROJECT_DIR$/memex-CP4/ResultExtractors.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34157652">
-          <caret line="82" column="60" selection-start-line="82" selection-start-column="60" selection-end-line="82" selection-end-column="60" />
-          <folding>
-            <element signature="e#0#73#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.0">
+          <caret line="145" column="33" selection-start-line="145" selection-start-column="33" selection-end-line="145" selection-end-column="33" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/memex-CP4/MappingTable.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.53125">
+          <caret line="153" column="66" selection-start-line="153" selection-start-column="66" selection-end-line="153" selection-end-column="66" />
+          <folding />
         </state>
       </provider>
     </entry>

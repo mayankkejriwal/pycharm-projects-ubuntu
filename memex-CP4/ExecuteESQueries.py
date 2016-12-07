@@ -1003,11 +1003,11 @@ class ExecuteESQueries:
         embedding_training_folder = 'embedding_training_files/'
         embedding_training_file = 'lrr_unigram-v2.json'
         ads_table_file = 'adsTable-v3.jl'
-        # url_localhost = "http://memex:digdig@52.36.12.77:8080/"
-        url_localhost = "http://10.1.94.103:9201/"
+        url_localhost = "http://memex:digdig@52.36.12.77:8080/"
+        # url_localhost = "http://10.1.94.103:9201/"
         # index = 'dig-nov-eval-gt-04'
-        index = 'dig-nov-eval-nyu-01'
-        parsed_query_file = 'parsed-queries/aggregate-queries-parsed.json'
+        index = 'dig-nov-eval-gt-04'
+        parsed_query_file = 'parsed-queries/PF-queries-parsed.json'
         ads_table_file = root_path +  ads_table_file
         parsed_query_file = root_path + parsed_query_file
         output_folder = 'nyu-aggregate/'
@@ -1035,8 +1035,8 @@ class ExecuteESQueries:
         # if something goes wrong, you'll know where in the list it occurred
         for k in range(0, len(parsed_PF_queries)):
             # print k
-            # if parsed_PF_queries[k]['id'] != "94-2":
-            #     continue
+            if parsed_PF_queries[k]['id'] != "724-1":
+                continue
             sparql_query = parsed_PF_queries[k]['SPARQL']
             print 'processing query...',
             print parsed_PF_queries[k]['id']
@@ -1045,7 +1045,7 @@ class ExecuteESQueries:
                 continue
 
             pp = pprint.PrettyPrinter(indent=4)
-            # pp.pprint(sparql_query)
+            pp.pprint(sparql_query)
             query = dict()
             translatedDS = SparqlTranslator.SparqlTranslator.translateToDisMaxQuery(sparql_query, ads_table_file, False)
             # query['query'] = TableFunctions.build_match_all_query()
@@ -1069,7 +1069,7 @@ class ExecuteESQueries:
             # out.close()
             try:
 
-                retrieved_frames = es.search(index=index, doc_type='ads', size=150, body=query)
+                retrieved_frames = es.search(index=index, doc_type='ads', size=100, body=query)
             except:
                 pass
             if not retrieved_frames['hits']['hits']:
@@ -1085,10 +1085,10 @@ class ExecuteESQueries:
                     bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
 
                     # everything gets written out to a folder
-                    output_file = root_path + output_folder + str(parsed_PF_queries[k]['id'])
-                    file = codecs.open(output_file, 'w', 'utf-8')
-                    json.dump(bindings_dict, file)
-                    file.close()
+                    # output_file = root_path + output_folder + str(parsed_PF_queries[k]['id'])
+                    # file = codecs.open(output_file, 'w', 'utf-8')
+                    # json.dump(bindings_dict, file)
+                    # file.close()
             # break
 
 # root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'

@@ -206,7 +206,7 @@ def build_phone_or_email_match_clause(field, string):
         return build_phone_match_clause(field, string)
 
 
-def build_phone_match_clause(field, string):
+def build_phone_match_clause(field, string, boost=100):
     """
     Meant for phone field Best demonstrated by example. Suppose field = 'phone' and string = '512-435-4444',
     the function will return a dictionary d:
@@ -226,10 +226,11 @@ def build_phone_match_clause(field, string):
     if 'raw' in field:  # no further processing; since this is not analyzed
         tmp[field] = dict()
         tmp[field]['query'] = string1
-        tmp[field]['boost'] = 3.0
+        tmp[field]['boost'] = boost
         answer['match'] = tmp
         return answer
     candidates = list()
+    candidates.append(string1)
     if 'tokens' in field and '000' in string1 and len(string1)==10: # we do not extract this, so we need to do this
         k = string1[0:3]+' '+string1[3:6]+' '+string[6:]
         candidates.append(k)
@@ -240,14 +241,14 @@ def build_phone_match_clause(field, string):
         answer['match'] = tmp
         return answer
     # not tokens, we proceed now on a stricter basis
-    candidates.append(string1)
+
     if len(string1) > 10:
         candidates.append(string1[2:])
     if SparqlTranslator.SparqlTranslator._strip_initial_zeros(string1) != string1:
         candidates.append(SparqlTranslator.SparqlTranslator._strip_initial_zeros(string1))
     tmp[field] = dict()
     tmp[field]['query'] = ' '.join(candidates)
-    tmp[field]['boost'] = 3.0
+    tmp[field]['boost'] = boost
     answer['match'] = tmp
     return answer
 
@@ -261,7 +262,7 @@ def build_email_match_clause(field, string):
     tmp = {}
     tmp[field] = dict()
     tmp[field]['query'] = string
-    tmp[field]['boost'] = 3.0
+    tmp[field]['boost'] = 30.0
     tmp[field]['operator'] = 'and'
     answer['match'] = tmp
     return answer
