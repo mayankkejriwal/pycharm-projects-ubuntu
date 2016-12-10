@@ -1094,7 +1094,7 @@ class ExecuteESQueries:
 # root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
 # classifiers = ExecuteESQueries.train_embedding_classifiers(root_path + 'embedding_training_files/',
 #                                                                        root_path + 'unigram-part-00000-v2.json')
-ExecuteESQueries.November_2016_pre_execution2()
+# ExecuteESQueries.November_2016_pre_execution2()
 # ExecuteESQueries.test_ES_index()
 # ExecuteESQueries._current_trial()
 # path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
