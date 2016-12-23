@@ -1,6 +1,6 @@
 import codecs
 import re
-import json
+import math
 
 def extract_latitude_longitude(geonames_KB, output_file):
     lat_long_dict = dict()
@@ -86,9 +86,250 @@ def prune_lat_long_file(populated_places, lat_long_file, output_file):
     out.close()
 
 
+def write_out_haversine_weights(location, list_of_locations, out):
+    lat1 = location[1]
+    long1 = location[2]
+    dist_dict = dict()
+    for l in list_of_locations:
+        lat2 = l[1]
+        long2 = l[2]
+        R = 6371000 # in meters, radius of the earth
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        del_phi = math.radians(lat2-lat1)
+        del_lambda = math.radians(long2-long1)
+        a = math.sin(del_phi/2)*math.sin(del_phi/2)+\
+            math.cos(phi1)*math.cos(phi2)*math.sin(del_lambda/2)*math.sin(del_lambda/2)
+        c = 2*math.atan2(math.sqrt(a),math.sqrt(1-a))
+        dist = int(math.ceil((R*c)/1000)) # compute the haversine distance between l and lat1, long1
+        dist_dict[l[0]] = dist
+    string = location[0]
+    for k, v in dist_dict.items():
+        string += ('\t'+k+'\t'+str(v))
+    out.write(string+'\n')
 
 
-path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
+def compute_location_weights(sorted_list_file, output_file, limit=50):
+    big_list = list()
+    with codecs.open(sorted_list_file, 'r', 'utf-8') as f:
+        for line in f:
+            tmp = list()
+            fields = re.split('\t', line[0:-1])
+            tmp.append(fields[0])
+            tmp.append(float(fields[1][1:-1]))
+            tmp.append(float(fields[2][1:-1]))
+            big_list.append(tmp)
+    print 'finished reading in the sorted list file...'
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for i in range(0, len(big_list)-1):
+        write_out_haversine_weights(big_list[i], big_list[i+1:i+limit], out)
+    out.close()
+
+
+def _test_haversine():
+    lat1 = -77.846
+    long1 = 166.676
+    lat2 = -63.3209
+    long2 = -57.89956
+    R = 6371000  # in meters, radius of the earth
+    phi1 = math.radians(lat1)
+    print phi1
+    phi2 = math.radians(lat2)
+    print phi2
+    del_phi = math.radians(lat2 - lat1)
+    del_lambda = math.radians(long2 - long1)
+    a = math.sin(del_phi / 2) * math.sin(del_phi / 2) + \
+        math.cos(phi1) * math.cos(phi2) * math.sin(del_lambda / 2) * math.sin(del_lambda / 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    dist = R * c  # compute the haversine distance between l and lat1, long1
+    print int(math.ceil(dist / 1000))
+
+
+def sort_dist_file_by_name(dist_file, output_file):
+    line_dict = dict()
+    with codecs.open(dist_file, 'r', 'utf-8') as f:
+        for line in f:
+            line_dict[re.split('\t',line[0:-1])[0]] = line
+    places = line_dict.keys()
+    places.sort()
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for p in places:
+        out.write(line_dict[p])
+    out.close()
+
+
+def merge_fields_into_single_line(lat_fields, long_fields):
+    tmp_dict = dict()
+    for i in range(1, len(lat_fields), 2):
+        tmp_dict[lat_fields[i]] = lat_fields[i+1]
+    for i in range(1, len(long_fields), 2):
+        if long_fields[i] not in tmp_dict:
+            tmp_dict[long_fields[i]] = long_fields[i+1]
+    string = lat_fields[0]
+    for k, v in tmp_dict.items():
+        string += ('\t'+k+'\t'+v)
+    return string+'\n'
+
+
+def merge_lat_long_dist_files(lat_file, long_file, output_file):
+    merged_dict = dict()
+    with codecs.open(lat_file, 'r', 'utf-8') as f:
+        for line in f:
+            merged_dict[re.split('\t', line[0:-1])[0]]=re.split('\t', line[0:-1])
+    print 'finished reading in latitude file...'
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(long_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            if fields[0] not in merged_dict:
+                out.write(line)
+            else:
+                out.write(merge_fields_into_single_line(merged_dict[fields[0]],fields))
+    # print 'finished building merge dict...'
+
+    # places = merged_dict.keys()
+    # places.sort()
+    # for p in places:
+    #     out.write(merged_dict[p])
+    out.close()
+
+
+def map_populated_places(populated_places, output_file):
+    out = codecs.open(output_file, 'w', 'utf-8')
+    count = 1
+    with codecs.open(populated_places, 'r', 'utf-8') as f:
+        for line in f:
+            out.write(line[0:-1]+'\t'+str(count)+'\n')
+            count += 1
+    out.close()
+
+def map_merged_dist_file(mapped_populated_places, merged_dist, output_file):
+    mapped_dict = dict()
+    with codecs.open(mapped_populated_places, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            mapped_dict[fields[0]] = int(fields[1])
+    print 'finished reading in mapped_dict...'
+    count = 1
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(merged_dist, 'r', 'utf-8') as f:
+        for line in f:
+            try:
+                fields = re.split('\t', line[0:-1])
+                fields[0] = int(mapped_dict[fields[0]])
+                for i in range(1, len(fields)-1, 2):
+                    fields[i] = int(mapped_dict[fields[i]])
+                string = str(fields[0])
+                for i in range(1, len(fields)):
+                    string += ('\t' + str(fields[i]))
+                string = string + '\n'
+                out.write(string)
+                count += 1
+            except Exception as e:
+                print e
+                print 'in line...',str(count)
+                break
+    out.close()
+
+def correct_mapped_merged_file(mapped_merged_file, output_file):
+    """
+    Written because of a bug in the output of map_merged_dist_file which has since been
+    corrected
+    :param mapped_merged_file:
+    :param output_file:
+    :return:
+    """
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(mapped_merged_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            string = fields[0]
+            for field in fields[2:]:
+                string += ('\t' + field)
+            string += '\n'
+            out.write(string)
+    out.close()
+
+
+def get_population_file(populated_places, geonames_KB, output_file):
+    list_pop_places = list()
+    with codecs.open(populated_places, 'r', 'utf-8') as f:
+        for line in f:
+            list_pop_places.append(line[0:-1])
+    set_pop_places = set(list_pop_places)
+    count = 1
+    populations = dict()
+    with codecs.open(geonames_KB, 'r', 'utf-8') as f:
+        for line in f:
+            count += 1
+            if count % 50000 == 0:
+                print 'processing line...', count
+            # if count > 100:
+            #     break
+            fields = re.split('\t', line[0:-1])
+            if fields[1] != '<population>':
+                continue
+            if fields[0] not in set_pop_places:
+                continue
+            populations[fields[0]] = int(fields[2][1:-1])
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for place in list_pop_places:
+        out.write(place+'\t'+str(populations[place])+'\n')
+    out.close()
+
+
+def prune_merged_dist(merged_dist, populated_places_population, mapped_populated_places, output_file):
+    """
+    The goal is to prune merged dist so that it only contains 'nodes' that have non zero
+    population
+    :param merged_dist:
+    :param populated_places_population:
+    :return:
+    """
+    set_places = set()
+    place_ints = set()
+    with codecs.open(populated_places_population, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            if int(fields[1]) > 0:
+                set_places.add(fields[0])
+    with codecs.open(mapped_populated_places, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            if fields[0] in set_places:
+                place_ints.add(int(fields[1]))
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(merged_dist, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            if int(fields[0]) not in place_ints:
+                continue
+            string = fields[0]
+            flag = False
+            for i in range(1, len(fields)-1, 2):
+                if int(fields[i]) in place_ints:
+                    flag = True
+                    string += ('\t'+fields[i]+'\t'+fields[i+1])
+            if flag == True:
+                string += '\n'
+                out.write(string)
+
+    out.close()
+
+
+
+
+# path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
+# prune_merged_dist(path+'mapped_merged_dist.tsv',path+'populated_places_populations.tsv',
+#                   path+'mapped_populated_places.txt', path+'pruned_mapped_merged_dist.tsv')
+# get_population_file(path+'populated_places.txt',path+'KB_geonames.nt',path+'populated_places_populations.tsv')
+# correct_mapped_merged_file(path+'mapped_merged_dist.tsv',path+'mapped_merged_dist_2.tsv')
+# map_merged_dist_file(path+'mapped_populated_places.txt',path+'merged_dist.tsv',
+#                      path+'mapped_merged_dist.tsv')
+# map_populated_places(path+'populated_places.txt', path+'mapped_populated_places.txt')
+# merge_lat_long_dist_files(path+'lat_dist_sortedByKey.tsv',path+'long_dist_sortedByKey.tsv', path+'merged_dist.tsv')
+# sort_dist_file_by_name(path+'lat_sorted_dist.tsv', path+'lat_dist_sortedByKey.tsv')
+# compute_location_weights(path+'geonames_long_sorted_pruned.tsv', path+'long_sorted_dist.tsv')
 # prune_lat_long_file(path+'populated_places.txt', path+'geonames_lat_sorted.tsv',
 #                     path+'geonames_lat_sorted_pruned.tsv')
 # isolate_cities_villages(path+'KB_geonames.nt', path+'populated_places.txt')
