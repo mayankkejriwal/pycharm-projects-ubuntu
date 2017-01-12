@@ -74,7 +74,7 @@ def build_match_clause_with_keyword_expansion(field, string):
     We will identify the field, use the string to get another string, then embed that string into
     an ordinary match clause. The path to the keyword-expansion dictionaries is hard-coded.
     """
-    keyword_file_path = '/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/expanded-dictionaries.json'
+    keyword_file_path = '/Users/mayankkejriwal/datasets/memex/nov-2016/expanded-dictionaries.json'
     keyword_dict = _read_in_keyword_file(keyword_file_path)
     answer = {}
     tmp = {}
@@ -128,7 +128,7 @@ def build_match_clause_inner_with_keyword_expansion(field, string):
     We will identify the field, use the string to get another string, then embed that string into
     an ordinary match clause. The path to the keyword-expansion dictionaries is hard-coded.
     """
-    keyword_file_path = '/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/expanded-dictionaries.json'
+    keyword_file_path = '/Users/mayankkejriwal/datasets/memex/nov-2016/expanded-dictionaries.json'
     keyword_dict = _read_in_keyword_file(keyword_file_path)
     answer = {}
     tmp = {}

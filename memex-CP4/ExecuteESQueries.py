@@ -999,7 +999,7 @@ class ExecuteESQueries:
         all constraints to the text props and make everything optional (a simple version of the IR strategy).
         :return: None
         """
-        root_path = '/home/mayankkejriwal/Downloads/memex-cp2/nov-2016/'
+        root_path = '/Users/mayankkejriwal/datasets/memex/nov-2016/'
         embedding_training_folder = 'embedding_training_files/'
         embedding_training_file = 'lrr_unigram-v2.json'
         ads_table_file = 'adsTable-v3.jl'
@@ -1010,7 +1010,7 @@ class ExecuteESQueries:
         parsed_query_file = 'parsed-queries/PF-queries-parsed.json'
         ads_table_file = root_path +  ads_table_file
         parsed_query_file = root_path + parsed_query_file
-        output_folder = 'nyu-aggregate/'
+        output_folder = 'output-folder-3/'
         # set use_embeddings to True if you want to use Rahul's code. You can replace the unigram file with a different
         # one if it improves performance (e.g. lrr, hrr, ground-truth etc.)
         #the function name is a complete misnomer. We must call it for Majid's code.
@@ -1035,8 +1035,8 @@ class ExecuteESQueries:
         # if something goes wrong, you'll know where in the list it occurred
         for k in range(0, len(parsed_PF_queries)):
             # print k
-            if parsed_PF_queries[k]['id'] != "724-1":
-                continue
+            # if parsed_PF_queries[k]['id'] != "724-1":
+            #     continue
             sparql_query = parsed_PF_queries[k]['SPARQL']
             print 'processing query...',
             print parsed_PF_queries[k]['id']
@@ -1079,22 +1079,22 @@ class ExecuteESQueries:
                 results = ResultExtractors.ResultExtractors.standard_extractor(retrieved_frames, translatedDS,
                                                                                sparql_query, classifier_dict=classifiers)
                 if results:
-                    # print 'Top retrieved result is :'
-                    # pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
+                    print 'Top retrieved result is :'
+                    pp.pprint(retrieved_frames['hits']['hits'][0]['_source'])
 
                     bindings_dict = (ExecuteESQueries._wrap_results_isd_format(results, k))
 
                     # everything gets written out to a folder
-                    # output_file = root_path + output_folder + str(parsed_PF_queries[k]['id'])
-                    # file = codecs.open(output_file, 'w', 'utf-8')
-                    # json.dump(bindings_dict, file)
-                    # file.close()
+                    output_file = root_path + output_folder + str(parsed_PF_queries[k]['id'])
+                    file = codecs.open(output_file, 'w', 'utf-8')
+                    json.dump(bindings_dict, file)
+                    file.close()
             # break
 
 # root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
 # classifiers = ExecuteESQueries.train_embedding_classifiers(root_path + 'embedding_training_files/',
 #                                                                        root_path + 'unigram-part-00000-v2.json')
-# ExecuteESQueries.November_2016_pre_execution2()
+ExecuteESQueries.November_2016_pre_execution2()
 # ExecuteESQueries.test_ES_index()
 # ExecuteESQueries._current_trial()
 # path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
