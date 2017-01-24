@@ -251,6 +251,50 @@ def correct_mapped_merged_file(mapped_merged_file, output_file):
     out.close()
 
 
+def get_countries_file(populated_file, geonames_KB, output_file):
+    """
+    Outputs tab-delimited lines with the populated place and the country code
+    :param populated_file: the output of get_population_file
+    :param geonames_KB:
+    :param output_file:
+    :return:
+    """
+    set_pop_places = set()
+    with codecs.open(populated_file, 'r', 'utf-8') as f:
+        for line in f:
+            set_pop_places.add(re.split('\t', line[0:-1])[0])
+    out = codecs.open(output_file, 'w', 'utf-8')
+    count = 1
+    with codecs.open(geonames_KB, 'r', 'utf-8') as f:
+        for line in f:
+            count += 1
+            if count % 50000 == 0:
+                print 'processing line...', count
+            # if count > 100:
+            #     break
+            fields = re.split('\t', line[0:-1])
+            if fields[1] != '<country_code>':
+                continue
+            if fields[0] not in set_pop_places:
+                continue
+            out.write(fields[0] + '\t' + str(fields[2]) + '\n')
+    out.close()
+
+def get_countries_file_counts(countries_file, statistics_file):
+    countries_dict = dict()
+    with codecs.open(countries_file, 'r', 'utf-8') as f:
+        for line in f:
+            country_code = re.split('\t', line[0:-1])[1]
+            if country_code not in countries_dict:
+                countries_dict[country_code] = 0
+            else:
+                countries_dict[country_code] += 1
+    out = codecs.open(statistics_file, 'w', 'utf-8')
+    for k, v in countries_dict.items():
+        out.write(k + '\t' + str(v) + '\n')
+    out.close()
+
+
 def get_population_file(populated_places, geonames_KB, output_file):
     list_pop_places = list()
     with codecs.open(populated_places, 'r', 'utf-8') as f:
@@ -322,6 +366,7 @@ def prune_merged_dist(merged_dist, populated_places_population, mapped_populated
 # path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
 # prune_merged_dist(path+'mapped_merged_dist.tsv',path+'populated_places_populations.tsv',
 #                   path+'mapped_populated_places.txt', path+'pruned_mapped_merged_dist.tsv')
+# get_countries_file_counts(path+'populated_places_countries.tsv', path+'populated_places_countries_counts.tsv')
 # get_population_file(path+'populated_places.txt',path+'KB_geonames.nt',path+'populated_places_populations.tsv')
 # correct_mapped_merged_file(path+'mapped_merged_dist.tsv',path+'mapped_merged_dist_2.tsv')
 # map_merged_dist_file(path+'mapped_populated_places.txt',path+'merged_dist.tsv',
