@@ -1,6 +1,7 @@
 import codecs
 import re
 import math
+from DeriveProbabilityDistributions import *
 
 def extract_latitude_longitude(geonames_KB, output_file):
     lat_long_dict = dict()
@@ -287,8 +288,7 @@ def get_countries_file_counts(countries_file, statistics_file):
             country_code = re.split('\t', line[0:-1])[1]
             if country_code not in countries_dict:
                 countries_dict[country_code] = 0
-            else:
-                countries_dict[country_code] += 1
+            countries_dict[country_code] += 1
     out = codecs.open(statistics_file, 'w', 'utf-8')
     for k, v in countries_dict.items():
         out.write(k + '\t' + str(v) + '\n')
@@ -361,9 +361,74 @@ def prune_merged_dist(merged_dist, populated_places_population, mapped_populated
     out.close()
 
 
+def get_country_integer_nodes(mapped_countries_file, mapped_file, country_codes=set(['<FR>','<AU>','<GM>'])):
+    set_pop_places = set()
+    integer_nodes = set()
+    with codecs.open(mapped_countries_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t',line[0:-1])
+            if fields[1] in country_codes:
+                set_pop_places.add(fields[0])
+    with codecs.open(mapped_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t',line[0:-1])
+            if fields[0] in set_pop_places:
+                integer_nodes.add(int(fields[1]))
+    print 'got num. integer nodes',str(len(integer_nodes))
+    return integer_nodes
+
+
+def read_weighted_adj_graph(adj_graph_file):
+    """
+
+    :param adj_graph_file:
+    :return: The output is a dictionary, where the key is an int, and the value is a list with two elements (both lists)
+    the first being a list of ints, the second being a list of floats, repr. a probability distribution over the first list.
+    """
+    weighted_dict = dict()
+    with codecs.open(adj_graph_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            list1 = list()
+            list2 = list()
+            for i in range(1, len(fields), 2):
+                list1.append(int(fields[i]))
+                list2.append(float(fields[i+1]))
+            biglist = list()
+            biglist.append(list1)
+            biglist.append(list2)
+            weighted_dict[int(fields[0])] = biglist
+    return weighted_dict
+
+
+def build_weighted_adj_graph_v1(dist_file, output_file):
+    """
+    v1 because of the specific weighting scheme we use. First, I do max(e, dist) and then take the natural log.
+    The inverse of the natural log becomes the unnormalized weight. We do an l1 norm to ensure a probability distr.
+    For engineering capabilities, I am writing out these probability distr. derivations in a separate file.
+    :param dist_file:
+    :param output_file:
+    :return:
+    """
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(dist_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            edge_dict = dict()
+            for i in range(1, len(fields), 2):
+                edge_dict[fields[i]] = int(fields[i+1])
+            inverse_log_max(edge_dict) # modifies edge_dict
+            write_string = fields[0]
+            for k, v in edge_dict.items():
+                write_string += ('\t'+k+'\t'+str(v))
+            out.write(write_string)
+            out.write('\n')
+    out.close()
 
 
 # path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
+# build_weighted_adj_graph_v1(path+'pruned_mapped_merged_dist.tsv', path+'prob_adjacency_file_1.tsv')
+# integer_nodes = get_country_integer_nodes(path+'populated_places_countries.tsv',path+'mapped_populated_places.txt')
 # prune_merged_dist(path+'mapped_merged_dist.tsv',path+'populated_places_populations.tsv',
 #                   path+'mapped_populated_places.txt', path+'pruned_mapped_merged_dist.tsv')
 # get_countries_file_counts(path+'populated_places_countries.tsv', path+'populated_places_countries_counts.tsv')
