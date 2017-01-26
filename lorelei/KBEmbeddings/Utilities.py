@@ -2,6 +2,7 @@ from rdflib import Graph
 from rdflib.term import Literal, URIRef
 import codecs
 import json
+import re
 
 def parse_line_into_triple(line):
         """
@@ -33,6 +34,19 @@ def read_in_random_walks_as_sentences(random_walk_jl):
             sentence = list()
             for i in json.loads(line).values()[0]:
                 sentence.append(unicode(i))
+            sentences.append(sentence)
+    return sentences
+
+def serialize_text_file_as_sentences(random_walk_txt):
+    """
+    Each line contains space delimited 'words'.
+    :param random_walk_txt:
+    :return:
+    """
+    sentences = list()
+    with codecs.open(random_walk_txt, 'r', 'utf-8') as f:
+        for line in f:
+            sentence = re.split(' ',line[0:-1])
             sentences.append(sentence)
     return sentences
 

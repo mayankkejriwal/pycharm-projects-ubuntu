@@ -362,12 +362,21 @@ def prune_merged_dist(merged_dist, populated_places_population, mapped_populated
 
 
 def get_country_integer_nodes(mapped_countries_file, mapped_file, country_codes=set(['<FR>','<AU>','<GM>'])):
+    """
+    if country codes is None, we will get all integer nodes in the graph
+    :param mapped_countries_file:
+    :param mapped_file:
+    :param country_codes:
+    :return:
+    """
     set_pop_places = set()
     integer_nodes = set()
     with codecs.open(mapped_countries_file, 'r', 'utf-8') as f:
         for line in f:
             fields = re.split('\t',line[0:-1])
-            if fields[1] in country_codes:
+            if not country_codes:
+                set_pop_places.add(fields[0])
+            elif fields[1] in country_codes:
                 set_pop_places.add(fields[0])
     with codecs.open(mapped_file, 'r', 'utf-8') as f:
         for line in f:
@@ -426,7 +435,7 @@ def build_weighted_adj_graph_v1(dist_file, output_file):
     out.close()
 
 
-# path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
+path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
 # build_weighted_adj_graph_v1(path+'pruned_mapped_merged_dist.tsv', path+'prob_adjacency_file_1.tsv')
 # integer_nodes = get_country_integer_nodes(path+'populated_places_countries.tsv',path+'mapped_populated_places.txt')
 # prune_merged_dist(path+'mapped_merged_dist.tsv',path+'populated_places_populations.tsv',
