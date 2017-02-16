@@ -10,6 +10,35 @@ class Analysis:
 
 
     @staticmethod
+    def countNumUniqueWordsInEbolaWordClouds(ebolaNonCondensed):
+        wordCloud = set()
+        # count = 1
+        with codecs.open(ebolaNonCondensed, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                if 'loreleiJSONMapping' in obj and 'wordcloud' in obj['loreleiJSONMapping']:
+                    k = set(obj['loreleiJSONMapping']['wordcloud'])
+                    for element in k:
+                        wordCloud.add(element)
+                        # wordCloud.add(element.lower())
+        print len(wordCloud)
+
+    @staticmethod
+    def countNumUniqueEntitiesInEbola(ebolaNonCondensed):
+        entities = set()
+        # count = 1
+        with codecs.open(ebolaNonCondensed, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                if 'situationFrame' in obj and 'entities' in obj['situationFrame'] and \
+                        obj['situationFrame']['entities'] is not None:
+                    k = set(obj['situationFrame']['entities'])
+                    for element in k:
+                        entities.add(element)
+                        # wordCloud.add(element.lower())
+        print len(entities)
+
+    @staticmethod
     def countNumUniqueWordsInRWPWordClouds(RWPDir):
         """
         At present, I will print out number of unique words in the wordcloud (without
@@ -133,7 +162,8 @@ class Analysis:
 
 
 # Analysis.countNumUniqueWordsInRWPWordClouds('/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed/')
-# path = '/home/mayankkejriwal/Downloads/lorelei/ebola_data/'
+# path = '/Users/mayankkejriwal/datasets/lorelei/ebola/'
+# Analysis.countNumUniqueEntitiesInEbola(path+'ebolaData-nonCondensed.jl')
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/'
 # Analysis.statistics_enriched_dataset(RWP_path+'enriched-entities.json')
 # Analysis.find_seeds_in_ebola_data(path+'data/ebola-new-condensed.json', path+'19validationresults-uuids.txt')

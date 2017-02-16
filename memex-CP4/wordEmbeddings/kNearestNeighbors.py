@@ -287,7 +287,8 @@ def supplement_dictionary_v0(dictionary_file, embeddings_file, k=20):
 # path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'
 # tmp_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/'
 # RWP_path = '/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/lorelei/reliefWebProcessed-prepped/embedding/'
-# find_k_nearest_neighbors_multi(bioInfoPath+'mgiIntact_unigram-v2.jl', ['requirement', 'metabolic', 'acid'], suppress_print=False)
+# find_k_nearest_neighbors_multi(www_path+'unigram-v2-10000docs.json', ['open-minded', 'florida', 'green'], suppress_print=False)
+# find_k_nearest_neighbors_multi(www_path+'unigram-v2-all.json', ['open-minded', 'florida', 'green'], suppress_print=False)
 # find_k_nearest_neighbors_multi(bioInfoPath+'mgiIntact_docEmbeddings.jl', ['1', '2', '-1', '-2'], suppress_print=False)
 # find_k_nearest_neighbors_multi(companiesTextPath+'result-unigram-v2.jl', ['corporate', 'brand', 'beer'], suppress_print=False)
 # find_k_nearest_neighbors_multi(eswc_path+'RIclassEmbeddings-v1-normSum.jl',
