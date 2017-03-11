@@ -611,6 +611,67 @@ class TokenSupervised:
         # print new_data
         return np.append(list_of_vectors, new_data, axis=0)
 
+    @staticmethod
+    def _prepare_train_test_data_separate(pos_neg_train_file, pos_neg_test_file, balanced_training=True):
+        """
+
+        :param pos_neg_file:
+        :param train_percent:
+        :param randomize: If true, we'll randomize the data we're reading in from pos_neg_file. Otherwise, the initial
+        train_percent fraction goes into the training data and the rest of it in the test data
+        :param balanced_training: if True, we will equalize positive and negative training samples by oversampling
+        the lesser class. For example, if we have 4 positive samples and 7 negative samples, we will randomly re-sample
+        3 positive samples from the 4 positive samples, meaning there will be repetition. Use with caution.
+        :param data_vectors: this should be set if pos_neg_file is None. It is mostly for internal uses, so
+        that we can re-use this function by invoking it from some of the other _prepare_ files.
+        :return: dictionary containing training/testing data/labels
+        """
+        train = TokenSupervised._prepare_for_ML_classification(pos_neg_train_file)
+        test = TokenSupervised._prepare_for_ML_classification(pos_neg_test_file)
+
+        train_pos_num = len(train[1])
+        train_neg_num = len(train[0])
+        train_data_pos = train[1][0:train_pos_num]
+        train_data_neg = train[0][0:train_neg_num]
+
+        test_pos_num = len(test[1])
+        test_neg_num = len(test[0])
+        test_data_pos = test[1][0:test_pos_num]
+        test_data_neg = test[0][0:test_neg_num]
+        test_labels_pos = [[1] * test_pos_num]
+        test_labels_neg = [[0] * test_neg_num]
+
+        if balanced_training:
+            if train_pos_num < train_neg_num:
+                train_labels_pos = [[1] * train_neg_num]
+                train_labels_neg = [[0] * train_neg_num]
+                train_data_pos = TokenSupervised._sample_and_extend(train_data_pos, total_samples=train_neg_num)
+            elif train_pos_num > train_neg_num:
+                train_labels_pos = [[1] * train_pos_num]
+                train_labels_neg = [[0] * train_pos_num]
+                train_data_neg = TokenSupervised._sample_and_extend(train_data_neg, total_samples=train_pos_num)
+            else:
+                train_labels_pos = [[1] * train_pos_num]
+                train_labels_neg = [[0] * train_neg_num]
+        else:
+            train_labels_pos = [[1] * train_pos_num]
+            train_labels_neg = [[0] * train_neg_num]
+
+        # print len(train_data_pos)
+        # print len(train_data_neg)
+        train_data = np.append(train_data_pos, train_data_neg, axis=0)
+        test_data = np.append(test_data_pos, test_data_neg, axis=0)
+        train_labels = np.append(train_labels_pos, train_labels_neg)
+        test_labels = np.append(test_labels_pos, test_labels_neg)
+
+        results = dict()
+        results['train_data'] = train_data
+        results['train_labels'] = train_labels
+        results['test_data'] = test_data
+        results['test_labels'] = test_labels
+
+        return results
+
 
     @staticmethod
     def _prepare_train_test_data(pos_neg_file, train_percent = 0.3, randomize=True, balanced_training=True,
@@ -1043,6 +1104,32 @@ class TokenSupervised:
 
         return results
 
+    @staticmethod
+    def trial_script_train_test_binary(pos_neg_train, pos_neg_test, opt=2):
+        """
+
+        :param pos_neg_file: e.g. token-supervised/pos-neg-eyeColor.txt
+        :param opt:use this to determine which script to run.
+        :return:
+        """
+        if opt == 1:
+            # Test Set 1: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
+            # We do NOT do any kind of feature selection.
+
+            data_dict = TokenSupervised._prepare_train_test_data_separate(pos_neg_train, pos_neg_test)
+            # print data_dict['train_labels'][0]
+            data_dict['classifier_model'] = 'knn'
+            results = TokenSupervised._train_and_test_classifier(**data_dict)
+        elif opt == 2:
+            # Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
+            # We do feature selection.
+            data_dict = TokenSupervised._prepare_train_test_data_separate(pos_neg_train, pos_neg_test)
+            TokenSupervised._select_k_best_features(data_dict, k=20)
+            data_dict['classifier_model'] = 'random_forest'
+            results = TokenSupervised._train_and_test_classifier(**data_dict)
+
+        return results
+
 
     @staticmethod
     def trial_script_www(pos_neg_file, csv_file):
@@ -1069,7 +1156,58 @@ class TokenSupervised:
         out.close()
 
 
+    @staticmethod
+    def trial_script_1_FEIII17(pos_neg_train, pos_neg_test, return_string=False):
+        """
+
+        """
+
+        results = TokenSupervised.trial_script_train_test_binary(pos_neg_train, pos_neg_test)
+        if return_string:
+            return str(results[0]) + ',' + str(results[1]) + ',' + str(results[2]) + '\n'
+        else:
+            print 'Precision,Recall,F1-Measure'
+            print str(results[0]) + ',' + str(results[1]) + ',' + str(results[2]) + '\n'
+
+
+    @staticmethod
+    def trial_script_2_FEIII17(pos_neg_train_folder, pos_neg_test_folder, output_file, singular_flag=True):
+        """
+
+        """
+        plural = ['underwriters', 'insurers', 'servicers', 'affiliates', 'guarantors', 'sellers', 'trustees', 'agents',
+                  'counterparties', 'issuers']
+        singular = ['underwriter', 'insurer', 'servicer', 'affiliate', 'guarantor', 'seller', 'trustee', 'agent',
+                    'counterparty', 'issuer']
+
+        if singular_flag:
+            file_array = singular
+        else:
+            file_array = singular + plural
+
+        out = codecs.open(output_file, 'w', 'utf-8')
+        out.write('Role,Precision,Recall,F1-Measure\n')
+
+        for f in file_array:
+            try:
+                val = f+','+TokenSupervised.trial_script_1_FEIII17(pos_neg_train_folder+f+'.tsv',pos_neg_test_folder+f+'.tsv',True)
+                out.write(val)
+            except Exception as e:
+                print f
+                print e
+                continue
+
+        out.close()
+        # print 'Precision,Recall,F1-Measure'
+        # results = TokenSupervised.trial_script_train_test_binary(pos_neg_train, pos_neg_test)
+        # print str(results[0]) + ',' + str(results[1]) + ',' + str(results[2]) + '\n'
+
+
 # path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/annotated-cities/'
+# outer_path = '/Users/mayankkejriwal/datasets/FEIII17/dec-16-data/FEIIIY2_csv/'
+# path = outer_path+'Training/partitions-by-role-singular/90-10/'
+# TokenSupervised.trial_script_2_FEIII17(path+'train-pos-neg/', path+'test-pos-neg/',outer_path+'singular-90-10-training-only.csv',True)
+# TokenSupervised.trial_script_1_FEIII17(path+'all-singular_train_raw_training.tsv',path+'all-singular_test_raw_training.tsv')
 # TokenSupervised.prep_annotated_files_for_word2vec_classification(path+'annotated_states.txt', path+'correct_states.txt'
 #                                                                  , path+'states_pos_neg.txt')
 # path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/Downloads/memex-cp4-october/'

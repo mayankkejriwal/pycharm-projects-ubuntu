@@ -812,11 +812,12 @@ class ExecuteESQueries:
 
 
     @staticmethod
-    def test_ES_index(host="https://10.1.94.103:9201/", index = 'dig-nov-eval-gt-02'):
-        es = Elasticsearch(host)
+    def test_ES_index(host="http://ec2-52-42-169-124.us-west-2.compute.amazonaws.com/es/", index = None):
+        es = Elasticsearch(host, http_auth=('effect','c@use!23'))
         query = dict()
         query['query'] = TableFunctions.build_match_all_query()
-        retrieved_frames = es.search(index=index, size=10, body=query)
+        retrieved_frames = es.search(size=10, body=query)
+        # retrieved_frames = es.search(index=index, size=10, body=query)
         print retrieved_frames
 
     @staticmethod
@@ -1094,6 +1095,7 @@ class ExecuteESQueries:
 # root_path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/'
 # classifiers = ExecuteESQueries.train_embedding_classifiers(root_path + 'embedding_training_files/',
 #                                                                        root_path + 'unigram-part-00000-v2.json')
+# ExecuteESQueries.test_ES_index()
 # ExecuteESQueries.November_2016_pre_execution2()
 # ExecuteESQueries.test_ES_index()
 # ExecuteESQueries._current_trial()

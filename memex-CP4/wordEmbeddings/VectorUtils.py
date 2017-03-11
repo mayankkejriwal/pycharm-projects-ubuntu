@@ -1,7 +1,4 @@
 # Use this module to do various things with vectors e.g. normalize them. We do not claim they are efficient.
-from sklearn.preprocessing import normalize
-import warnings
-
 
 def add_vectors(list_of_vectors):
     """

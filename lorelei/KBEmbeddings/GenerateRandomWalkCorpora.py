@@ -57,6 +57,6 @@ def generate_random_walk(list_of_nodes, graph, depth):
         generate_random_walk(list_of_nodes, graph, depth-1)
 
 
-path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
-integer_nodes = get_country_integer_nodes(path+'populated_places_countries.tsv',path+'mapped_populated_places.txt', None)
-generate_truncated_random_walks(integer_nodes, path+'prob_adjacency_file_1.tsv', path+'walks_trial3_adj_file_1.txt')
+# path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
+# integer_nodes = get_country_integer_nodes(path+'populated_places_countries.tsv',path+'mapped_populated_places.txt', None)
+# generate_truncated_random_walks(integer_nodes, path+'prob_adjacency_file_1.tsv', path+'walks_trial3_adj_file_1.txt')
