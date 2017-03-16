@@ -471,7 +471,7 @@ class TokenSupervised:
         return result
 
     @staticmethod
-    def _prepare_for_ML_classification(pos_neg_file):
+    def _prepare_for_ML_classification(pos_neg_file, normalize=False):
         """
         We need to read in embeddings
         :param pos_neg_file: The file generated in one of the preprocess_filtered_* files
@@ -493,8 +493,14 @@ class TokenSupervised:
                 else:
                     print 'error; label not recognized'
         # print np.matrix(pos_features)
-        result[0] = TokenSupervised._l2_norm_on_matrix(np.matrix(neg_features))
-        result[1] = TokenSupervised._l2_norm_on_matrix(np.matrix(pos_features))
+        if normalize == True:
+            result[0] = TokenSupervised._l2_norm_on_matrix(np.matrix(neg_features))
+            result[1] = TokenSupervised._l2_norm_on_matrix(np.matrix(pos_features))
+        else:
+            if len(pos_features) != 0:
+                result[1] = pos_features
+            if len(neg_features) != 0:
+                result[0] = neg_features
         return result
 
     @staticmethod
@@ -612,7 +618,16 @@ class TokenSupervised:
         return np.append(list_of_vectors, new_data, axis=0)
 
     @staticmethod
-    def _prepare_train_test_data_separate(pos_neg_train_file, pos_neg_test_file, balanced_training=True):
+    def get_pos_neg_ids(pos_neg_file):
+        result = list()
+        with codecs.open(pos_neg_file, 'r', 'utf-8') as f:
+            for line in f:
+                line = line[0:-1]
+                result.append(re.split('\t',line)[0])
+        return result
+
+    @staticmethod
+    def _prepare_train_test_data_separate(pos_neg_train_file, pos_neg_test_file, balanced_training=True, true_test=True):
         """
 
         :param pos_neg_file:
@@ -628,11 +643,14 @@ class TokenSupervised:
         """
         train = TokenSupervised._prepare_for_ML_classification(pos_neg_train_file)
         test = TokenSupervised._prepare_for_ML_classification(pos_neg_test_file)
-
+        test_ids = TokenSupervised.get_pos_neg_ids(pos_neg_test_file)
         train_pos_num = len(train[1])
         train_neg_num = len(train[0])
+
         train_data_pos = train[1][0:train_pos_num]
         train_data_neg = train[0][0:train_neg_num]
+
+
 
         test_pos_num = len(test[1])
         test_neg_num = len(test[0])
@@ -669,8 +687,61 @@ class TokenSupervised:
         results['train_labels'] = train_labels
         results['test_data'] = test_data
         results['test_labels'] = test_labels
+        results['test_ids'] = test_ids
 
         return results
+
+    @staticmethod
+    def _prepare_train_test_data_separate_unseen(pos_neg_train_file, pos_neg_test_file, balanced_training=True
+                                          ):
+        train = TokenSupervised._prepare_for_ML_classification(pos_neg_train_file)
+        test = TokenSupervised._prepare_for_ML_classification(pos_neg_test_file)
+        test_ids = TokenSupervised.get_pos_neg_ids(pos_neg_test_file)
+        train_pos_num = len(train[1])
+        train_neg_num = len(train[0])
+
+        train_data_pos = train[1][0:train_pos_num]
+        train_data_neg = train[0][0:train_neg_num]
+
+        #test_pos_num = len(test[1])
+        test_neg_num = len(test[0])
+        #test_data_pos = test[1][0:test_pos_num]
+        test_data_neg = test[0][0:test_neg_num]
+        #test_labels_pos = [[1] * test_pos_num]
+        test_labels_neg = [[0] * test_neg_num]
+
+        if balanced_training:
+            if train_pos_num < train_neg_num:
+                train_labels_pos = [[1] * train_neg_num]
+                train_labels_neg = [[0] * train_neg_num]
+                train_data_pos = TokenSupervised._sample_and_extend(train_data_pos, total_samples=train_neg_num)
+            elif train_pos_num > train_neg_num:
+                train_labels_pos = [[1] * train_pos_num]
+                train_labels_neg = [[0] * train_pos_num]
+                train_data_neg = TokenSupervised._sample_and_extend(train_data_neg, total_samples=train_pos_num)
+            else:
+                train_labels_pos = [[1] * train_pos_num]
+                train_labels_neg = [[0] * train_neg_num]
+        else:
+            train_labels_pos = [[1] * train_pos_num]
+            train_labels_neg = [[0] * train_neg_num]
+
+        # print len(train_data_pos)
+        # print len(train_data_neg)
+        train_data = np.append(train_data_pos, train_data_neg, axis=0)
+        #test_data = np.append(test_data_neg, axis=0)
+        train_labels = np.append(train_labels_pos, train_labels_neg)
+        #test_labels = np.append(test_labels_neg)
+
+        results = dict()
+        results['train_data'] = train_data
+        results['train_labels'] = train_labels
+        results['test_data'] = test_data_neg
+        results['test_labels'] = test_labels_neg
+        results['test_ids'] = test_ids
+
+        return results
+
 
 
     @staticmethod
@@ -978,7 +1049,7 @@ class TokenSupervised:
         return predicted_probs
 
     @staticmethod
-    def _train_and_test_classifier(train_data, train_labels, test_data, test_labels, classifier_model):
+    def _train_and_test_classifier(train_data, train_labels, test_data, test_labels, classifier_model, test_ids=None):
         """
         Take three numpy matrices and compute a bunch of metrics. Hyperparameters must be changed manually,
         we do not take them in as input.
@@ -998,6 +1069,7 @@ class TokenSupervised:
             predicted_labels = model.predict(test_data)
             print predicted_labels
             predicted_probabilities = model.predict_proba(test_data)
+            print predicted_probabilities
             # print predicted_labels[0:10]
             # print predicted_probabilities[0:10]
         elif classifier_model == 'knn':
@@ -1006,6 +1078,7 @@ class TokenSupervised:
             model.fit(train_data, train_labels)
             predicted_labels = model.predict(test_data)
             predicted_probabilities = model.predict_proba(test_data)
+            print predicted_probabilities
         elif classifier_model == 'manual_knn':
             # this is not an scikit-learn model; does not support predicted_probabilities
             k = 5
@@ -1031,8 +1104,16 @@ class TokenSupervised:
             model = LinearRegression()
             model.fit(train_data, train_labels)
             predicted_labels = model.predict(test_data)
-        print 'AUC (Area Under Curve): ',
-        print roc_auc_score(test_labels, predicted_labels)
+
+        final_results = list()
+        if test_ids is not None:
+            final_results.append(test_ids)
+            final_results.append(predicted_probabilities)
+            return final_results
+        else:
+            print 'AUC (Area Under Curve): ',
+            print roc_auc_score(test_labels, predicted_labels)
+
         # precision, recall, thresholds = precision_recall_curve(test_labels, predicted_labels)
         # plt.clf()
         # plt.plot(recall, precision, label='precision-recall-curve')
@@ -1079,7 +1160,7 @@ class TokenSupervised:
             #                                                     ranking_mode=True, k=5)
 
     @staticmethod
-    def trial_script_binary(pos_neg_file, opt=2, train_percent=0.3):
+    def trial_script_binary(pos_neg_file, opt=1, train_percent=0.5):
         """
 
         :param pos_neg_file: e.g. token-supervised/pos-neg-eyeColor.txt
@@ -1098,14 +1179,14 @@ class TokenSupervised:
             #Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             #We do feature selection.
             data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file, train_percent=train_percent)
-            TokenSupervised._select_k_best_features(data_dict, k=20)
-            data_dict['classifier_model'] = 'logistic_regression'
+            TokenSupervised._select_k_best_features(data_dict, k=10)
+            data_dict['classifier_model'] = 'knn'
             results = TokenSupervised._train_and_test_classifier(**data_dict)
 
         return results
 
     @staticmethod
-    def trial_script_train_test_binary(pos_neg_train, pos_neg_test, opt=2):
+    def trial_script_train_test_binary(pos_neg_train, pos_neg_test, opt=1):
         """
 
         :param pos_neg_file: e.g. token-supervised/pos-neg-eyeColor.txt
@@ -1116,14 +1197,14 @@ class TokenSupervised:
             # Test Set 1: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             # We do NOT do any kind of feature selection.
 
-            data_dict = TokenSupervised._prepare_train_test_data_separate(pos_neg_train, pos_neg_test)
+            data_dict = TokenSupervised._prepare_train_test_data_separate_unseen(pos_neg_train, pos_neg_test)
             # print data_dict['train_labels'][0]
             data_dict['classifier_model'] = 'knn'
             results = TokenSupervised._train_and_test_classifier(**data_dict)
         elif opt == 2:
             # Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
             # We do feature selection.
-            data_dict = TokenSupervised._prepare_train_test_data_separate(pos_neg_train, pos_neg_test)
+            data_dict = TokenSupervised._prepare_train_test_data_separate_unseen(pos_neg_train, pos_neg_test)
             TokenSupervised._select_k_best_features(data_dict, k=20)
             data_dict['classifier_model'] = 'random_forest'
             results = TokenSupervised._train_and_test_classifier(**data_dict)
@@ -1203,6 +1284,20 @@ class TokenSupervised:
         # print str(results[0]) + ',' + str(results[1]) + ',' + str(results[2]) + '\n'
 
 
+# path = '/Users/mayankkejriwal/Dropbox/memex-mar-17/CP1/'
+# results = TokenSupervised.trial_script_train_test_binary(path+'train_pos_neg.tsv', path+'test_pos_neg.tsv')
+# print results
+# out = codecs.open(path+'unseen_test_results.jl', 'w', 'utf-8')
+# for i in range(0, len(results[0])):
+#     answer = dict()
+#     answer['cluster_id'] = str(results[0][i])
+#     answer['score'] = results[1][i][1]
+#     json.dump(answer, out)
+#     out.write('\n')
+# out.close()
+# TokenSupervised.trial_script_binary(path+'train_pos_neg.tsv')
+# print len(results[0])
+# print len(results[1])
 # path = '/Users/mayankkejriwal/datasets/memex-evaluation-november/annotated-cities/'
 # outer_path = '/Users/mayankkejriwal/datasets/FEIII17/dec-16-data/FEIIIY2_csv/'
 # path = outer_path+'Training/partitions-by-role-singular/90-10/'

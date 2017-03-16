@@ -430,6 +430,110 @@ class TextPreprocessors:
                 count += 1
         out.close()
 
+
+    @staticmethod
+    def build_tokens_objects_from_march_CP1(input_files, output_file):
+        out = codecs.open(output_file, 'w', 'utf-8')
+        count = 1
+        for input_file in input_files:
+         with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                tokens_list = list()
+                cluster_id = obj['cluster_id']
+
+                if count % 1000 == 0:
+                    print count
+                try:
+                    doc_id = obj['_id']
+                    tokens_list += TextPreprocessors._preprocess_tokens(
+                        TextPreprocessors.tokenize_string(obj['_source']['extracted_text']), ['lower'])
+                    answer = dict()
+                    answer['tags'] = list()
+                    answer['tags'].append(doc_id)
+                    answer['tags'].append(cluster_id)
+                    answer['words'] = tokens_list
+                    json.dump(answer, out)
+                    out.write('\n')
+                    count += 1
+                    # if 'annotation' in obj:
+                    #     answer['annotation'] = obj['annotation']
+
+                except:
+                    print 'failure in object: ', str(obj['_id'])
+                    # for k, v in obj.items():
+                    #     key = k
+                    #     for list_of_items in v:
+                    #         tokens_list += TextPreprocessors._preprocess_tokens(list_of_items, ['lower'])
+
+        out.close()
+
+
+    @staticmethod
+    def build_tokens_objects_from_microcap(input_file, output_file):
+        out = codecs.open(output_file, 'w', 'utf-8')
+        count = 1
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                tokens_list = list()
+                key = obj['_id']
+                if count % 1000 == 0:
+                    print count
+                try:
+                    tokens_list += TextPreprocessors._preprocess_tokens(
+                        TextPreprocessors.tokenize_string(obj['extractors']['content_relaxed']
+                                                          ['text']), ['lower', 'remove_non_alpha'])
+                    answer = dict()
+                    answer['tags'] = list()
+                    answer['tags'].append(key)
+                    answer['words']=tokens_list
+                    json.dump(answer, out)
+                    out.write('\n')
+                    count += 1
+
+                except:
+                    print 'failure in object: ',str(obj['_id'])
+                # for k, v in obj.items():
+                #     key = k
+                #     for list_of_items in v:
+                #         tokens_list += TextPreprocessors._preprocess_tokens(list_of_items, ['lower'])
+
+        out.close()
+
+    @staticmethod
+    def build_tokens_objects_from_microcap_dump_1(input_file, output_file):
+        out = codecs.open(output_file, 'w', 'utf-8')
+        count = 1
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                outer_obj = json.loads(line)
+                tokens_list = list()
+                key = outer_obj[0]
+                obj = outer_obj[1]
+                if count % 1000 == 0:
+                    print count
+                try:
+                    for text in obj['extractors']['content_relaxed']['text']:
+                        tokens_list += TextPreprocessors._preprocess_tokens(
+                        TextPreprocessors.tokenize_string(text['result']['value']), ['lower'])
+                    if len(tokens_list) < 1:
+                        continue
+                    answer = dict()
+                    answer['tags'] = list()
+                    answer['tags'].append(key)
+                    answer['words'] = tokens_list
+                    json.dump(answer, out)
+                    out.write('\n')
+                    count += 1
+
+                except:
+                    print 'failure in object: ', str(outer_obj[0])
+                    # for k, v in obj.items():
+                    #     key = k
+                    #     for list_of_items in v:
+                    #         tokens_list += TextPreprocessors._preprocess_tokens(list_of_items, ['lower'])
+
     @staticmethod
     def build_tokens_objects_from_nyu_readability(gz_input_file, hrr_output_file, lrr_output_file):
         """
@@ -687,6 +791,22 @@ class TextPreprocessors:
                     out.write('\n')
         out.close()
 
+
+    @staticmethod
+    def check_microcap_tokens_for_duplicates(tokens_file1, tokens_file2):
+        ids1 = set()
+        # ids2 = set()
+        count = 0
+        with codecs.open(tokens_file1, 'r', 'utf-8') as f:
+            for line in f:
+                ids1 = ids1.union(set(json.loads(line)['tags']))
+        with codecs.open(tokens_file2, 'r', 'utf-8') as f:
+            for line in f:
+                if json.loads(line)['tags'][0] in ids1:
+                    count += 1
+        print 'intersection of ids...',str(count)
+
+
     @staticmethod
     def preprocess_annotated_files(input_folder, input_files, text_field, output_folder, output_prefix='tokens-'):
         """
@@ -711,7 +831,88 @@ class TextPreprocessors:
             TextPreprocessors.preprocess_annotated_file(input_file, text_field, output_file)
 
 
+    @staticmethod
+    def modify_tags(input_file, output_file):
+        out = codecs.open(output_file, 'w','utf-8')
+        with codecs.open(input_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                tag = str(obj['tags'][0])
+                obj['tags'] = list()
+                obj['tags'].append(tag+'-folder')
+                json.dump(obj, out)
+                out.write('\n')
+        out.close()
+
+
+    @staticmethod
+    def write_doc_annotation_set_in_march_CP1(training_file, output_file):
+        doc_annotations = dict()
+        with codecs.open(training_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                if 'annotation' in obj:
+                    if 'VERY_RELEVANT' == obj['annotation']:
+                        doc_annotations[obj['_id']] = 1
+                    elif 'NOT_RELEVANT' == obj['annotation']:
+                        doc_annotations[obj['_id']] = 0
+                    else:
+                        raise Exception
+        json.dump(doc_annotations, codecs.open(output_file, 'w', 'utf-8'))
+
+
+    @staticmethod
+    def write_cluster_annotation_set_in_march_CP1(training_file, output_file):
+        cluster_annotations = dict()
+        with codecs.open(training_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                if 'annotation' in obj:
+                    if 'VERY_RELEVANT' == obj['annotation']:
+                        cluster_annotations[obj['cluster_id']] = 1
+                    elif 'NOT_RELEVANT' == obj['annotation']:
+                        cluster_annotations[obj['cluster_id']] = 0
+                    else:
+                        raise Exception
+        json.dump(cluster_annotations, codecs.open(output_file, 'w', 'utf-8'))
+
+
+    @staticmethod
+    def write_test_cluster_annotation_set_in_march_CP1(test_file, output_file):
+        cluster_annotations = dict()
+        with codecs.open(test_file, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                cluster_annotations[obj['cluster_id']] = 0
+
+
+        json.dump(cluster_annotations, codecs.open(output_file, 'w', 'utf-8'))
+
+    # @staticmethod
+    # def append_annotation_to_tags(serialized_file, annotated_serialized_file):
+    #     out = codecs.open(annotated_serialized_file, 'w', 'utf-8')
+    #     with codecs.open(serialized_file, 'r', 'utf-8') as f:
+    #         for line in f:
+    #             obj = json.loads(line)
+    #     out.close()
+
+
 # www_path='/Users/mayankkejriwal/ubuntu-vm-stuff/home/mayankkejriwal/tmp/www-experiments/used-datasets/'
+# path = '/Users/mayankkejriwal/Dropbox/dig-microcap-data/'
+#path = '/Users/mayankkejriwal/Dropbox/memex-mar-17/CP1/'
+#TextPreprocessors.write_test_cluster_annotation_set_in_march_CP1(path+'test_adjusted_unlabeled.json', path+'test_dummy_annotations.json')
+# TextPreprocessors.append_annotation_to_tags(path+'serialized_train_test.jl', path+'serialized_annotated_train_test.jl')
+# TextPreprocessors.build_tokens_objects_from_march_CP1([path+'train_adjusted.json',path+'test_adjusted_unlabeled.json'], path+'serialized_train_test.jl')
+# TextPreprocessors.modify_tags(path+'all_docs_tokens_lower_non_alpha.jl',path+'all_docs_tokens_lower_non_alpha_mod.jl')
+# input = path+'microcap_data_20170314'
+# output = path+'microcap_lower'
+# TextPreprocessors.build_tokens_objects_from_microcap_dump_1(input, output)
+# names = ['globenewswire', 'hotstockedidx', 'hotstockednews', 'investopedia', 'microstockprofitblog',
+#          'otcarchives', 'seekingalphastkideas']
+# for name in names:
+#     input_file = path+'mx_'+name+'/mx_'+name+'_readability.jl'
+#     output_file = path+name+'_tokens_non_alpha.jl'
+#     TextPreprocessors.build_tokens_objects_from_microcap(input_file, output_file)
 # nyuTextPath='/Users/mayankkejriwal/datasets/memex-evaluation-november/nyu-text/'
 # personaPath = '/Users/mayankkejriwal/datasets/memex-evaluation-november/persona-linking/'
 # TextPreprocessors.build_tokens_objects_for_persona_linking(personaPath+'str-users-posts14.jl',personaPath+'tokens-14.jl')
