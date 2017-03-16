@@ -1199,7 +1199,7 @@ class TokenSupervised:
 
             data_dict = TokenSupervised._prepare_train_test_data_separate_unseen(pos_neg_train, pos_neg_test)
             # print data_dict['train_labels'][0]
-            data_dict['classifier_model'] = 'knn'
+            data_dict['classifier_model'] = 'logistic_regression'
             results = TokenSupervised._train_and_test_classifier(**data_dict)
         elif opt == 2:
             # Test Set 2: read in data from pos_neg_file and use classifiers from scikit-learn/manual impl.
@@ -1283,11 +1283,34 @@ class TokenSupervised:
         # results = TokenSupervised.trial_script_train_test_binary(pos_neg_train, pos_neg_test)
         # print str(results[0]) + ',' + str(results[1]) + ',' + str(results[2]) + '\n'
 
+    @staticmethod
+    def averaging_score_file(in1, in2, outfile):
+        results = dict()
+        with codecs.open(in1, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                results[obj['cluster_id']] = obj['score']
+        with codecs.open(in2, 'r', 'utf-8') as f:
+            for line in f:
+                obj = json.loads(line)
+                results[obj['cluster_id']] = (results[obj['cluster_id']] + obj['score'])/2
+
+        out = codecs.open(outfile, 'w', 'utf-8')
+        for k, v in results.items():
+            answer = dict()
+            answer['cluster_id'] = k
+            answer['score'] = v
+
+            json.dump(answer, out)
+            out.write('\n')
+        out.close()
+
 
 # path = '/Users/mayankkejriwal/Dropbox/memex-mar-17/CP1/'
+# TokenSupervised.averaging_score_file(path+'ISI_test_cluster2vec_new.jl',path+'columbia_logr.jl', path+'avg_columbia_isi_200dims.jl')
 # results = TokenSupervised.trial_script_train_test_binary(path+'train_pos_neg.tsv', path+'test_pos_neg.tsv')
 # print results
-# out = codecs.open(path+'unseen_test_results.jl', 'w', 'utf-8')
+# out = codecs.open(path+'test_results_logr.jl', 'w', 'utf-8')
 # for i in range(0, len(results[0])):
 #     answer = dict()
 #     answer['cluster_id'] = str(results[0][i])
