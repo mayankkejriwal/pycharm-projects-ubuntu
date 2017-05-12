@@ -106,10 +106,11 @@ def doc_embedding_tester(doc_embedding_model):
 
 
 # path = '/Users/mayankkejriwal/Dropbox/lorelei/Mar_3/'
+# path = '/Users/mayankkejriwal/datasets/FEIII17/dec-16-data/FEIIIY2_csv/'
 # path = '/Users/mayankkejriwal/Dropbox/dig-microcap-data/'
 # path = '/Users/mayankkejriwal/Dropbox/memex-mar-17/CP1/'
 # generate_pos_neg_file(path+'serialized_train_test_doc2vec_20dims',path+'train_annotations.json',path+'train_pos_neg_20dims.tsv')
 # doc_embedding_tester(path+'global_lower_non_alpha_doc2vec')
 # doc_embedding_tester(path+'serialized_train_test_doc2vec')
 # generate_doc_embeddings(path+'samples10.jl', path+'samples10_doc2vec.jl', path+'samples10_doc2vec')
-# generate_doc_embeddings(path+'serialized_train_test.jl', path+'serialized_train_test_doc2vec_20dims.jl', path+'serialized_train_test_doc2vec_20dims')
+# generate_doc_embeddings(path+'all-singular-taggeddocs.jl', path+'all-singular-doc2vec-20dims.jl', path+'all-singular-doc2vec-20dims')

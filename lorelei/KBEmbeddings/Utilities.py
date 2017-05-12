@@ -3,6 +3,7 @@ from rdflib.term import Literal, URIRef
 import codecs
 import json
 import re
+from gensim.models.word2vec import *
 
 def parse_line_into_triple(line):
         """
@@ -49,4 +50,46 @@ def serialize_text_file_as_sentences(random_walk_txt):
             sentence = re.split(' ',line[0:-1])
             sentences.append(sentence)
     return sentences
+
+def serialize_word2vec_model_as_jlines(word2vec_file, mapped_places, output_file):
+    mapped_dict = dict()
+    with codecs.open(mapped_places, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            mapped_dict[fields[1]] = fields[0]
+    print 'finished reading in mapped dict...'
+    model = Word2Vec.load(word2vec_file)
+    print 'finished reading in word2vec model file...'
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for k, v in mapped_dict.items():
+        try:
+            answer = dict()
+            answer[v] = model[k].tolist()
+            json.dump(answer, out)
+            out.write('\n')
+        except:
+            continue
+    out.close()
+
+def count_edges_in_weighted_adjacency_list(adjacency_list):
+    """
+    makes sense for weighted graph
+    :param adjacency_list:
+    :return:
+    """
+    total = 0
+    with codecs.open(adjacency_list, 'r', 'utf-8') as f:
+        for line in f:
+            total += ((len(re.split('\t',line[0:-1]))-1)/2)
+
+    print total
+
+
+
+
+path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
+count_edges_in_weighted_adjacency_list(path+'prob_adjacency_file_1.tsv')
+# serialize_word2vec_model_as_jlines(path+'word2vec_trial3_adj_file_1', path+'mapped_populated_places.txt', path+'word2vec_trial3_adj_file_1.jl')
+
+
 
