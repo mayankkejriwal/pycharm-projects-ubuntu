@@ -123,8 +123,8 @@ def compute_phone_intersection_metrics_by_common_urls(nebraska_phones, memex_pho
 
 
 
-nebraska_path = '/Users/mayankkejriwal/datasets/memex/nebraska-data/memex_comm/'
-memex_path = '/Users/mayankkejriwal/datasets/memex/'
-compute_phone_intersection_metrics_by_common_urls(nebraska_path+'phones-urls-2017.txt', memex_path+'2017-relaxed-phones-urls.txt')
+# nebraska_path = '/Users/mayankkejriwal/datasets/memex/nebraska-data/memex_comm/'
+# memex_path = '/Users/mayankkejriwal/datasets/memex/'
+# compute_phone_intersection_metrics_by_common_urls(nebraska_path+'phones-urls-2017.txt', memex_path+'2017-relaxed-phones-urls.txt')
 # compute_url_intersection_metrics(nebraska_path+'phones-urls-2017.txt', memex_path+'2017-relaxed-phones-urls.txt')
 # compute_intersection_metrics(nebraska_path+'phones-2017.txt', memex_path+'2017-strict-phones.txt')
