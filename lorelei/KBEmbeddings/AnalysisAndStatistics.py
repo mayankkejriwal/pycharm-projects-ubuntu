@@ -19,5 +19,9 @@ def getPropertyStatistics(triples_file):
         print k+'\t'+str(v)
 
 
+def count_edges():
+    pass
+
+
 # path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
 # getPropertyStatistics(path+'KB_Scenario.nt')

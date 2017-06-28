@@ -2,6 +2,7 @@ import codecs
 import re
 import math
 from DeriveProbabilityDistributions import *
+import networkx
 
 def extract_latitude_longitude(geonames_KB, output_file):
     lat_long_dict = dict()
@@ -434,8 +435,23 @@ def build_weighted_adj_graph_v1(dist_file, output_file):
             out.write('\n')
     out.close()
 
+def check_adj_list_connectivity(adj_graph_file):
+    g = read_weighted_adj_graph(adj_graph_file)
+    print 'finished reading in adjacency list file...'
+    edges = list()
+    for k, v in g.items():
+        for val in v[0]:
+            edges.append((k, val))
+    print 'finished appending edges'
+    G = networkx.Graph()
+    # print len(edges)
+    G.add_edges_from(edges)
+    print networkx.is_connected(G)
+
+
 
 path = '/Users/mayankkejriwal/datasets/lorelei/KB-CIA/'
+check_adj_list_connectivity(path+'prob_adjacency_file_1.tsv')
 # build_weighted_adj_graph_v1(path+'pruned_mapped_merged_dist.tsv', path+'prob_adjacency_file_1.tsv')
 # integer_nodes = get_country_integer_nodes(path+'populated_places_countries.tsv',path+'mapped_populated_places.txt')
 # prune_merged_dist(path+'mapped_merged_dist.tsv',path+'populated_places_populations.tsv',

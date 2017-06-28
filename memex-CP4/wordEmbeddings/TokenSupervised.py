@@ -8,6 +8,7 @@ from sklearn.preprocessing import normalize
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import neighbors
 import SimFunctions
+from sklearn.model_selection import GridSearchCV
 from sklearn.feature_selection import chi2, f_classif, SelectKBest
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, precision_recall_fscore_support
@@ -19,6 +20,7 @@ from random import shuffle
 import math
 from sklearn.externals import joblib
 from gensim.models.word2vec import Word2Vec
+import pickle
 
 class TokenSupervised:
     """
@@ -1049,7 +1051,7 @@ class TokenSupervised:
         return predicted_probs
 
     @staticmethod
-    def _train_and_test_classifier(train_data, train_labels, test_data, test_labels, classifier_model, test_ids=None):
+    def _train_and_test_classifier(train_data, train_labels, test_data, test_labels, classifier_model, test_ids=None, return_model=False):
         """
         Take three numpy matrices and compute a bunch of metrics. Hyperparameters must be changed manually,
         we do not take them in as input.
@@ -1063,8 +1065,12 @@ class TokenSupervised:
         :return:
         """
         if classifier_model == 'random_forest':
-            model = RandomForestClassifier()
-            model.fit(train_data, train_labels)
+            reg = RandomForestClassifier(n_estimators=200)
+            parameters = {'max_features': ('auto', 0.5, 'log2'), 'criterion': ('entropy', 'gini')}
+            clf = GridSearchCV(reg, parameters, scoring='f1')
+            model = clf.fit(train_data, train_labels)
+            # model = RandomForestClassifier()
+            # model.fit(train_data, train_labels)
             # joblib.dump(model, '/Users/mayankkejriwal/git-projects/dig-random-indexing-extractor/test/model')
             predicted_labels = model.predict(test_data)
             print predicted_labels
@@ -1106,7 +1112,7 @@ class TokenSupervised:
             predicted_labels = model.predict(test_data)
 
         final_results = list()
-        if test_ids is not None:
+        if test_ids is not None and return_model == False:
             final_results.append(test_ids)
             final_results.append(predicted_probabilities)
             return final_results
@@ -1133,7 +1139,9 @@ class TokenSupervised:
             for i in range(0, len(k)):
                 print prf[i],
                 print k[i]
-            return [k[0][1], k[1][1], k[2][1]]
+            # return [k[0][1], k[1][1], k[2][1]]
+        if return_model:
+            return model
 
     @staticmethod
     def trial_script_multi(multi_file, opt=2):
@@ -1305,6 +1313,50 @@ class TokenSupervised:
             out.write('\n')
         out.close()
 
+
+    @staticmethod
+    def country_classifier_vinay(folder='/Users/mayankkejriwal/git-projects/etk/etk/classifiers/'):
+        feature_file = folder+'feature_vectors.csv'
+        labels_file = folder+'class_labels.csv'
+        data = list()
+        data.append(list())
+        data.append(list())
+        labels = list()
+        with codecs.open(labels_file, 'r', 'utf-8') as f:
+            for line in f:
+                labels.append(float(line[0:-1]))
+        count = 0
+        with codecs.open(feature_file, 'r', 'utf-8') as f:
+            for line in f:
+                instance = re.split(',',line[0:-1])
+                for i in range(len(instance)):
+                    instance[i] = float(instance[i])
+                if labels[count] == 0.0:
+                    data[0].append(instance)
+                elif labels[count] == 1.0:
+                    data[1].append(instance)
+                else:
+                    raise Exception
+                count += 1
+        print len(data[0]) #1275 instances
+        print len(data[1]) #237 instances; adds up!
+
+        data_dict = TokenSupervised._prepare_train_test_data(pos_neg_file=None, train_percent=0.9, balanced_training=False, data_vectors=data)
+        data_dict['classifier_model'] = 'random_forest'
+        data_dict['return_model'] = True
+        # print data_dict['train_data'][0]
+        model = TokenSupervised._train_and_test_classifier(**data_dict)
+        pickle.dump(model, open(folder+'country_classifier_random_forest','w'))
+
+
+    @staticmethod
+    def test_country_classifier_pickle(folder='/Users/mayankkejriwal/git-projects/etk/etk/classifiers/'):
+        model = pickle.load(open(folder+'country_classifier_random_forest', 'r'))
+        print model
+
+
+TokenSupervised.country_classifier_vinay()
+# TokenSupervised.test_country_classifier_pickle()
 
 # path = '/Users/mayankkejriwal/Dropbox/memex-mar-17/CP1/'
 # TokenSupervised.averaging_score_file(path+'ISI_test_cluster2vec_new.jl',path+'columbia_logr.jl', path+'avg_columbia_isi_200dims.jl')
