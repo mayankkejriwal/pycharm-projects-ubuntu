@@ -67,7 +67,7 @@ def compute_phone_graph_for_common_urls(nebraska_phones, memex_phones, output_gr
     :return:
     """
     answer = compute_url_intersection_metrics(nebraska_phones, memex_phones, True)
-    phone_dict = dict()
+
     out = codecs.open(output_graph, 'w', 'utf-8')
     with codecs.open(memex_phones, 'r', 'utf-8') as f:
         for line in f:
@@ -78,8 +78,7 @@ def compute_phone_graph_for_common_urls(nebraska_phones, memex_phones, output_gr
             elements.sort()
             out.write('\t'.join(elements)+'\n')
 
-    for k, v in phone_dict.items():
-        out.write(str(k)+'\t'+'\t'.join(list(set(v)))+'\n')
+
     out.close()
 
 
