@@ -7,6 +7,7 @@ from intersectPhones import compute_url_intersection_metrics
 import math
 from sklearn import linear_model
 import numpy as np
+import fasttext
 
 def build_phone_network(input_file, phone_mapping_file=None):
     """
