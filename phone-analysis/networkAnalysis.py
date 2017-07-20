@@ -139,6 +139,20 @@ def build_phone_integer_mapping_with_islet(old_phone_mapping_file, nebraska_phon
     out.close()
 
 
+def get_local_clustering_coefficient(phone_network_file, phone_mapping_file, output_graph=None):
+    G = build_phone_network(phone_network_file, phone_mapping_file)
+    cluster_coefficients = reverse_degree_dict(nx.clustering(G), output_file=
+    '/media/mayankkejriwal/ExtraDrive1/Dropbox/memex-shared/networks/strict-phones-network-properties/cluster-coefficients.txt')
+    ks = cluster_coefficients.keys()
+    ks.sort(reverse=True)
+    count = 0
+    for k in ks:
+        print k, cluster_coefficients[k]
+        count += 1
+        if count > 10:
+            break
+
+
 def get_degree_rank_graph(phone_network_file, phone_mapping_file, output_graph=None):
     G = build_phone_network(phone_network_file, phone_mapping_file)
     degree_sequence = sorted(nx.degree(G).values(), reverse=True)  # degree sequence
@@ -163,20 +177,24 @@ def get_degree_rank_graph(phone_network_file, phone_mapping_file, output_graph=N
     plt.show()
 
 
-def reverse_degree_dict(node_degree_dict, output_file):
+def reverse_degree_dict(node_degree_dict, output_file=None):
     reversed_dict = dict()
     for k, v in node_degree_dict.items():
         if v not in reversed_dict:
             reversed_dict[v] = list()
         reversed_dict[v].append(str(k))
-    out = codecs.open(output_file, 'w', 'utf-8')
-    ks = reversed_dict.keys()
-    ks.sort(reverse=True)
-    print 'highest degree in graph...',str(ks[0])
-    for k in ks:
-        out.write(str(k)+'\t')
-        out.write('\t'.join(reversed_dict[k])+'\n')
-    out.close()
+
+    if output_file is not None:
+        ks = reversed_dict.keys()
+        ks.sort(reverse=True)
+        out = codecs.open(output_file, 'w', 'utf-8')
+
+        print 'highest degree in graph...',str(ks[0])
+        for k in ks:
+            out.write(str(k)+'\t')
+            out.write('\t'.join(reversed_dict[k])+'\n')
+        out.close()
+    return reversed_dict
 
 
 def get_degree_distribution_graph(phone_network_file, phone_mapping_file, output_graph=None):
@@ -236,8 +254,11 @@ def get_degree_distribution_graph(phone_network_file, phone_mapping_file, output
 
 # _tester()
 # path = '/Users/mayankkejriwal/datasets/memex/experiments-analysis/networks/'
-nebraska_path = '/Users/mayankkejriwal/datasets/memex/nebraska-data/memex_comm/'
-path = '/Users/mayankkejriwal/datasets/memex/experiments-analysis/'
+root = '/media/mayankkejriwal/ExtraDrive1/Dropbox/memex-shared/networks/'
+get_local_clustering_coefficient(root+'raw-data/strict-phones-network.txt',
+                                 root+'strict-phones-network-properties/phone-integer-mappings-v2.txt')
+# nebraska_path = '/Users/mayankkejriwal/datasets/memex/nebraska-data/memex_comm/'
+# path = '/Users/mayankkejriwal/datasets/memex/experiments-analysis/'
 # build_phone_integer_mapping_with_islet(
 #     path+'networks/strict-phones-network-properties/phone-integer-mappings-v1.txt',
 #         nebraska_path + 'phones-urls-2017.txt', path + '2017-strict-phones-urls.txt',
