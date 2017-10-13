@@ -1,12 +1,15 @@
 import codecs, re, json
 import math
 import networkx as nx
+from networkx.drawing import nx_agraph
 from networkx import algorithms, assortativity
 from networkx import info, density, degree_histogram
 import matplotlib.pyplot as plt
 import glob
 from sklearn import linear_model
 import numpy as np
+import pygraphviz as pgv
+
 
 
 path = '/Users/mayankkejriwal/datasets/memex/nebraska-data/data-sharing/'
@@ -1018,12 +1021,73 @@ def degree_distribution_plot_worker_network(edge_list=path+'adj_lists/edge-list-
         plt.xlabel("k")
         plt.show()
 
+def print_ids_in_hypergraph_containing_phone(data_for_memex=path+'data_for_memex.json',
+                        hypergraph_orig=path+'adj_lists/largest_hypergraphs-100.jl',
+                                hypergraph_pruned=path+'adj_lists/largest_hypergraphs-100-phone-subset.jl',
+                            hypergraph_pruned_urls=path + 'adj_lists/largest_hypergraphs-100-phone-subset-URLs.jl'):
+    """
+    Primarily designed for data cleaning/verification. Take a hypergraph jl file and print out a new file
+    where the phone references IDs that contain that phone. This is not true for the ids in the hypergraph
+    file in general, obviously.
+    :return:
+    """
+    id_phone = dict()
+    id_url = dict()
+    with codecs.open(data_for_memex, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            if len(obj['phone']) > 0:
+                id_phone[obj['_id']] = obj['phone']
+                id_url[obj['_id']] = obj['url']
+    print 'finished reading data file...'
+    out = codecs.open(hypergraph_pruned, 'w', 'utf-8')
+    out1 = codecs.open(hypergraph_pruned_urls, 'w', 'utf-8')
+    with codecs.open(hypergraph_orig, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            k = obj.keys()[0]
+            new_dict = dict()
+            new_dict[k] = list()
+            new_dict1 = dict()
+            new_dict1[k] = list()
+            v = obj[k]
+            for i in v:
+                if i not in id_phone:
+                    continue
+                if k in id_phone[i]:
+                    new_dict[k].append(i)
+                    new_dict1[k].append(id_url[i])
+            json.dump(new_dict, out)
+            out.write('\n')
+            json.dump(new_dict1, out1)
+            out1.write('\n')
+    out.close()
+    out1.close()
 
+
+def serialize_edge_list_to_graphviz_dot(edge_list=path+'adj_lists/edge-list-names',
+                                output_file=path+'adj_lists/visualizations/edge-list-names.dot'):
+    G = nx.read_edgelist(edge_list, delimiter='\t')
+    nx_agraph.write_dot(G, output_file)
+
+def layout_graph(dot_file=path+'adj_lists/visualizations/edge-list-names.dot',
+                 image_file=path+'adj_lists/visualizations/edge-list-names.png'):
+    G = pgv.AGraph(dot_file)
+    G.layout(prog='dot')
+    G.draw(image_file)
+
+
+# serialize_edge_list_to_graphviz_dot()
+layout_graph()
+# print_ids_in_hypergraph_containing_phone()
+# st = 'cara michelle-1'
+# st1 = st.replace(' ','_')
+# print st1
 ### phase 3: plot
 # construct_conn_comp_phone_map()
 # output_guaranteed_singleton_workers()
 # print_largest_phone_hypergraphs()
-degree_distribution_plot_worker_network()
+# degree_distribution_plot_worker_network()
 # reverse_phone_map()
 # write_edge_list()
 # plot_cluster_sizes()
