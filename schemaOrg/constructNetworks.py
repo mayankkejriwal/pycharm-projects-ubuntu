@@ -7,7 +7,8 @@ def construct_netloc_graph(max_index_blank=10510, max_index_id=13480, max_index_
                            edge_list=path+'schema_Hospital-2014-netloc.edgelist',
                            dictionary=path+'schema_Hospital-2014-netloc.dictionary'):
     G = nx.read_edgelist(edge_list, nodetype=int)
-    G.add_nodes_from(range(0, max_index_netloc))
+    print len(G.nodes())
+    # G.add_nodes_from(range(0, max_index_netloc))
     id_blank_dict = dict() # id node references set of blank nodes
     blank_netloc_dict = dict() # blank node references set of netloc nodes
 
@@ -119,5 +120,5 @@ def construct_id_graph(max_index_blank=10510, max_index_id=13480, max_index_netl
     print nx.info(H)
 
 
-# construct_netloc_graph()
-construct_id_graph()
+construct_netloc_graph()
+# construct_id_graph()
