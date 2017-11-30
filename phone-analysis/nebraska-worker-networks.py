@@ -749,7 +749,80 @@ def construct_int_phone_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
     out.close()
 
 
+def construct_int_postid_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
+                                data_for_memex=path+'data_for_memex.json',
+                            output_file=path+'adj_lists/int-postid.jl'):
+    """
+    Will not check whether name exists or not. Hence, this is comprehensive, can be used, regardless of whether
+    we are using names.
+    :param id_int_file:
+    :param data_for_memex:
+    :param output_file:
+    :return:
+    """
+    id_int_dict = dict()
+    with codecs.open(id_int_file, 'r') as f:
+        for line in f:
+            items = re.split('\t', line[0:-1])
+            id_int_dict[items[0]] = int(items[1])
 
+    print 'finished reading in id_int_dict file'
+    out = codecs.open(output_file, 'w', 'utf-8')
+
+    with codecs.open(data_for_memex, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])  # exclude newline
+            int_id = id_int_dict[obj['_id']]
+            if 'post_id' not in obj:
+                continue
+            else:
+                answer = dict()
+                answer[int_id] = obj['post_id']
+                json.dump(answer, out)
+                out.write('\n')
+    out.close()
+
+
+def construct_conn_comp_postid_map(int_postid_file=path+'adj_lists/int-postid.jl',
+                                  conn_comp_folder=path+'adj_lists/connected-component-workers/',
+                                  output_file=path+'adj_lists/connected-component-postid-map.jl'):
+    int_postid_dict = dict()
+    with codecs.open(int_postid_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])  # exclude newline
+            int_postid_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+    print 'finished reading in int postid dict...'
+    files = glob.glob(conn_comp_folder + '*.txt')
+    print 'finished reading in file names...'
+    out = codecs.open(output_file, 'w', 'utf-8')
+    count = 0
+    for f in files:
+        count += 1
+        if count % 10000 == 0:
+            print count
+        list_of_ints = list()
+        with codecs.open(f, 'r', 'utf-8') as m:
+            counter = 0
+            for line in m:
+                list_of_ints = re.split(' ',line[0:-1])
+                counter += 1
+            if counter != 1:
+                print 'problems in file.'+f+'...more than one line...'
+                exit()
+        postids = set()
+        for el in list_of_ints:
+            if el not in int_postid_dict:
+                continue
+            postids.add(int_postid_dict[el])
+        postids = list(postids)
+        postids.sort()
+        answer = dict()
+        answer[re.split(conn_comp_folder+'|txt',f)[1][0:-1]] = postids
+        json.dump(answer, out)
+        out.write('\n')
+
+
+    out.close()
 
 
 def construct_conn_comp_phone_map(int_phone_file=path+'adj_lists/int-phones.jl',
@@ -795,7 +868,7 @@ def construct_conn_comp_phone_map(int_phone_file=path+'adj_lists/int-phones.jl',
     out.close()
 
 def output_guaranteed_singleton_workers(conn_comp_phone_file=path+'adj_lists/connected-component-phone-map.jl',
-                      output_file=path+'adj_lists/singleton-workers.txt'):
+                      output_file=path+'adj_lists/phone-singleton-workers.txt'):
     out = codecs.open(output_file, 'w', 'utf-8')
     with codecs.open(conn_comp_phone_file, 'r', 'utf-8') as f:
         count = 0
@@ -814,16 +887,16 @@ def output_guaranteed_singleton_workers(conn_comp_phone_file=path+'adj_lists/con
     out.close()
 
 
-def reverse_phone_map(phone_map_file=path+'adj_lists/connected-component-phone-map.jl',
-                      output_file=path+'adj_lists/phone-connected-component-map.jl'):
+def reverse_connected_components_map(map_file=path+'adj_lists/connected-component-postid-map.jl',
+                      output_file=path+'adj_lists/postid-connected-component-map.jl'):
     """
     Be careful: worker nodes guaranteed to be singletons (those with no phones) will be ignored.
     :param phone_map_file:
     :param output_file:
     :return:
     """
-    phone_conn_dict = dict()
-    with codecs.open(phone_map_file, 'r', 'utf-8') as f:
+    phone_conn_dict = dict() # should not have 'phone': artefact of first impl.
+    with codecs.open(map_file, 'r', 'utf-8') as f:
         count = 0
         for line in f:
             obj = json.loads(line[0:-1])
@@ -879,8 +952,8 @@ def get_size_statistics(pcc_file=path+'adj_lists/phone-connected-component-map.j
 
 
 
-def write_edge_list(pcc_file=path+'adj_lists/phone-connected-component-map.jl',
-                    edge_list=path+'adj_lists/edge-list-names'):
+def write_edge_list(pcc_file=path+'adj_lists/postid-connected-component-map.jl',
+                    edge_list=path+'adj_lists/postid-edge-list-names'):
     """
     File will not be deduplicated.
     :param pcc_file:
@@ -907,7 +980,7 @@ def write_edge_list(pcc_file=path+'adj_lists/phone-connected-component-map.jl',
     out.close()
 
 
-def analyze_edge_list(edge_list=path+'adj_lists/edge-list-names',ccp_file=path+'adj_lists/connected-component-phone-map.jl'):
+def analyze_edge_list(edge_list=path+'adj_lists/phone-edge-list-names',ccp_file=path+'adj_lists/connected-component-phone-map.jl'):
     node_list = list()
     G = nx.read_edgelist(edge_list, delimiter='\t')
     print 'is the graph directed? ',
@@ -916,6 +989,32 @@ def analyze_edge_list(edge_list=path+'adj_lists/edge-list-names',ccp_file=path+'
         for line in f:
             node_list.append(json.loads(line[0:-1]).keys()[0])
     G.add_nodes_from(node_list)
+    print 'num nodes...',str(len(G.nodes()))
+    print 'num edges...', str(len(G.edges()))
+    print 'num connected components...',str(nx.number_connected_components(G))
+    return G
+
+
+def analyze_phone_postid_edge_lists(edge_list_postid=path+'adj_lists/postid-edge-list-names',ccp_file_postid=path+'adj_lists/connected-component-postid-map.jl',
+                                    edge_list_phone=path + 'adj_lists/phone-edge-list-names',
+                                    ccp_file_phone=path + 'adj_lists/connected-component-phone-map.jl'):
+    node_list = list()
+    G_phone = nx.read_edgelist(edge_list_phone, delimiter='\t')
+    G_postid = nx.read_edgelist(edge_list_postid, delimiter='\t')
+    G = nx.compose(G_phone, G_postid)
+    print 'is the graph directed? ',
+    print G.is_directed()
+    with codecs.open(ccp_file_phone, 'r', 'utf-8') as f:
+        for line in f:
+            node_list.append(json.loads(line[0:-1]).keys()[0])
+    G.add_nodes_from(node_list)
+
+    node_list = list()
+    with codecs.open(ccp_file_postid, 'r', 'utf-8') as f:
+        for line in f:
+            node_list.append(json.loads(line[0:-1]).keys()[0])
+    G.add_nodes_from(node_list)
+
     print 'num nodes...',str(len(G.nodes()))
     print 'num edges...', str(len(G.edges()))
     print 'num connected components...',str(nx.number_connected_components(G))
@@ -971,8 +1070,8 @@ def _get_list_of_ids(cc_folder, list_of_workers, int_id_dict):
     ans.sort()
     return ans
 
-def degree_distribution_plot_worker_network(edge_list=path+'adj_lists/edge-list-names',
-                                    ccp_file=path+'adj_lists/connected-component-phone-map.jl'):
+def degree_distribution_plot_worker_network(edge_list=path+'adj_lists/phone-edge-list-names',
+                                    ccp_file=path+'adj_lists/connected-component-phone-map.jl', G=None):
         """
 
         :param phone_network_file:
@@ -980,7 +1079,9 @@ def degree_distribution_plot_worker_network(edge_list=path+'adj_lists/edge-list-
         :param output_graph:
         :return:
         """
-        G = analyze_edge_list(edge_list, ccp_file)
+        if G is None:
+            G = analyze_edge_list(edge_list, ccp_file)
+
         # degree_sequence = sorted(nx.degree(G).values(), reverse=True)  # degree sequence
         # print "Degree sequence", degree_sequence
         # dmax = max(degree_sequence)
@@ -1065,20 +1166,30 @@ def print_ids_in_hypergraph_containing_phone(data_for_memex=path+'data_for_memex
     out1.close()
 
 
-def serialize_edge_list_to_graphviz_dot(edge_list=path+'adj_lists/edge-list-names',
-                                output_file=path+'adj_lists/visualizations/edge-list-names.dot'):
+def serialize_edge_list_to_graphviz_dot(edge_list=path+'adj_lists/postid-edge-list-names',
+                                output_file=path+'adj_lists/postid-worker-visualizations/postid-edge-list-names.dot'):
     G = nx.read_edgelist(edge_list, delimiter='\t')
     nx_agraph.write_dot(G, output_file)
 
-def layout_graph(dot_file=path+'adj_lists/visualizations/edge-list-names.dot',
-                 image_file=path+'adj_lists/visualizations/edge-list-names.png'):
+def serialize_multi_edge_list_to_graphviz_dot(edge_list1=path+'adj_lists/postid-edge-list-names',edge_list2=path+'adj_lists/phone-edge-list-names',
+                                output_file=path+'adj_lists/phone-postid-worker-visualizations/phone-postid-edge-list-names.dot'):
+    G1 = nx.read_edgelist(edge_list1, delimiter='\t')
+    G2 = nx.read_edgelist(edge_list2, delimiter='\t')
+    G = nx.compose(G1, G2)
+    nx_agraph.write_dot(G, output_file)
+
+def layout_graph(dot_file=path+'adj_lists/visualizations/postid-edge-list-names.dot',
+                 image_file=path+'adj_lists/postid-worker-visualizations/postid-edge-list-names.png'):
+    # not sure this is working, I think we had to use sfdp instead
     G = pgv.AGraph(dot_file)
     G.layout(prog='dot')
     G.draw(image_file)
 
 
-# serialize_edge_list_to_graphviz_dot()
-layout_graph()
+# construct_int_postid_map()
+# construct_conn_comp_postid_map()
+# serialize_multi_edge_list_to_graphviz_dot()
+# layout_graph()
 # print_ids_in_hypergraph_containing_phone()
 # st = 'cara michelle-1'
 # st1 = st.replace(' ','_')
@@ -1087,8 +1198,9 @@ layout_graph()
 # construct_conn_comp_phone_map()
 # output_guaranteed_singleton_workers()
 # print_largest_phone_hypergraphs()
+# degree_distribution_plot_worker_network(G=analyze_phone_postid_edge_lists())
 # degree_distribution_plot_worker_network()
-# reverse_phone_map()
+# reverse_connected_components_map()
 # write_edge_list()
 # plot_cluster_sizes()
 # analyze_edge_list()
@@ -1110,5 +1222,6 @@ layout_graph()
 # build_edge_list() # under construction, will likely have to move to server/mapreduce
 # build_name_and_postid_or_phone_adj_list()
 # build_id_integer_mappings() # one off, leave alone once constructed
+
 
 

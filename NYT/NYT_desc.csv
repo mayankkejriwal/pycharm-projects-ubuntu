@@ -1,0 +1,48 @@
+Alternate URL	Single	/nitf/head/meta[@name="alternate_url"]/@content
+Article	Single	/nitf/body/body.head/abstract
+Author Biography	Single	/nitf/body/body.content/block[@class="author_info"]
+Banner	Single	/nitf/head/meta[@name="banner"]/@content
+Biographical Categories	Multiple	/nitf/head/docdata/identifiedcontent/classifier[@class="indexing_service" and @type="biographical_categories"]
+Body	Single	/nitf/body/body.content/block[@class="full_text"]
+Byline	Single	/nitf/body/body.head/byline[@class="print_byline"]
+Column Name	Single	/nitf/head/meta[@name="column_name"]/@content
+Column Number	Single	/nitf/head/meta[@name="print_column"]/@content
+Correction Date	Single	/nitf/head/meta[@name="correction_date"]/@content
+Correction Text	Single	/nitf/body/body.content/block[@class="correction_text"]
+Credit	Single	/nitf/head/docdata/doc.copyright/@holder
+Dateline	Single	/nitf/body/body.head/dateline
+Day Of Week	Single	/nitf/head/meta[@name="publication_day_of_month"]/@content
+Descriptors	Multiple	/nitf/head/docdata/identified-content/classifier[@class="indexing_service" and @type="descriptor"]
+Feature Page	Single	/nitf/head/meta[@name="feature_page"]/@content
+General Online Descriptors	Multiple	/nitf/head/docdata/identifiedcontent/classifier[@class="online_producer" and @type="general_descriptor"]
+Guid	Single	/nitf/head/docdata/doc-id/@id-string
+Headline	Single	/nitf/body[1]/body.head/hedline/hl1
+Kicker	Single	/nitf/head/docdata/series/@series.name
+Lead Paragraph	Single	/nitf/body/body.content/block[@class="lead_paragraph"]
+Locations	Multiple	/nitf/head/docdata/identifiedcontent/location[@class="indexing_service"]
+Names	Multiple	/nitf/head/docdata/identifiedcontent/classifier[@class="indexing_service" and @type="names"]
+News Desk	Single	/nitf/head/meta[@name="dsk"]/@content
+Normalized Byline	Single	/nitf/body/body.head/byline[@class="normalized_byline"]
+Online Descriptors	Multiple	/nitf/head/docdata/identifiedcontent/classifier[@class="online_producer" and @type="descriptor"]
+Online Headline	Single	/nitf/body[1]/body.head/hedline/hl2
+Online Lead Paragraph	Single	/nitf/body/body.content/block[@class="online_lead_paragraph"]
+Online Locations	Multiple	/nitf/head/docdata/identifiedcontent/location[@class="online_producer"]
+Online Organizations	Multiple	/nitf/head/docdata/identifiedcontent/org[@class="online_producer"]
+Online People	Multiple	/nitf/head/docdata/identifiedcontent/person[@class="online_producer"]
+Online Section	Single	/nitf/head/meta[@name="online_sections"]/@content
+Online Titles	Multiple	/nitf/head/docdata/identified-content/object.title[@class="online_producer"]
+Organizations	Multiple	/nitf/head/docdata/identifiedcontent/org[@class="indexing_service"]
+Page	Single	/nitf/head/meta[@name="print_page_number"]/@content
+People	Multiple	/nitf/head/docdata/identifiedcontent/person[@class="indexing_service"]
+Publication Date	Single	/nitf/head/pubdata/@date.publication
+Publication Day Of Month	Single	/nitf/head/meta[@name="publication_day_of_week"]/@content
+Publication Month	Single	/nitf/head/meta[@name="publication_month"]/@content
+Publication Year	Single	/nitf/head/meta[@name="publication_year"]/@content
+Section	Single	/nitf/head/meta[@name="print_section"]/@content
+Series Name	Single	/nitf/head/meta[@name="series_name"]/@content
+Slug	Single	/nitf/head/meta[@name="slug"]/@content
+Taxonomic Classifiers	Multiple	/nitf/head/docdata/identifiedcontent/classifier[@class="online_producer" and @type="taxinomic_classifier"]
+Titles	Multiple	/nitf/head/docdata/identifiedcontent/object.title[@class="indexing_service"]
+Types Of Material	Multiple	/nitf/head/docdata/identifiedcontent/classifier[@class="online_producer" and @type="types_of_material"]
+Url	Single	/nitf/head/pubdata/@ex-ref
+Word Count	Single	/nitf/head/pubdata/@item-length
