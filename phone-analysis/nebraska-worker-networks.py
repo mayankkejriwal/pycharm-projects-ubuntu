@@ -9,6 +9,9 @@ import glob
 from sklearn import linear_model
 import numpy as np
 import pygraphviz as pgv
+from datetime import datetime, timedelta
+from dateutil.parser import parse
+import math
 
 
 
@@ -749,6 +752,40 @@ def construct_int_phone_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
     out.close()
 
 
+def construct_int_day_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
+                                data_for_memex=path+'data_for_memex.json',
+                            output_file=path+'adj_lists/int-day.jl'):
+    """
+    Will not check whether name exists or not. Hence, this is comprehensive, can be used, regardless of whether
+    we are using names.
+    :param id_int_file:
+    :param data_for_memex:
+    :param output_file:
+    :return:
+    """
+    id_int_dict = dict()
+    with codecs.open(id_int_file, 'r') as f:
+        for line in f:
+            items = re.split('\t', line[0:-1])
+            id_int_dict[items[0]] = int(items[1])
+
+    print 'finished reading in id_int_dict file'
+    out = codecs.open(output_file, 'w', 'utf-8')
+
+    with codecs.open(data_for_memex, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])  # exclude newline
+            int_id = id_int_dict[obj['_id']]
+            if 'day' not in obj:
+                continue
+            else:
+                answer = dict()
+                answer[int_id] = obj['day']
+                json.dump(answer, out)
+                out.write('\n')
+    out.close()
+
+
 def construct_int_postid_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
                                 data_for_memex=path+'data_for_memex.json',
                             output_file=path+'adj_lists/int-postid.jl'):
@@ -782,6 +819,47 @@ def construct_int_postid_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
                 out.write('\n')
     out.close()
 
+
+def construct_conn_comp_day_map(int_day_file=path+'adj_lists/int-day.jl',
+                          conn_comp_folder=path + 'adj_lists/connected-component-workers/',
+                          output_file=path + 'adj_lists/connected-component-day-map.jl'
+                          ):
+    int_day_dict = dict()
+    with codecs.open(int_day_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])  # exclude newline
+            int_day_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+    print 'finished reading in int day dict...'
+    files = glob.glob(conn_comp_folder + '*.txt')
+    print 'finished reading in file names...'
+    out = codecs.open(output_file, 'w', 'utf-8')
+    count = 0
+    for f in files:
+        count += 1
+        if count % 10000 == 0:
+            print count
+        list_of_ints = list()
+        with codecs.open(f, 'r', 'utf-8') as m:
+            counter = 0
+            for line in m:
+                list_of_ints = re.split(' ', line[0:-1])
+                counter += 1
+            if counter != 1:
+                print 'problems in file.' + f + '...more than one line...'
+                exit()
+        days = set()
+        for el in list_of_ints:
+            if el not in int_day_dict:
+                continue
+            days.add(int_day_dict[el])
+        days = list(days)
+        days.sort()
+        answer = dict()
+        answer[re.split(conn_comp_folder + '|txt', f)[1][0:-1]] = days
+        json.dump(answer, out)
+        out.write('\n')
+
+    out.close()
 
 def construct_conn_comp_postid_map(int_postid_file=path+'adj_lists/int-postid.jl',
                                   conn_comp_folder=path+'adj_lists/connected-component-workers/',
@@ -867,8 +945,15 @@ def construct_conn_comp_phone_map(int_phone_file=path+'adj_lists/int-phones.jl',
 
     out.close()
 
-def output_guaranteed_singleton_workers(conn_comp_phone_file=path+'adj_lists/connected-component-phone-map.jl',
-                      output_file=path+'adj_lists/phone-singleton-workers.txt'):
+def output_guaranteed_singleton_workers(conn_comp_phone_file=path+'adj_lists/connected-component-postid-map.jl',
+                      output_file=path+'adj_lists/postid-guaranteed-singleton-workers.txt'):
+    """
+    Only a subset of the true singleton workers i.e. those workers who have no corr. attribute values (e.g. no phone)
+    and hence cannot form an edge in the higher-order worker network under any circumstances
+    :param conn_comp_phone_file:
+    :param output_file:
+    :return:
+    """
     out = codecs.open(output_file, 'w', 'utf-8')
     with codecs.open(conn_comp_phone_file, 'r', 'utf-8') as f:
         count = 0
@@ -883,6 +968,36 @@ def output_guaranteed_singleton_workers(conn_comp_phone_file=path+'adj_lists/con
                 out.write(k)
                 out.write('\n')
 
+
+    out.close()
+
+
+def output_all_singleton_workers(edge_list_file=path+'adj_lists/postid-edge-list-names',
+    conn_comp_file=path+'adj_lists/connected-component-postid-map.jl',
+                      output_file=path+'adj_lists/postid-all-singleton-workers.txt'):
+    # out = codecs.open(output_file, 'w', 'utf-8')
+    conn_comp_ids = set()
+    with codecs.open(conn_comp_file, 'r', 'utf-8') as f:
+        count = 0
+        for line in f:
+            obj = json.loads(line[0:-1])
+            count += 1
+            if count % 50000 == 0:
+                print count
+            conn_comp_ids.add(obj.keys()[0])
+    print 'finished reading in conn. comp. ids...',str(len(conn_comp_ids))
+    with codecs.open(edge_list_file, 'r', 'utf-8') as f:
+        count = 0
+        for line in f:
+            fields = re.split('\t',line[0:-1])
+            count += 1
+            if count % 50000 == 0:
+                print count
+            conn_comp_ids.discard(fields[0])
+            conn_comp_ids.discard(fields[1])
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for item in conn_comp_ids:
+        out.write(item+'\n')
 
     out.close()
 
@@ -980,7 +1095,7 @@ def write_edge_list(pcc_file=path+'adj_lists/postid-connected-component-map.jl',
     out.close()
 
 
-def analyze_edge_list(edge_list=path+'adj_lists/phone-edge-list-names',ccp_file=path+'adj_lists/connected-component-phone-map.jl'):
+def analyze_edge_list(edge_list=path+'adj_lists/postid-edge-list-names',ccp_file=path+'adj_lists/connected-component-postid-map.jl'):
     node_list = list()
     G = nx.read_edgelist(edge_list, delimiter='\t')
     print 'is the graph directed? ',
@@ -992,12 +1107,27 @@ def analyze_edge_list(edge_list=path+'adj_lists/phone-edge-list-names',ccp_file=
     print 'num nodes...',str(len(G.nodes()))
     print 'num edges...', str(len(G.edges()))
     print 'num connected components...',str(nx.number_connected_components(G))
+    conn_comps=sorted(nx.connected_components(G), key=len)
+    # print type(conn_comps)
+    singleton_conn_comp = 0
+    for c in conn_comps:
+        if len(c) == 1:
+            singleton_conn_comp += 1
+    print 'num singleton connected components...',str(singleton_conn_comp)
     return G
 
 
 def analyze_phone_postid_edge_lists(edge_list_postid=path+'adj_lists/postid-edge-list-names',ccp_file_postid=path+'adj_lists/connected-component-postid-map.jl',
                                     edge_list_phone=path + 'adj_lists/phone-edge-list-names',
                                     ccp_file_phone=path + 'adj_lists/connected-component-phone-map.jl'):
+    """
+    We need the ccp files to ensure we're reading in the singletons as well.
+    :param edge_list_postid:
+    :param ccp_file_postid:
+    :param edge_list_phone:
+    :param ccp_file_phone:
+    :return:
+    """
     node_list = list()
     G_phone = nx.read_edgelist(edge_list_phone, delimiter='\t')
     G_postid = nx.read_edgelist(edge_list_postid, delimiter='\t')
@@ -1018,7 +1148,94 @@ def analyze_phone_postid_edge_lists(edge_list_postid=path+'adj_lists/postid-edge
     print 'num nodes...',str(len(G.nodes()))
     print 'num edges...', str(len(G.edges()))
     print 'num connected components...',str(nx.number_connected_components(G))
+    conn_comps = sorted(nx.connected_components(G), key=len)
+    # print type(conn_comps)
+    singleton_conn_comp = 0
+    for c in conn_comps:
+        if len(c) == 1:
+            singleton_conn_comp += 1
+    print 'num singleton connected components...', str(singleton_conn_comp)
     return G
+
+
+def analyze_phone_postid_conn_components(edge_list_postid=path+'adj_lists/postid-edge-list-names',ccp_file_postid=path+'adj_lists/connected-component-postid-map.jl',
+                                    edge_list_phone=path + 'adj_lists/phone-edge-list-names',
+                                    ccp_file_phone=path + 'adj_lists/connected-component-phone-map.jl',
+                                         out_file_cid_conn_comp = path+'adj_lists/connected-component-analyses/cid-conn-comps.jl',
+                                         out_file_all= path+'adj_lists/connected-component-analyses/worker-connected-component-analysis-all.tsv',
+                                         out_file_non_singletons=path + 'adj_lists/connected-component-analyses/worker-connected-component-analysis-non-singletons.tsv'):
+    node_list = list()
+    G_phone = nx.read_edgelist(edge_list_phone, delimiter='\t')
+    print 'finished reading in phone edge list...'
+    G_postid = nx.read_edgelist(edge_list_postid, delimiter='\t')
+    print 'finished reading in postid edge list...'
+    G = nx.compose(G_phone, G_postid)
+    print 'is the graph directed? ',
+    print G.is_directed()
+    with codecs.open(ccp_file_phone, 'r', 'utf-8') as f:
+        for line in f:
+            node_list.append(json.loads(line[0:-1]).keys()[0])
+    G.add_nodes_from(node_list)
+
+    node_list = list()
+    with codecs.open(ccp_file_postid, 'r', 'utf-8') as f:
+        for line in f:
+            node_list.append(json.loads(line[0:-1]).keys()[0])
+    G.add_nodes_from(node_list)
+    print 'finished adding singletons'
+
+    print 'num nodes...', str(len(G.nodes()))
+    print 'num edges...', str(len(G.edges()))
+    print 'num connected components...', str(nx.number_connected_components(G))
+    conn_comps = sorted(nx.connected_components(G), key=len) # construct connected components. Now the analysis begins
+    print 'iterating through connected components...'
+
+    out1 = codecs.open(out_file_all, 'w', 'utf-8')
+    header_string = 'row_id\tnodes\tedges\tdensity\tavg. clustering coefficient\ttransitivity\tavg. shortest path length\tdiameter\tdeg. assort. coefficient\n'
+    out1.write(header_string)
+    out2 = codecs.open(out_file_non_singletons, 'w', 'utf-8')
+    out2.write(header_string)
+    out3 = codecs.open(out_file_cid_conn_comp, 'w', 'utf-8')
+
+    count = 0
+    for c in conn_comps:
+        count += 1
+        if count % 10000 == 0:
+            print count
+        # print c
+        # print len(c)
+        Gsub = G.subgraph(c)
+
+        num_nodes = str(len(Gsub.nodes()))
+        num_edges = str(len(Gsub.edges()))
+        density = str(nx.density(Gsub))
+        clust = str(nx.average_clustering(Gsub))
+        transit = str(nx.transitivity(Gsub))
+        # avg_path = str(nx.average_shortest_path_length(Gsub))
+        avg_path = 'NULL'
+        # diameter = str(nx.diameter(Gsub))
+        diameter = 'NULL'
+        if len(c) == 1:
+            deg_assort = 'NULL'
+        else:
+            deg_assort = str(nx.degree_assortativity_coefficient(Gsub))
+
+        write_list = [str(count),num_nodes,num_edges,density,clust,transit,avg_path,diameter,deg_assort]
+        out1.write('\t'.join(write_list))
+        out1.write('\n')
+        if len(c) > 1:
+            out2.write('\t'.join(write_list))
+            out2.write('\n')
+        answer = dict()
+        answer[count] = list(c)
+        json.dump(answer, out3)
+        out3.write('\n')
+
+        # break
+    out1.close()
+    out2.close()
+    out3.close()
+
 
 
 def print_largest_phone_hypergraphs(pcc_file=path+'adj_lists/phone-connected-component-map.jl',
@@ -1185,7 +1402,236 @@ def layout_graph(dot_file=path+'adj_lists/visualizations/postid-edge-list-names.
     G.layout(prog='dot')
     G.draw(image_file)
 
+def conn_comp_date_range(input_file=path + 'adj_lists/connected-component-day-map.jl', output_file=path + 'adj_lists/connected-component-day-range.tsv'):
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(input_file, 'r', 'utf-8') as f:
+        count = 0
+        for line in f:
+            obj = json.loads(line[0:-1])
+            count += 1
+            if count % 10000 == 0:
+                print count
+            k = obj.keys()[0]
+            v = obj[obj.keys()[0]]
+            if len(v) <= 1:
+                v = '0 days'
+            else:
+                dt = parse(str(v[-1])) - parse(str(v[0]))
+                v = str(dt)
+            out.write(obj.keys()[0]+'\t'+v+'\n')
 
+    out.close()
+
+
+def compute_phone_postid_singletons(postid_singletons=path+'adj_lists/postid-all-singleton-workers.txt', phone_singletons=
+    path+'adj_lists/phone-all-singleton-workers.txt', output_file = path+'adj_lists/phone-postid-all-singleton-workers.txt'):
+    """
+    Careful, we're dealing with an intersection not union, since a node may not be a singleton anymore once
+    we account for both types of edges
+    :param postid_singletons:
+    :param phone_singletons:
+    :param output_file:
+    :return:
+    """
+    phone_singleton_set = set()
+    postid_singleton_set = set()
+    with codecs.open(phone_singletons, 'r', 'utf-8') as f:
+
+        for line in f:
+            phone_singleton_set.add(line[0:-1])
+    print 'finished reading in phone singletons'
+    with codecs.open(postid_singletons, 'r', 'utf-8') as f:
+
+        for line in f:
+            postid_singleton_set.add(line[0:-1])
+    print 'finished reading in postid singletons'
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for item in phone_singleton_set.intersection(postid_singleton_set):
+        out.write(item+'\n')
+    out.close()
+
+
+def worker_attribute_analysis(input_folder = path+'adj_lists/connected-component-workers/',
+                              data_for_memex=path + 'data_for_memex.json',
+                              id_int_file=path + 'adj_lists/id-int-mapping.tsv',
+                              output = path+'adj_lists/worker-attribute-analyses/worker-attribute-distribution.jl' ):
+    """
+    Currently only computing for ethnicity. Blank values are also counted as 'NULL'. Also, we're using the fact
+    that we don't need to load in data if it doesn't have a name
+    :param input_folder:
+    :param data_for_memex:
+    :param id_int_file:
+    :return:
+    """
+    files = glob.glob(input_folder + '*.txt')
+    print 'finished reading in file names in connected component workers...'
+    id_int = dict()
+    int_data = dict()
+
+    with codecs.open(id_int_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t',line[0:-1])
+            id_int[fields[0]] = fields[1]
+    print 'finished processing id int file...'
+    count = 1
+    with codecs.open(data_for_memex, 'r', 'utf-8') as f:
+        for line in f:
+
+            if count % 100000 == 0:
+                print count
+            obj = json.loads(line[0:-1])
+            if len(obj['name']) == 0:
+                count += 1
+                continue
+            int_data[id_int[obj['_id']]] = dict()
+            int_data[id_int[obj['_id']]]['ethnicity'] = obj['ethnicity']
+            int_data[id_int[obj['_id']]]['price'] = obj['price']
+            int_data[id_int[obj['_id']]]['age'] = obj['age']
+            int_data[id_int[obj['_id']]]['indicators'] = obj['indicators']
+            int_data[id_int[obj['_id']]]['city'] = obj['city']
+            count += 1
+            del id_int[obj['_id']]
+
+    print 'finished reading in data...'
+    # id_int = None
+    out = codecs.open(output, 'w', 'utf-8')
+    for fi in files:
+        # print f
+        fields = list()
+        count = 0
+        with codecs.open(fi, 'r', 'utf-8') as f:
+            for line in f:
+                # print line
+                fields = re.split(' ',line[0:-1])
+                # print fields
+                # for i in range(0, len(fields)):
+                #     fields[i] = int(fields[i])
+                count += 1
+                if count != 1:
+                    print f
+                    raise Exception
+            ethnicities = dict()
+            ages = dict()
+            prices = dict()
+            cities = dict()
+            indicators = dict()
+            answer = dict()
+            for i in fields:
+                #ethnicities
+                eth = int_data[i]['ethnicity']
+                if len(eth) == 0:
+                    if 'NULL' not in ethnicities:
+                        ethnicities['NULL'] = 0
+                    ethnicities['NULL'] += 1
+                else:
+                    for e in eth:
+                        if e not in ethnicities:
+                            ethnicities[e] = 0
+                        ethnicities[e] += 1
+                #ages
+                a = int_data[i]['age']
+                if a == "":
+                    if 'NULL' not in ages:
+                        ages['NULL'] = 0
+                    ages['NULL'] += 1
+                else:
+
+                        if a not in ages:
+                            ages[a] = 0
+                        ages[a] += 1
+                #prices
+                a = int_data[i]['price']
+                if a == "":
+                    if 'NULL' not in prices:
+                        prices['NULL'] = 0
+                    prices['NULL'] += 1
+                else:
+
+                    if a not in prices:
+                        prices[a] = 0
+                    prices[a] += 1
+                # cities
+                a = int_data[i]['city']
+                if a == "":
+                    if 'NULL' not in cities:
+                        cities['NULL'] = 0
+                    cities['NULL'] += 1
+                else:
+
+                    if a not in cities:
+                        cities[a] = 0
+                    cities[a] += 1
+                # indicators
+                ind = int_data[i]['indicators']
+                if len(ind) == 0:
+                    if 'NULL' not in indicators:
+                        indicators['NULL'] = 0
+                    indicators['NULL'] += 1
+                else:
+                    for e in ind:
+                        if e not in indicators:
+                            indicators[e] = 0
+                        indicators[e] += 1
+            answer[fi[len(input_folder):]] = dict()
+            answer[fi[len(input_folder):]]['ethnicity'] = ethnicities
+            answer[fi[len(input_folder):]]['ages'] = ages
+            answer[fi[len(input_folder):]]['prices'] = prices
+            answer[fi[len(input_folder):]]['cities'] = cities
+            answer[fi[len(input_folder):]]['indicators'] = indicators
+            json.dump(answer, out)
+            out.write('\n')
+
+    out.close()
+
+
+def worker_attribute_entropy_profile(attribute_distr = path+'adj_lists/worker-attribute-analyses/worker-attribute-distribution.jl',
+                                     entropy_profile_output = path+'adj_lists/worker-attribute-analyses/worker-attribute-distribution-entropy.csv'):
+    attribute_dict = dict()
+    count = 0
+    with codecs.open(attribute_distr, 'r', 'utf-8') as f:
+        for line in f:
+            if count % 10000 == 0:
+                print count
+            obj = json.loads(line[0:-1])
+            obj = obj[obj.keys()[0]]
+            attributes = obj.keys() # these must be uniform! i.e. the jsons have the exact same inner schema, even when values are missing
+            for a in attributes:
+                ent= _compute_entropy(obj[a])
+                if a not in attribute_dict:
+                    attribute_dict[a] = list()
+                attribute_dict[a].append(ent)
+            count += 1
+    print 'finished populating attribute dict...'
+    out = codecs.open(entropy_profile_output, 'w')
+    out.write('Attribute,Avg. Entropy across Workers,Std. Dev.\n')
+    for k,v in attribute_dict.items():
+        avg = np.mean(v)
+        std = np.std(v)
+        out.write(k+','+str(avg)+','+str(std)+'\n')
+    out.close()
+
+def _compute_entropy(value_dictionary):
+    # value dictionary has 'names' for keys and values (i.e. ints) for values. We assume discreteness
+    v = list(value_dictionary.values())
+    if len(v) <= 1:
+        return 0.0
+    c = np.sum(v)
+    entropy = 0.0
+    for i in v:
+        if i == 0:
+            continue
+        else:
+            P = 1.0*i/c
+            entropy += (math.log(P)*P*-1.0)
+    return entropy
+
+
+
+
+# worker_attribute_analysis()
+worker_attribute_entropy_profile()
+
+# analyze_phone_postid_conn_components()
 # construct_int_postid_map()
 # construct_conn_comp_postid_map()
 # serialize_multi_edge_list_to_graphviz_dot()
@@ -1197,6 +1643,9 @@ def layout_graph(dot_file=path+'adj_lists/visualizations/postid-edge-list-names.
 ### phase 3: plot
 # construct_conn_comp_phone_map()
 # output_guaranteed_singleton_workers()
+# output_all_singleton_workers()
+# compute_phone_postid_singletons()
+# analyze_phone_postid_edge_lists()
 # print_largest_phone_hypergraphs()
 # degree_distribution_plot_worker_network(G=analyze_phone_postid_edge_lists())
 # degree_distribution_plot_worker_network()
@@ -1222,6 +1671,9 @@ def layout_graph(dot_file=path+'adj_lists/visualizations/postid-edge-list-names.
 # build_edge_list() # under construction, will likely have to move to server/mapreduce
 # build_name_and_postid_or_phone_adj_list()
 # build_id_integer_mappings() # one off, leave alone once constructed
+# construct_int_day_map()
+# construct_conn_comp_day_map()
+# conn_comp_date_range()
 
 
 

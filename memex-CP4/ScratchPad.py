@@ -3,6 +3,8 @@ from elasticsearch import Elasticsearch
 import nltk
 import pprint
 from sqparser import SQParser
+from datetime import datetime, timedelta
+from dateutil.parser import parse
 # import re
 #import sqparser
 #Various odds and ends
@@ -74,8 +76,15 @@ def _dummy_function():
                 print x,
                 print y
 
+def datetime_test():
+    f = '20170913'
+    g = '20170813'
+    dt = parse(f)-parse(g)
 
 
+    print dt
+
+datetime_test()
 # infile = '/Users/mayankkejriwal/datasets/memex-evaluation-november/expanded-dictionaries.json'
 # inf = codecs.open(infile, 'r', 'utf-8')
 # k = json.load(inf)
