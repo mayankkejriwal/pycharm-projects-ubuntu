@@ -239,6 +239,30 @@ def sanity_check_window_clusters(input_file=path+'situation-clustering/haiti_rep
     print len(occurred)
 
 
+def serialize_clusters_human_readable(input_file=path+'situation-clustering/haiti_reproc_topic_window_clusters.jsonl',
+                                      original_file=path+'datasets/haiti_reproc.json',
+                                      output_folder=path+'situation-clustering/jsonl-clusters/'):
+    node_dict = dict()
+    with codecs.open(original_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            node_id = obj['_id']
+            node_dict[node_id] = obj
+    print 'finished reading in original file...'
+    with codecs.open(input_file, 'r', 'utf-8') as f:
+
+        for line in f:
+            obj = json.loads(line[0:-1])
+            cluster_id = obj.keys()[0]
+            doc_ids = obj[cluster_id]
+            out = codecs.open(output_folder+cluster_id+".jsonl", 'w', 'utf-8')
+            for docid in doc_ids:
+                json.dump(node_dict[docid], out)
+                out.write('\n')
+            out.close()
+
+
 # topic_OR_location_clustering()
-topic_window_clustering()
-sanity_check_window_clusters()
+serialize_clusters_human_readable()
+# topic_window_clustering()
+# sanity_check_window_clusters()

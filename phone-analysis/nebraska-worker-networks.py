@@ -1451,6 +1451,132 @@ def compute_phone_postid_singletons(postid_singletons=path+'adj_lists/postid-all
     out.close()
 
 
+def connected_component_size_stratified_sampling(min_size=2, max_size=10, sample_size=10,
+                                 cid_file=path+'adj_lists/connected-component-analyses/cid-conn-comps.jl',
+                                                 output_folder=path+'adj_lists/connected-component-samples/2_10_10/'):
+    """
+    we sample at least one item from each bucket within min_size and max_size. for this reason, total may be more than
+    10.
+    :param min_size:
+    :param max_size:
+    :param sample_size:
+    :param cid_file:
+    :param output_folder:
+    :return:
+    """
+    sampling_dict = dict()
+    total = 0
+    cids = dict()
+    with codecs.open(cid_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            k = obj.keys()[0]
+            if len(obj[k]) >= min_size and len(obj[k]) <= max_size:
+                size = len(obj[k])
+                if size not in sampling_dict:
+                    sampling_dict[size] = list()
+                sampling_dict[size].append(k)
+                total += 1
+                cids[k] = obj[k]
+    print 'printing populations sizes, and outputting samples'
+
+    for k, v in sampling_dict.items():
+        print 'size: ',str(k),' number of items: ',str(len(v))
+        local_size = int(sample_size*1.0*len(v)/total)
+        if local_size < 1:
+            local_size = 1
+        from numpy.random import choice
+        samples = choice(v, local_size, False)
+        for s in samples:
+            out = codecs.open(output_folder+s+'.txt', 'w')
+            out.write('\t'.join(cids[s])+'\n')
+            out.close()
+
+
+def connected_component_ad_ints(input_folder=path+'adj_lists/connected-component-samples/2_10_10/',
+                                   output_folder=path+'adj_lists/connected-component-samples/2_10_10_ints/',
+                                   ccw_folder=path + 'adj_lists/connected-component-workers/'):
+    input_files = glob.glob(input_folder + '*.txt')
+    output_files = [i.replace(input_folder, output_folder) for i in input_files]
+    for infi in range(0, len(input_files)):
+        ints = list()
+        with codecs.open(input_files[infi], 'r') as inf:
+            fields = None
+            for line in inf:
+                fields = re.split('\t',line[0:-1])
+
+            for field in fields:
+                with codecs.open(ccw_folder+field+'.txt') as field_f:
+                    for line in field_f:
+                        ints += re.split(' ',line[0:-1])
+            ints = list(set(ints))
+            ints.sort()
+        out = codecs.open(output_files[infi], 'w', 'utf-8')
+        out.write(' '.join(ints)+'\n')
+        out.close()
+
+
+    # for fi in files:
+    #     with codecs.open(fi, 'r', 'utf-8') as f:
+    #         pass
+
+
+def connected_component_ad_samples(input_folder=path+'adj_lists/connected-component-samples/2_10_10_ints/',
+                                   output_folder=path+'adj_lists/connected-component-samples/2_10_10_ads/',
+                                    data_for_memex=path + 'data_for_memex.json',
+                                   int_id_file=path + 'adj_lists/int-id-mapping.tsv'):
+    input_files = glob.glob(input_folder + '*.txt')
+    output_files = [i.replace(input_folder, output_folder) for i in input_files]
+    int_id_dict = dict()
+    with codecs.open(int_id_file, 'r') as f:
+        for line in f:
+            items = re.split('\t', line[0:-1])
+            int_id_dict[int(items[0])] = items[1]
+    print 'finished reading in int id file...'
+    output_dict = dict()
+    big_fields = list()
+    for infi in range(0, len(input_files)):
+        fields = list()
+
+        with codecs.open(input_files[infi], 'r') as inf:
+
+            for line in inf:
+                fields = re.split(' ',line[0:-1])
+
+            for i in range(0, len(fields)):
+                fields[i] = int_id_dict[int(fields[i])]
+
+
+        output_dict[output_files[infi]] = fields
+        big_fields += fields
+
+    big_fields = list(set(big_fields))
+
+    #enable when you have more time. For now just print out IDs.
+    # id_data = dict()
+    # count = 0
+    # with codecs.open(data_for_memex, 'r', 'utf-8') as f:
+    #     for line in f:
+    #
+    #         if count % 100000 == 0:
+    #             print count
+    #             # break
+    #         obj = json.loads(line[0:-1])
+    #         count += 1
+    #         if len(obj['name'])==0 or obj['_id'] not in big_fields:
+    #             continue
+    #         else:
+    #             id_data[obj['_id']] = obj
+    # print 'finished reading data memex'
+
+    for o, v in output_dict.items():
+        out = codecs.open(o, 'w')
+        json.dump(v, out)
+        out.write('\n')
+        out.close()
+
+
+
 def worker_attribute_analysis(input_folder = path+'adj_lists/connected-component-workers/',
                               data_for_memex=path + 'data_for_memex.json',
                               id_int_file=path + 'adj_lists/id-int-mapping.tsv',
@@ -1626,11 +1752,608 @@ def _compute_entropy(value_dictionary):
     return entropy
 
 
+def cid_homophily_analysis(cid_file=path+'adj_lists/connected-component-analyses/cid-conn-comps.jl',
+                    worker_attribute_file=path+'adj_lists/worker-attribute-analyses/worker-attribute-distribution.jl',
+                    edge_list_postid=path+'adj_lists/postid-edge-list-names',
+                    ethnicity_dict_file=path+'adj_lists/Ethnicity-Tiers.json',
+                    cc_day_map=path+'adj_lists/connected-component-day-map.jl',
+                    edge_list_phone=path + 'adj_lists/phone-edge-list-names',
+                    out_file=path+'adj_lists/connected-component-analyses/worker-cc-homophily-analysis-non-singletons.tsv'):
+
+    ethnicity_resolver = read_ethnicity_dict(ethnicity_dict_file)
+    G = nx.compose(nx.read_edgelist(edge_list_phone, delimiter='\t'), nx.read_edgelist(edge_list_postid, delimiter='\t'))
+    print 'finished reading in graph'
+
+    edge_dict = dict()
+    for e in G.edges():
+        if e[0] not in edge_dict:
+            edge_dict[e[0]] = set()
+        edge_dict[e[0]].add(e[1])
+    G = None
 
 
+
+    worker_attribute_dict = dict()
+    with codecs.open(worker_attribute_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            worker_attribute_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+
+    with codecs.open(cc_day_map, 'r', 'utf-8') as f:
+        # count = 0
+        for line in f:
+            obj = json.loads(line[0:-1])
+            # count += 1
+            # if count % 10000 == 0:
+            #     print count
+            k = obj.keys()[0]
+            if k+'.txt' not in worker_attribute_dict:
+                raise Exception
+            v = obj[obj.keys()[0]]
+            if len(v) <= 1:
+                worker_attribute_dict[k+'.txt']['avg_days_per_week'] = 0
+            else:
+                dt = parse(str(v[-1])) - parse(str(v[0]))
+                if dt.days+1 < 30:
+                    worker_attribute_dict[k + '.txt']['avg_days_per_week'] = 0
+                else:
+                    worker_attribute_dict[k + '.txt']['avg_days_per_week'] = (len(set(v))*7)/(dt.days+1)
+    print 'finished reading worker attribute dict'
+    out = codecs.open(out_file, 'w', 'utf-8')
+    out.write('row_id\tage_assortativity_coefficient\tprice_assortativity_coefficient\t'
+              'in/outcall_assortativity_coefficient\tethnicity_assortativity_coefficient\tavg_days_assortativity_coefficient,'
+              '\tdegree_assortativity\n')
+
+
+    with codecs.open(cid_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            if len(obj[obj.keys()[0]])<=1:
+                continue
+            mixing = compute_assortative_mixing(obj[obj.keys()[0]], worker_attribute_dict,edge_dict,ethnicity_resolver)
+            out.write(obj.keys()[0]+'\t'+str(mixing['age'])+'\t'+str(mixing['price'])
+                      +'\t'+str(mixing['in/outcall'])+'\t'+str(mixing['ethnicity'])+'\t'+str(mixing['avgDays'])+
+                      str(mixing['degree'])+'\n')
+            # print obj.keys()[0]
+
+            # break
+
+    out.close()
+
+def compute_assortative_mixing(worker_list, worker_attribute_dict,G_edge_dict,ethnicity_resolver):
+    G = nx.Graph()
+    for worker in worker_list:
+        inout = "0"
+        if 'indicators' in worker_attribute_dict[worker+'.txt'] and "29" in worker_attribute_dict[worker+'.txt']['indicators']\
+                and worker_attribute_dict[worker+'.txt']['indicators']["29"] >= 1:
+            inout = "1"
+        ethnicity_set = set()
+        for eth in worker_attribute_dict[worker+'.txt']['ethnicity'].keys():
+            if eth == 'NULL' or eth not in ethnicity_resolver:
+                ethnicity_set.add(eth)
+            else:
+                ethnicity_set.add(ethnicity_resolver[eth])
+        worker_ethnicity = "mixed"
+        if len(ethnicity_set) == 1:
+            worker_ethnicity = list(ethnicity_set)[0]
+        G.add_node(worker, price=_get_max_element(worker_attribute_dict[worker+'.txt']['prices']),
+                   age=_get_max_element(worker_attribute_dict[worker+'.txt']['ages']),
+                   inOutcall=inout,
+                   ethnicity=worker_ethnicity,
+                   avgDays=worker_attribute_dict[worker+'.txt']['avg_days_per_week'])
+        if worker in G_edge_dict:
+            for element in G_edge_dict[worker]:
+                if element not in worker_list:
+                    raise Exception
+                G.add_edge(worker, element)
+
+    answer = dict()
+
+    from networkx.algorithms.assortativity.mixing import attribute_mixing_matrix, numeric_mixing_matrix
+    if attribute_mixing_matrix(G, 'price').trace() == len(attribute_mixing_matrix(G, 'price')):
+        answer['price'] = 1.0
+    else:
+
+        answer['price'] = nx.attribute_assortativity_coefficient(G,'price')
+
+    if attribute_mixing_matrix(G, 'age').trace() == len(attribute_mixing_matrix(G, 'age')):
+        answer['age'] = 1.0
+    else:
+        answer['age'] = nx.attribute_assortativity_coefficient(G, 'age')
+
+    if attribute_mixing_matrix(G, 'inOutcall').trace() == len(attribute_mixing_matrix(G, 'inOutcall')):
+        answer['in/outcall'] = 1.0
+    else:
+        answer['in/outcall'] = nx.attribute_assortativity_coefficient(G, 'inOutcall')
+
+    if attribute_mixing_matrix(G, 'ethnicity').trace() == len(attribute_mixing_matrix(G, 'ethnicity')):
+        answer['ethnicity'] = 1.0
+    else:
+        answer['ethnicity'] = nx.attribute_assortativity_coefficient(G, 'ethnicity')
+
+    if attribute_mixing_matrix(G, 'avgDays').trace() == len(attribute_mixing_matrix(G, 'avgDays')):
+        answer['avgDays'] = 1.0
+    else:
+        answer['avgDays'] = nx.attribute_assortativity_coefficient(G, 'avgDays')
+    # print answer
+    answer['degree'] = nx.degree_assortativity_coefficient(G)
+    return answer
+
+
+def populate_cc_samples_with_ad_jsons(data_in=path+'data_for_memex_txt.json',
+                                      ads_dir=path+'adj_lists/connected-component-samples/2_10_10_ads/',
+                                      output_dir=path+'adj_lists/connected-component-samples/2_10_10_ads_txt/'):
+    input_files = glob.glob(ads_dir + '*.txt')
+    output_folders = [i.replace(ads_dir, '') for i in input_files]
+    output_folders = [i.replace('.txt', '/') for i in output_folders]
+    # print output_folders
+    import os
+    for output_folder in output_folders:
+        if not os.path.exists(output_dir+output_folder):
+            os.makedirs(output_dir+output_folder)
+    output_folders = [output_dir+output_folder for output_folder in output_folders]
+
+    file_dict = dict()
+    id_data = dict()
+    ids_set = set()
+
+    # print file
+    for i in range(0,len(input_files)):
+        ids = json.load(codecs.open(input_files[i], 'r', 'utf-8'))
+        ids_set = ids_set.union(set(ids))
+        file_dict[output_folders[i]] = ids
+    print ids_set
+    print file_dict
+    with codecs.open(data_in, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            if obj['_id'] not in ids_set:
+                continue
+            else:
+                id_data[obj['_id']] = obj
+
+    for f, d in file_dict.items():
+        for element in d:
+            out = codecs.open(f+element+'.json', 'w', 'utf-8')
+            json.dump(id_data[element], out, indent=4)
+            # out.write('\n')
+            out.close()
+
+
+def populate_cc_samples_with_ad_extractions(data_in=path+'data_for_memex.json',
+                                      ads_dir=path+'adj_lists/connected-component-samples/2_10_10_ads/',
+                                      output_dir=path+'adj_lists/connected-component-samples/2_10_10_ads_extractions/'):
+    input_files = glob.glob(ads_dir + '*.txt')
+    output_folders = [i.replace(ads_dir, '') for i in input_files]
+    output_folders = [i.replace('.txt', '/') for i in output_folders]
+    # print output_folders
+    import os
+    for output_folder in output_folders:
+        if not os.path.exists(output_dir+output_folder):
+            os.makedirs(output_dir+output_folder)
+    output_folders = [output_dir+output_folder for output_folder in output_folders]
+
+    file_dict = dict()
+    id_data = dict()
+    ids_set = set()
+
+    # print file
+    for i in range(0,len(input_files)):
+        ids = json.load(codecs.open(input_files[i], 'r', 'utf-8'))
+        ids_set = ids_set.union(set(ids))
+        file_dict[output_folders[i]] = ids
+    print ids_set
+    print file_dict
+    with codecs.open(data_in, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            if obj['_id'] not in ids_set:
+                continue
+            else:
+                id_data[obj['_id']] = obj
+
+    for f, d in file_dict.items():
+        for element in d:
+            out = codecs.open(f+element+'.json', 'w', 'utf-8')
+            json.dump(id_data[element], out, indent=4)
+            # out.write('\n')
+            out.close()
+
+def read_ethnicity_dict(ethnicity_file=path+'adj_lists/Ethnicity-Tiers.json'):
+    ethnicities = json.load(open(ethnicity_file, 'r'))
+    reverse_dict = dict()
+    reverse_dict["northkorean"] = "asian"
+    reverse_dict["southkorean"] = "asian"
+    for k, v in ethnicities.items():
+        if k == "african_american" or k == "ss_african" or k == "american_indian":
+            for element in v:
+                reverse_dict[element] = k
+        elif k == "midEast_nAfrica" or k == "hispanic_latino" or k =="white_non_hispanic":
+            for k1, v1 in v.items():
+                for element in v1:
+                    reverse_dict[element] = k
+                reverse_dict[k1] = k
+        elif k == "asian":
+            for k1, v1 in v.items():
+
+                for element in v1:
+                    if type(element) == dict:
+                        print element
+                        continue
+                    else:
+                        reverse_dict[element] = k
+                reverse_dict[k1] = k
+        else:
+            print k
+            raise Exception
+
+    return reverse_dict
+
+
+def compute_ad_statistics(data_in=path+'data_for_memex.json',
+                          output=path + 'adj_lists/statistics/ad-distributions/',
+                          schema={'price', 'age', 'indicators', 'ethnicity', 'name', 'city'}, ignore_no_name=True):
+    """
+    Ignore_no_name=False has not been implemented yet, do not use
+    We use placeholder NO_VALUE if the attribute is not in the object.
+    :param data_in:
+    :param output:
+    :param schema:
+    :param ignore_name:
+    :return:
+    """
+    if ignore_no_name is False:
+        raise Exception
+    count = 1
+    big_dict = dict() # i.e. for all attributes in schema
+    for s in schema:
+        big_dict[s] = dict()
+    with codecs.open(data_in, 'r', 'utf-8') as f:
+        for line in f:
+
+            if count % 1000000 == 0:
+                print count
+
+            obj = json.loads(line[0:-1])
+            if 'name' not in obj or len(obj['name']) == 0:
+                count += 1
+                continue
+            _update_statistics_dict(schema, big_dict, obj)
+            count += 1
+    _write_out_statistics_to_folder(schema, big_dict, output)
+
+
+
+def _write_out_statistics_to_folder(schema, big_dict, output):
+    for s in schema:
+        out = codecs.open(output+s+'.tsv', 'w')
+        out.write('Attribute_value'+'\t'+'Ad_frequency'+'\n')
+        sorted_keys = sorted(list(big_dict[s].keys()))
+        for k in sorted_keys:
+            v = big_dict[s][k]
+            out.write(str(k)+'\t'+str(v)+'\n')
+        out.close()
+
+def _update_statistics_dict(schema, big_dict, obj):
+    for s in schema:
+        if s not in obj or (type(obj[s]) == list and len(obj[s]) == 0):
+            if 'NO_VALUE' not in big_dict[s]:
+                big_dict[s]['NO_VALUE'] = 0
+            big_dict[s]['NO_VALUE'] += 1
+            continue
+
+        if type(obj[s]) != list:
+            if obj[s] not in big_dict[s]:
+                big_dict[s][obj[s]] = 0
+            big_dict[s][obj[s]] += 1
+        else:
+            for l in obj[s]:
+                if l not in big_dict[s]:
+                    big_dict[s][l] = 0
+                big_dict[s][l] += 1
+    return
+
+
+def compute_worker_statistics(data_in=path+'data_for_memex.json', input_folder = path+'adj_lists/connected-component-workers/',
+                              id_int_file=path + 'adj_lists/id-int-mapping.tsv',
+                              output=path + 'adj_lists/statistics/worker-distributions/',
+                              schema={'price', 'age', 'indicators', 'ethnicity', 'name', 'city'}):
+    """
+    We haven't generated workers yet that do not have a name, so we don't need ignore name here like with
+    generating ad distributions.
+    :param data_in:
+    :param input_folder:
+    :param id_int_file:
+    :param output:
+    :param schema:
+    :return:
+    """
+    files = glob.glob(input_folder + '*.txt')
+    print 'finished reading in file names in connected component workers...'
+    id_int = dict()
+    int_data = dict()
+
+    with codecs.open(id_int_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            id_int[fields[0]] = fields[1]
+    print 'finished processing id int file...'
+    count = 1
+    with codecs.open(data_in, 'r', 'utf-8') as f:
+        for line in f:
+
+            if count % 100000 == 0:
+                print count
+            obj = json.loads(line[0:-1])
+            if len(obj['name']) == 0:
+                count += 1
+                continue
+            int_data[id_int[obj['_id']]] = dict()
+            for s in schema:
+                int_data[id_int[obj['_id']]][s] = obj[s]
+
+            count += 1
+            del id_int[obj['_id']]
+    big_dict = dict()
+    for s in schema:
+        big_dict[s] = dict()
+    print 'finished reading in data...'
+    for fi in files:
+        fields = list()
+        count = 0
+        worker_dict = dict()
+        with codecs.open(fi, 'r', 'utf-8') as f:
+            for line in f:
+                fields = re.split(' ', line[0:-1])
+                count += 1
+                if count != 1:
+                    print f
+                    raise Exception
+
+                for s in schema:
+                    worker_dict[s] = set()
+                for f in fields:
+                    obj = int_data[f]
+                    for s in schema:
+                        if s not in obj or (type(obj[s]) == list and len(obj[s]) == 0):
+                            worker_dict[s].add('NO_VALUE')
+                            continue
+
+                        if type(obj[s]) != list:
+                            worker_dict[s].add(obj[s])
+                        else:
+                            worker_dict[s] = worker_dict[s].union(set(obj[s]))
+
+                for s in schema:
+                    worker_dict[s] = list(worker_dict[s])
+                _update_statistics_dict(schema, big_dict, worker_dict)
+    _write_out_statistics_to_folder(schema, big_dict, output)
+
+
+def filter_similar_name_pairs(edge_list_dist=path+'adj_lists/postid-edge-list-names-phones-levenstein-sim',thresh_dist=2,
+                              output_file=path+'adj_lists/name-matching/levenstein-2-edge-list.tsv'):
+    out = codecs.open(output_file, 'w')
+    with codecs.open(edge_list_dist, 'r') as f:
+        for line in f:
+            fields = re.split('\t', line[0:-1])
+            if int(fields[2]) <= thresh_dist:
+                out.write(line)
+    out.close()
+
+
+
+
+def compute_edge_list_name_similarities(edge_list_postid=path+'adj_lists/postid-edge-list-names',edge_list_phone=path + 'adj_lists/phone-edge-list-names',
+                                        out_file=path+'adj_lists/postid-edge-list-names-phones-levenstein-sim'):
+        out = codecs.open(out_file, 'w', 'utf-8')
+        G = nx.compose(nx.read_edgelist(edge_list_phone, delimiter='\t'),
+                       nx.read_edgelist(edge_list_postid, delimiter='\t'))
+        print 'num name pairs processing...',str(len(G.edges()))
+        count = 0
+        for e in G.edges():
+            name1 = re.split('-',e[0])[0]
+            name2 = re.split('-',e[1])[0]
+
+            out.write(e[0]+'\t'+e[1]+'\t'+str(_levenshtein(name1, name2))+'\n')
+            if count % 50000 == 0:
+                print count
+            count += 1
+            # break
+        out.close()
+
+
+memo = {} # for levenshtein memoization
+def _levenshtein(s, t):
+    if s == "":
+        return len(t)
+    if t == "":
+        return len(s)
+    cost = 0 if s[-1] == t[-1] else 1
+
+    i1 = (s[:-1], t)
+    if not i1 in memo:
+        memo[i1] = _levenshtein(*i1)
+    i2 = (s, t[:-1])
+    if not i2 in memo:
+        memo[i2] = _levenshtein(*i2)
+    i3 = (s[:-1], t[:-1])
+    if not i3 in memo:
+        memo[i3] = _levenshtein(*i3)
+    res = min([memo[i1] + 1, memo[i2] + 1, memo[i3] + cost])
+
+    return res
+
+
+def global_worker_homophily(worker_attribute_file=path+'adj_lists/worker-attribute-analyses/worker-attribute-distribution.jl',
+                    edge_list_postid=path+'adj_lists/postid-edge-list-names',
+                    ethnicity_dict_file=path+'adj_lists/Ethnicity-Tiers.json',
+                    cc_day_map=path+'adj_lists/connected-component-day-map.jl',
+                    edge_list_phone=path + 'adj_lists/phone-edge-list-names',
+                    out_file=path+'adj_lists/worker-global-homophily-analysis-non-singletons.jl'):
+    ethnicity_resolver = read_ethnicity_dict(ethnicity_dict_file)
+    G = nx.compose(nx.read_edgelist(edge_list_phone, delimiter='\t'),
+                   nx.read_edgelist(edge_list_postid, delimiter='\t'))
+    print 'finished reading in graph'
+    worker_attribute_dict = dict()
+    with codecs.open(worker_attribute_file, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            worker_attribute_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+
+    with codecs.open(cc_day_map, 'r', 'utf-8') as f:
+        # count = 0
+        for line in f:
+            obj = json.loads(line[0:-1])
+            # count += 1
+            # if count % 10000 == 0:
+            #     print count
+            k = obj.keys()[0]
+            if k + '.txt' not in worker_attribute_dict:
+                raise Exception
+            v = obj[obj.keys()[0]]
+            if len(v) <= 1:
+                worker_attribute_dict[k + '.txt']['avg_days_per_week'] = 0
+            else:
+                dt = parse(str(v[-1])) - parse(str(v[0]))
+                if dt.days + 1 < 30:
+                    worker_attribute_dict[k + '.txt']['avg_days_per_week'] = 0
+                else:
+                    worker_attribute_dict[k + '.txt']['avg_days_per_week'] = (len(set(v)) * 7) / (dt.days + 1)
+    print 'finished reading worker attribute dict'
+
+
+    for worker in worker_attribute_dict.keys():
+        worker = worker[0:-4] # remove the .txt from the end
+        attrdict = dict()
+
+        # average days per week
+        attrdict['avgDays'] = worker_attribute_dict[worker + '.txt']['avg_days_per_week']
+
+        # incall/outcall
+        inout = "0"
+        if 'indicators' in worker_attribute_dict[worker+'.txt'] and "29" in worker_attribute_dict[worker+'.txt']['indicators']\
+                and worker_attribute_dict[worker+'.txt']['indicators']["29"] >= 1:
+            inout = "1"
+        attrdict['inOutcall'] = inout
+
+        #ethnicity
+        ethnicity_set = set()
+        for eth in worker_attribute_dict[worker+'.txt']['ethnicity'].keys():
+            if eth == 'NULL':
+                continue
+            if eth not in ethnicity_resolver:
+                ethnicity_set.add(eth)
+            else:
+                ethnicity_set.add(ethnicity_resolver[eth])
+        if len(ethnicity_set) != 0:
+
+            worker_ethnicity = "mixed"
+            if len(ethnicity_set) == 1:
+                worker_ethnicity = list(ethnicity_set)[0]
+            attrdict['ethnicity'] = worker_ethnicity
+
+
+        #price
+        price = _get_max_element(worker_attribute_dict[worker+'.txt']['prices'])
+
+        if  price!= -1 and price != 'NULL':
+            attrdict['price'] = int(float(price))
+
+        # age
+        age = _get_max_element(worker_attribute_dict[worker + '.txt']['ages'])
+
+        if age != -1 and age != 'NULL':
+                attrdict['age'] = int(age)
+        G.add_node(worker, **attrdict)
+
+    print 'finished adding attribute-updated nodes to graph'
+    answer = dict()
+
+    from networkx.algorithms.assortativity.mixing import attribute_mixing_matrix, numeric_mixing_matrix
+    if numeric_mixing_matrix(G, 'price').trace() == len(numeric_mixing_matrix(G, 'price')):
+        answer['price'] = 1.0
+    else:
+
+        answer['price'] = nx.numeric_assortativity_coefficient(G,'price')
+
+    if numeric_mixing_matrix(G, 'age').trace() == len(numeric_mixing_matrix(G, 'age')):
+        answer['age'] = 1.0
+    else:
+        answer['age'] = nx.numeric_assortativity_coefficient(G, 'age')
+
+    if attribute_mixing_matrix(G, 'inOutcall').trace() == len(attribute_mixing_matrix(G, 'inOutcall')):
+        answer['in/outcall'] = 1.0
+    else:
+        answer['in/outcall'] = nx.attribute_assortativity_coefficient(G, 'inOutcall')
+
+    if attribute_mixing_matrix(G, 'ethnicity').trace() == len(attribute_mixing_matrix(G, 'ethnicity')):
+        answer['ethnicity'] = 1.0
+    else:
+        answer['ethnicity'] = nx.attribute_assortativity_coefficient(G, 'ethnicity')
+
+    if numeric_mixing_matrix(G, 'avgDays').trace() == len(numeric_mixing_matrix(G, 'avgDays')):
+        answer['avgDays'] = 1.0
+    else:
+        answer['avgDays'] = nx.numeric_assortativity_coefficient(G, 'avgDays')
+
+
+    answer['degree'] = nx.degree_assortativity_coefficient(G)
+    json.dump(answer, codecs.open(out_file, 'w'), indent=4)
+
+
+
+def _get_max_element(dictionary):
+    K = None
+    val = 0
+    for k,v in dictionary.items():
+        if v > val:
+            K = k
+            val = v
+
+    return K
+
+
+def prepare_text_embeddings_file(input_file=path+'data_for_memex_txt.json', output_file=path+'data_for_memex_serialized_txt.txt'):
+    from bs4 import BeautifulSoup
+    out = codecs.open(output_file, 'w', 'utf-8')
+    with codecs.open(input_file, 'r', 'utf-8') as f:
+        for line in f:
+            soup = BeautifulSoup(json.loads(line[0:-1])['posting_body'], 'html.parser')
+            # print 'printing...'
+            txt = soup.get_text()
+            single_line = ''
+            for l in re.split('\r\n', txt):
+                p = l.strip()
+                if len(p) <= 0:
+                    continue
+                else:
+                    single_line += (p.lower().replace('\n', ' ')+' ')
+            out.write(single_line[0:-1]+'\n')
+
+
+            # print 'finished printing'
+            #
+            # break
+
+    out.close()
+
+
+prepare_text_embeddings_file()
 # worker_attribute_analysis()
-worker_attribute_entropy_profile()
-
+# worker_attribute_entropy_profile()
+# connected_component_ad_samples()
+# populate_cc_samples_with_ad_extractions()
+# global_worker_homophily()
+# compute_edge_list_name_similarities()
+# print read_ethnicity_dict()
+# cid_homophily_analysis()
+# print 10*7/(parse('20160309') - parse('20160314')).days
+# from networkx.algorithms.assortativity.correlation import attribute_ac
+# compute_worker_statistics()
+# filter_similar_name_pairs()
+# M = np.array([[1.]])
+# print attribute_ac(M)
+# global_worker_homophily()
 # analyze_phone_postid_conn_components()
 # construct_int_postid_map()
 # construct_conn_comp_postid_map()
