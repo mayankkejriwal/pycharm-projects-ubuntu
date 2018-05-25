@@ -698,6 +698,329 @@ def combine_name_phone_postid_jls(phone=path+'adj_lists/name_phone.jl',postid=pa
             out.close()
 
 
+
+def output_non_singleton_connected_components_on_edge_list(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
+                                        cc_output=path + 'network-profiling-data/cc.jl'):
+    G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
+    cc = list(nx.connected_components(G))
+    print 'number of connected components...',len(cc)
+    out = codecs.open(cc_output, 'w', 'utf-8')
+    count = 0
+    for c in cc:
+        cid = 'cid_'+str(count)
+        count += 1
+        c_dict = dict()
+        c_dict[cid] = list(c)
+        json.dump(c_dict, out)
+        out.write('\n')
+    out.close()
+
+
+def output_global_plots(degree_distr=path+'network-profiling-data/degree_distribution.json',
+                        rich_club=path+'network-profiling-data/rich_club.json',
+                        clustering_coeff=path+'network-profiling-data/clustering_coeff.json',
+                        ):
+    """
+    Plots will have to be saved manually. We'll render them one after the other.
+    :param degree_distr:
+    :param rich_club:
+    :param clustering_coeff:
+    :return:
+    """
+    # degrees = json.load(open(degree_distr, 'r'))
+    # print degrees.keys()
+    # print 'outputting degree distribution plot...'
+    # plt.loglog(degrees['degree_vec'], degrees['degree_rel_freq_vec'], 'ro')
+    # plt.show()
+
+    # rich_club_coeffs = json.load(open(rich_club, 'r'))
+    # print rich_club_coeffs.keys()
+    # print 'outputting rich club coefficient distribution plot...'
+    # plt.loglog(rich_club_coeffs['degree_vec'], rich_club_coeffs['degree_rc_coeff_vec'], 'ro')
+    # plt.show()
+
+    clustering = json.load(open(clustering_coeff, 'r'))
+    freq_dict = dict()
+    for v in clustering.values():
+        if v not in freq_dict:
+            freq_dict[v] = 0
+        freq_dict[v] += 1
+
+    x = list()
+    y = list()
+
+    for k in sorted(freq_dict.keys()):
+        x.append(k)
+        y.append(freq_dict[k])
+
+    # print clustering.keys()
+    print 'outputting clustering coefficient distribution plot...'
+    plt.loglog(x, y, 'ro')
+    plt.show()
+
+
+
+def single_point_stats_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
+                                             connected_components=path + 'network-profiling-data/cc.jl',
+                                               cc_stats=path + 'network-profiling-data/cc_stats.csv'):
+    G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
+    out = codecs.open(cc_stats, 'w', 'utf-8')
+    out.write('cc_id,num_nodes,num_edges,density,transitivity,degree_assortativity_coefficient\n')
+    with codecs.open(connected_components, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            cid = obj.keys()[0]
+            node_list = obj[cid]
+            G_sub = G.subgraph(node_list)
+            out.write(cid+','+str(len(G_sub.nodes))+','+str(len(G_sub.edges))+','+str(nx.density(G_sub))+','
+                      +str(nx.algorithms.cluster.transitivity(G_sub))+','
+                      +str(nx.assortativity.correlation.degree_pearson_correlation_coefficient(G_sub))
+                      +'\n')
+            # print len(G_sub.nodes())
+            # print len(node_list)
+            # print len(G_sub.edges())
+            # break
+    out.close()
+
+def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
+                                             connected_components=path + 'network-profiling-data/cc.jl',
+                                               cc_path_matrix=path + 'network-profiling-data/cc_path_matrix.jl',
+                                matrix_exception_ccids=path+'network-profiling-data/cc_path_matrix_exceptions.json'):
+    """
+
+    :param edge_list_phone_postid_merged_names:
+    :param connected_components:
+    :param cc_path_matrix:
+    :param matrix_exception_ccids: contains ccids that have more than 1000 nodes, in which case we don't compute paths
+    but output it to this file.
+    :return:
+    """
+    G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
+    print 'finished reading in edge list'
+    out = codecs.open(cc_path_matrix, 'w', 'utf-8')
+    forbidden_list = list()
+    with codecs.open(connected_components, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            cid = obj.keys()[0]
+            node_list = obj[cid]
+            G_sub = G.subgraph(node_list)
+            if len(G_sub.nodes()) > 1000:
+                forbidden_list.append(cid)
+                print 'adding cid ',cid, ' to the forbidden list, since it has num nodes ',str(len(G_sub.nodes())),\
+                ' and num edges ',str(len(G_sub.edges()))
+                continue
+            print 'computing shortest paths for cid ', cid, ' which has num nodes ',str(len(G_sub.nodes())),\
+                ' and num edges ',str(len(G_sub.edges()))
+            length = dict(nx.all_pairs_shortest_path_length(G_sub))
+            json.dump(length, out)
+            out.write('\n')
+    out.close()
+    json.dump(forbidden_list, open(matrix_exception_ccids, 'w'))
+
+
+def rate_of_entry_phones_postids(ads = path+'data_for_memex.json',
+                         num_new_phones_postids_by_day=path + 'network-profiling-data/rate_of_entry_phones_postids.csv'):
+
+    day_dict_phone = dict()
+    day_dict_postids = dict()
+    seen_postids = set()
+    seen_phones = set()
+    with codecs.open(ads, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            if len(obj['name']) == 0:
+                continue
+
+
+            day = obj['day']
+            phone = obj['phone']
+            postid = obj['post_id']
+            if day not in day_dict_phone:
+                day_dict_phone[day] = 0
+            if day not in day_dict_postids:
+                day_dict_postids[day] = 0
+            for p in phone:
+                if p in seen_phones:
+                    continue
+                else:
+                    seen_phones.add(p)
+                    day_dict_phone[day] += 1
+
+            if postid in seen_postids:
+                continue
+            else:
+                seen_postids.add(postid)
+                day_dict_postids[day] += 1
+
+    out = codecs.open(num_new_phones_postids_by_day, 'w', 'utf-8')
+    out.write('day,num_new_phones,num_new_postids\n')
+    days = sorted(day_dict_phone.keys())
+    for d in days:
+        out.write(str(d)+','+str(day_dict_phone[d])+','+str(day_dict_postids[d])+'\n')
+    out.close()
+
+
+def global_network_metrics_on_edge_list(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
+                                        singleton_node_list=path + 'network-profiling-data/singleton_node-list.json',
+                                        degree_distr=path+'network-profiling-data/degree_distribution.json',
+                                        basic_stats=path + 'network-profiling-data/basic_stats_connectivity.json',
+                                        rich_club_coefficient=path+'network-profiling-data/rich_club.json',
+                                        clustering_coefficient=path + 'network-profiling-data/clustering_coeff.json'):
+    singleton_nodes = json.load(codecs.open(singleton_node_list, 'r', 'utf-8'))
+
+    G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
+    # print len(G.nodes())
+    G.add_nodes_from(singleton_nodes)
+    # print len(G.nodes())
+    print 'finished reading in network and singleton nodes. Outputting basic statistics to ',basic_stats
+    basic_stats_dict = dict()
+    basic_stats_dict['num_nodes'] = len(G.nodes())
+    basic_stats_dict['num_edges'] = len(G.edges())
+    basic_stats_dict['density'] = nx.density(G)
+    basic_stats_dict['transitivity'] = nx.algorithms.cluster.transitivity(G)
+    basic_stats_dict['degree_assortativity_coefficient']=nx.assortativity.correlation.degree_pearson_correlation_coefficient(G)
+    basic_stats_dict['percentage_of_singletons'] = len(singleton_nodes)*1.0/len(G.nodes())
+    json.dump(basic_stats_dict, open(basic_stats, 'w'))
+
+    print 'outputting degree distribution to file ',degree_distr
+    degree_hist = nx.classes.function.degree_histogram(G)
+    total_sum = np.sum(degree_hist)
+    k_vec = list()
+    freq_vec = list()
+    # print 'total sum of degree hist. list is...', str(total_sum)
+    if degree_hist[0] > 0:
+
+        k_vec.append(0)
+        freq_vec.append(degree_hist[0] * 1.0 / total_sum)
+    for i in range(1, len(degree_hist)):
+        if degree_hist[i] == 0:
+            continue
+        else:
+            k_vec.append(i)
+            freq_vec.append(degree_hist[i] * 1.0 / total_sum)
+
+    degree_dict = dict()
+    degree_dict['degree_vec'] = k_vec
+    degree_dict['degree_rel_freq_vec'] = freq_vec
+    json.dump(degree_dict, open(degree_distr, 'w'))
+
+    print 'outputting non-normalized rich club coefficient distribution to file ', rich_club_coefficient
+    rc = nx.algorithms.rich_club_coefficient(G, normalized=False)
+    rc_keys = rc.keys()
+    rc_values = list()
+    for k in rc_keys:
+        rc_values.append(rc[k])
+    rc_dict = dict()
+    rc_dict['degree_vec'] = rc_keys
+    rc_dict['degree_rc_coeff_vec'] = rc_values
+    json.dump(rc_dict, open(rich_club_coefficient, 'w'))
+
+    print 'outputting clustering coefficient dict. to file ', clustering_coefficient
+    clustering_coeff_dict=nx.algorithms.cluster.clustering(G)
+    json.dump(clustering_coeff_dict, open(clustering_coefficient, 'w'))
+
+
+
+def produce_metaphone_merged_names_list(edge_list_postid=path+'adj_lists/postid-edge-list-names',
+                                        ccp_file_postid=path + 'adj_lists/connected-component-postid-map.jl',
+                                        edge_list_phone=path + 'adj_lists/phone-edge-list-names',
+                                        ccp_file_phone=path + 'adj_lists/connected-component-phone-map.jl',
+                                        edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
+                                        merged_names_map=path+'network-profiling-data/merged-names-map.json',
+                                        all_node_list=path + 'network-profiling-data/all_node-list.json',
+                                        singleton_node_list=path + 'network-profiling-data/singleton_node-list.json'):
+
+
+    node_list = list()
+    G_phone = nx.read_edgelist(edge_list_phone, delimiter='\t')
+    G_postid = nx.read_edgelist(edge_list_postid, delimiter='\t')
+    G = nx.compose(G_phone, G_postid)
+    print 'finished reading edge lists'
+
+    with codecs.open(ccp_file_phone, 'r', 'utf-8') as f:
+        for line in f:
+            node_list.append(json.loads(line[0:-1]).keys()[0])
+    G.add_nodes_from(node_list)
+
+    node_list = list()
+    with codecs.open(ccp_file_postid, 'r', 'utf-8') as f:
+        for line in f:
+            node_list.append(json.loads(line[0:-1]).keys()[0])
+    G.add_nodes_from(node_list)
+    print 'finished adding nodes'
+
+    singleton_nodes = set(G.nodes())
+    all_nodes = list(G.nodes())
+    print 'number of nodes before name merging...',len(all_nodes)
+
+    new_edge_list = list()
+    for e in G.edges():
+        singleton_nodes.discard(e[0])
+        singleton_nodes.discard(e[1])
+        name1 = re.split('-',e[0])[0]
+        name2 = re.split('-', e[1])[0]
+        metaphone_code1 = _metaphone(name1)
+        metaphone_code2 = _metaphone(name2)
+        if metaphone_code1 != metaphone_code2:
+            continue
+        new_edge_list.append(e)
+
+    print 'number of singleton nodes before name merging...', len(singleton_nodes)
+
+    H = nx.Graph()
+    # print H.is_directed()
+    H.add_edges_from(new_edge_list)
+    conn_comp = sorted(nx.connected_components(H), key=len, reverse=True)
+    preferred_names_map = dict()
+    names_preferred_name = dict()
+    for c in conn_comp:
+        if len(set([_metaphone(re.split('-',k)[0]) for k in c])) != 1: # just simple error checking
+            raise Exception
+        pref_name = sorted(c)[-1]+'-PREF'
+        preferred_names_map[pref_name] = list(c)
+        for i in c:
+            names_preferred_name[i] = pref_name
+
+    json.dump(preferred_names_map, open(merged_names_map, 'w'))
+    out = codecs.open(edge_list_phone_postid_merged_names, 'w')
+    partial_non_singletons = set()
+    definite_non_singletons = set()
+    for e in G.edges():
+        m = list(e)
+        if m[0] in names_preferred_name:
+            m[0] = names_preferred_name[m[0]]
+        if m[1] in names_preferred_name:
+            m[1] = names_preferred_name[m[1]]
+        if m[0] != m[1]:
+            out.write(m[0]+'\t'+m[1]+'\n')
+            definite_non_singletons.add(m[0])
+            definite_non_singletons.add(m[1])
+            partial_non_singletons.discard(m[0])
+            partial_non_singletons.discard(m[1])
+        else:
+            if m[0] not in definite_non_singletons:
+                partial_non_singletons.add(m[0])
+
+
+    out.close()
+
+    singleton_nodes = singleton_nodes.union(partial_non_singletons)
+
+    for i in range(len(all_nodes)):
+        if all_nodes[i] in names_preferred_name:
+            all_nodes[i] = names_preferred_name[all_nodes[i]]
+    all_nodes = set(all_nodes)
+    if len(all_nodes.intersection(definite_non_singletons.union(singleton_nodes))) != len(all_nodes) \
+        and len(all_nodes.intersection(definite_non_singletons.union(singleton_nodes))) != len(definite_non_singletons.union(singleton_nodes)):
+        raise Exception # test to make sure that all_nodes equals definite_non_singletons.union(singleton_nodes))
+    all_nodes = list(all_nodes)
+    print 'number of nodes after name merging...', len(all_nodes)
+    print 'number of singleton nodes after name merging...',len(singleton_nodes)
+    json.dump(list(singleton_nodes), codecs.open(singleton_node_list, 'w'))
+    json.dump(list(all_nodes), codecs.open(all_node_list, 'w'))
+
+
 def conn_comp_from_macro_worker_file(in_file):
     G = nx.read_adjlist(in_file)
     return sorted(nx.connected_components(G), key = len, reverse=True)
@@ -2162,6 +2485,151 @@ def compute_edge_list_name_similarities(edge_list_postid=path+'adj_lists/postid-
         out.close()
 
 
+def _metaphone(s):
+    s = s.lower()
+    result = []
+
+    # skip first character if s starts with these
+    if s.startswith(('kn', 'gn', 'pn', 'ac', 'wr', 'ae')):
+        s = s[1:]
+
+    i = 0
+
+    while i < len(s):
+        c = s[i]
+        next = s[i + 1] if i < len(s) - 1 else '*****'
+        nextnext = s[i + 2] if i < len(s) - 2 else '*****'
+
+        # skip doubles except for cc
+        if c == next and c != 'c':
+            i += 1
+            continue
+
+        if c in 'aeiou':
+            if i == 0 or s[i - 1] == ' ':
+                result.append(c)
+        elif c == 'b':
+            if (not (i != 0 and s[i - 1] == 'm')) or next:
+                result.append('b')
+        elif c == 'c':
+            if next == 'i' and nextnext == 'a' or next == 'h':
+                result.append('x')
+                i += 1
+            elif next in 'iey':
+                result.append('s')
+                i += 1
+            else:
+                result.append('k')
+        elif c == 'd':
+            if next == 'g' and nextnext in 'iey':
+                result.append('j')
+                i += 2
+            else:
+                result.append('t')
+        elif c in 'fjlmnr':
+            result.append(c)
+        elif c == 'g':
+            if next in 'iey':
+                result.append('j')
+            elif next not in 'hn':
+                result.append('k')
+            elif next == 'h' and nextnext and nextnext not in 'aeiou':
+                i += 1
+        elif c == 'h':
+            if i == 0 or next in 'aeiou' or s[i - 1] not in 'aeiou':
+                result.append('h')
+        elif c == 'k':
+            if i == 0 or s[i - 1] != 'c':
+                result.append('k')
+        elif c == 'p':
+            if next == 'h':
+                result.append('f')
+                i += 1
+            else:
+                result.append('p')
+        elif c == 'q':
+            result.append('k')
+        elif c == 's':
+            if next == 'h':
+                result.append('x')
+                i += 1
+            elif next == 'i' and nextnext in 'oa':
+                result.append('x')
+                i += 2
+            else:
+                result.append('s')
+        elif c == 't':
+            if next == 'i' and nextnext in 'oa':
+                result.append('x')
+            elif next == 'h':
+                result.append('0')
+                i += 1
+            elif next != 'c' or nextnext != 'h':
+                result.append('t')
+        elif c == 'v':
+            result.append('f')
+        elif c == 'w':
+            if i == 0 and next == 'h':
+                i += 1
+            if nextnext in 'aeiou' or nextnext == '*****':
+                result.append('w')
+        elif c == 'x':
+            if i == 0:
+                if next == 'h' or (next == 'i' and nextnext in 'oa'):
+                    result.append('x')
+                else:
+                    result.append('s')
+            else:
+                result.append('k')
+                result.append('s')
+        elif c == 'y':
+            if next in 'aeiou':
+                result.append('y')
+        elif c == 'z':
+            result.append('s')
+        elif c == ' ':
+            if len(result) > 0 and result[-1] != ' ':
+                result.append(' ')
+
+        i += 1
+
+    return ''.join(result).upper()
+
+
+def metaphone_similarity(s1, s2):
+    return 1 if _metaphone(s1) == _metaphone(s2) else 0
+
+
+def _test_metaphone(sim_file='/Users/mayankkejriwal/Dropbox/memex-private-nebraska/training_set_name_pairs_and_similarities-supp-v2.csv'):
+    header = True
+    tab_strings = list()
+    tab_values = list()
+    ground_truth = list()
+    with codecs.open(sim_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split(',', line[0:-1])
+            if len(fields) <= 1:
+                continue
+            if header is True:
+                header = False
+                # print 'dimensions of table correspond to sims.'
+                # for i in fields[2:-3]:
+                #     print i
+                continue
+            if fields[-2] != fields[1] or fields[0] != fields[-3]:
+                print 'error!'
+                print fields
+                break
+            if len(fields[-1]) == 0:
+                print fields
+                continue
+            if metaphone_similarity(re.split('-',fields[0])[0],re.split('-',fields[1])[0]) != int(fields[6]):
+                print line
+                print 'FAILURE'
+                break
+    print 'If Failure message didnt print, SUCCESS'
+
+
 memo = {} # for levenshtein memoization
 def _levenshtein(s, t):
     if s == "":
@@ -2338,7 +2806,205 @@ def prepare_text_embeddings_file(input_file=path+'data_for_memex_txt.json', outp
     out.close()
 
 
-prepare_text_embeddings_file()
+def debug_cid5_edgelist(cc_file=path+'network-profiling-data/cc.jl',
+               edge_list=path+'network-profiling-data/phone-postid-edge-list-merged-names',
+               output_file=path+'network-profiling-data/cid5_analysis/cid5-edge-list',
+                        degree_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-degrees',
+                        degree_centrality_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-degree-centrality',
+                cluster_coeff_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-cluster-coefficient'
+                        ):
+    """
+    First step is to output cid5 as an edge list and output nodes with degrees, sorted by degree.
+    :param cc_file:
+    :param edge_list:
+    :param output_file:
+    :return:
+    """
+    G = nx.read_edgelist(edge_list, delimiter='\t')
+    print 'finished reading in edge list'
+    nodes = None
+    with codecs.open(cc_file, 'r', 'utf-8') as f:
+        for line in f:
+            if 'cid_5' in line:
+
+                obj = json.loads(line[0:-1])
+                nodes = obj[obj.keys()[0]]
+                break
+
+
+    H = G.subgraph(nodes)
+
+
+    # uncomment accordingly for re-generation of files
+
+    # out = codecs.open(output_file, 'w', 'utf-8')
+    # for e in H.edges():
+    #     out.write(e[0]+'\t'+e[1]+'\n')
+    # out.close()
+    #
+    # degrees = dict(nx.classes.function.degree(H))
+    # print 'finished computing degrees'
+    # reverse_dict = dict()
+    # for k, v in degrees.items():
+    #     if v not in reverse_dict:
+    #         reverse_dict[v] = list()
+    #     reverse_dict[v].append(k)
+    # out = codecs.open(degree_out_list, 'w', 'utf-8')
+    # for k in sorted(reverse_dict.keys(),reverse=True):
+    #     for v in reverse_dict[k]:
+    #         out.write(v+'\t'+str(k)+'\n')
+    # out.close()
+    #
+    # degrees = dict(nx.algorithms.centrality.degree_centrality(H))
+    # print 'finished computing degree centralities'
+    # reverse_dict = dict()
+    # for k, v in degrees.items():
+    #     if v not in reverse_dict:
+    #         reverse_dict[v] = list()
+    #     reverse_dict[v].append(k)
+    # out = codecs.open(degree_centrality_out_list, 'w', 'utf-8')
+    # for k in sorted(reverse_dict.keys(), reverse=True):
+    #     for v in reverse_dict[k]:
+    #         out.write(v + '\t' + str(k) + '\n')
+    # out.close()
+
+    clust_coeff = dict(nx.algorithms.cluster.clustering(H))
+    print 'finished computing cluster coefficients'
+    reverse_dict = dict()
+    for k, v in clust_coeff.items():
+        if v not in reverse_dict:
+            reverse_dict[v] = list()
+        reverse_dict[v].append(k)
+    out = codecs.open(cluster_coeff_out_list, 'w', 'utf-8')
+    for k in sorted(reverse_dict.keys()):
+        for v in reverse_dict[k]:
+            out.write(v + '\t' + str(k) + '\n')
+    out.close()
+
+
+def segregate_cid5_by_degree_centrality(cid5_edgelist=path+'network-profiling-data/cid5_analysis/cid5-edge-list',
+                        degree_centrality_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-degree-centrality'):
+    H = nx.read_edgelist(cid5_edgelist, delimiter='\t')
+    n_set = set(H.nodes())
+
+    with codecs.open(degree_centrality_out_list, 'r', 'utf-8') as f:
+        for line in f:
+            n = re.split('\t',line[0:-1])[0]
+            if float(re.split('\t',line[0:-1])[1]) >= 0.0001:
+                n_set.discard(n)
+    print len(n_set)
+    ccs = sorted(nx.connected_components(H.subgraph(n_set)), key=len, reverse=True)
+    print len(ccs[0])
+    print len(ccs)
+
+
+
+def segregate_cid5_by_cluster_coefficient(cid5_edgelist=path+'network-profiling-data/cid5_analysis/cid5-edge-list',
+                        cluster_coefficient_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-cluster-coefficient'):
+    H = nx.read_edgelist(cid5_edgelist, delimiter='\t')
+    n_set = set(H.nodes())
+    print 'current size of node set...',
+    print len(n_set)
+    with codecs.open(cluster_coefficient_out_list, 'r', 'utf-8') as f:
+        for line in f:
+            n = re.split('\t',line[0:-1])[0]
+            if float(re.split('\t',line[0:-1])[1]) <= 0.5:
+                n_set.discard(n)
+    print 'size of node set after removals...',
+    print len(n_set)
+    ccs = sorted(nx.connected_components(H.subgraph(n_set)), key=len, reverse=True)
+    print 'Num. nodes in largest connected component...',
+    print len(ccs[0])
+    print 'Number of connected components...',
+    print len(ccs)
+
+def segregate_cid5_edges_by_cluster_coefficient(cid5_edgelist=path+'network-profiling-data/cid5_analysis/cid5-edge-list',
+                        cluster_coefficient_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-cluster-coefficient'):
+    old_edges = nx.read_edgelist(cid5_edgelist, delimiter='\t').edges()
+    print 'num original edges...',str(len(old_edges))
+    # n_set = set(H.nodes())
+    # print 'current size of node set...',
+    # print len(n_set)
+    cluster_coeff_dict = dict()
+    with codecs.open(cluster_coefficient_out_list, 'r', 'utf-8') as f:
+        for line in f:
+            n = re.split('\t',line[0:-1])[0]
+            cluster_coeff_dict[n]=float(re.split('\t',line[0:-1])[1])
+
+    new_edges =  list()
+    for e in old_edges:
+        if (cluster_coeff_dict[e[0]]+cluster_coeff_dict[e[1]])/2 > 0.5:
+            new_edges.append(e)
+
+    H = nx.Graph()
+    H.add_edges_from(new_edges)
+    print 'num new edges...', str(len(new_edges))
+    ccs = sorted(nx.connected_components(H), key=len, reverse=True)
+    print 'Num. nodes in largest connected component...',
+    print len(ccs[0])
+    print 'Number of connected components...',
+    print len(ccs)
+
+def segregate_cid5_edges_by_postid_only_edges(cid5_edgelist=path+'network-profiling-data/cid5_analysis/cid5-edge-list',
+                        postid_edge_list=path+'adj_lists/postid-edge-list-names',
+                                              merged_names=path+'network-profiling-data/merged-names-map.json'):
+    orig_merged_names_map = json.load(open(merged_names, 'r'))
+    merged_names_map = dict()
+    for k, v in orig_merged_names_map.items():
+        for i in v:
+            merged_names_map[i] = k
+
+    postid_edges = nx.read_edgelist(postid_edge_list, delimiter='\t').edges()
+    new_postid_edges = set()
+    for p in postid_edges:
+        p_list = list(p)
+        if p_list[0] in merged_names_map:
+            p_list[0] = merged_names_map[p_list[0]]
+        if p_list[1] in merged_names_map:
+            p_list[1] = merged_names_map[p_list[1]]
+        new_postid_edges.add(tuple(p_list))
+        # if 'PREF' in str(p[0]):
+        #     p[0] = merged_names_map[p[0]]
+        # if 'PREF' in str(p[1]):
+        #     p[1] = merged_names_map[p[1]]
+    old_edges = nx.read_edgelist(cid5_edgelist, delimiter='\t').edges()
+    print 'num original edges...',str(len(old_edges))
+    # n_set = set(H.nodes())
+    # print 'current size of node set...',
+    # print len(n_set)
+    cluster_coeff_dict = dict()
+
+
+    new_edges =  list()
+    for e in old_edges:
+        if e in new_postid_edges or tuple([e[1],e[0]]) in new_postid_edges:
+            new_edges.append(e)
+
+    H = nx.Graph()
+    H.add_edges_from(new_edges)
+    print 'num new edges...', str(len(new_edges))
+    ccs = sorted(nx.connected_components(H), key=len, reverse=True)
+    print 'Num. nodes in largest connected component...',
+    print len(ccs[0])
+    print 'Number of connected components...',
+    print len(ccs)
+
+
+# _test_metaphone()
+# debug_cid5_edgelist()
+# segregate_cid5_edges_by_cluster_coefficient()
+segregate_cid5_edges_by_postid_only_edges()
+### steps for network profiling outputs
+# produce_metaphone_merged_names_list()
+# global_network_metrics_on_edge_list()
+# output_non_singleton_connected_components_on_edge_list()
+# single_point_stats_on_connected_components()
+# rate_of_entry_phones_postids()
+# output_global_plots() # need to implement/execute
+# shortest_path_matrix_on_connected_components() # need to implement/execute
+
+# print metaphone_similarity('daina', 'tania')
+# prepare_text_embeddings_file()
 # worker_attribute_analysis()
 # worker_attribute_entropy_profile()
 # connected_component_ad_samples()
