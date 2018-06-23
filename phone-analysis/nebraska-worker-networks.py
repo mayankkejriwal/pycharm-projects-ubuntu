@@ -699,8 +699,8 @@ def combine_name_phone_postid_jls(phone=path+'adj_lists/name_phone.jl',postid=pa
 
 
 
-def output_non_singleton_connected_components_on_edge_list(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
-                                        cc_output=path + 'network-profiling-data/cc.jl'):
+def output_non_singleton_connected_components_on_edge_list(edge_list_phone_postid_merged_names=path + 'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
+                                        cc_output=path + 'connected-component-analysis/network-profiling-data/cc.jl'):
     G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
     cc = list(nx.connected_components(G))
     print 'number of connected components...',len(cc)
@@ -711,14 +711,17 @@ def output_non_singleton_connected_components_on_edge_list(edge_list_phone_posti
         count += 1
         c_dict = dict()
         c_dict[cid] = list(c)
+        if len(list(c)) >= 1000:
+            print len(list(c)),
+            print cid
         json.dump(c_dict, out)
         out.write('\n')
     out.close()
 
 
-def output_global_plots(degree_distr=path+'network-profiling-data/degree_distribution.json',
-                        rich_club=path+'network-profiling-data/rich_club.json',
-                        clustering_coeff=path+'network-profiling-data/clustering_coeff.json',
+def output_global_plots(degree_distr=path+'network-profiling-data-postid/degree_distribution.json',
+                        rich_club=path+'network-profiling-data-postid/rich_club.json',
+                        clustering_coeff=path+'network-profiling-data-postid/clustering_coeff.json',
                         ):
     """
     Plots will have to be saved manually. We'll render them one after the other.
@@ -733,36 +736,36 @@ def output_global_plots(degree_distr=path+'network-profiling-data/degree_distrib
     # plt.loglog(degrees['degree_vec'], degrees['degree_rel_freq_vec'], 'ro')
     # plt.show()
 
-    # rich_club_coeffs = json.load(open(rich_club, 'r'))
-    # print rich_club_coeffs.keys()
-    # print 'outputting rich club coefficient distribution plot...'
-    # plt.loglog(rich_club_coeffs['degree_vec'], rich_club_coeffs['degree_rc_coeff_vec'], 'ro')
-    # plt.show()
-
-    clustering = json.load(open(clustering_coeff, 'r'))
-    freq_dict = dict()
-    for v in clustering.values():
-        if v not in freq_dict:
-            freq_dict[v] = 0
-        freq_dict[v] += 1
-
-    x = list()
-    y = list()
-
-    for k in sorted(freq_dict.keys()):
-        x.append(k)
-        y.append(freq_dict[k])
-
-    # print clustering.keys()
-    print 'outputting clustering coefficient distribution plot...'
-    plt.loglog(x, y, 'ro')
+    rich_club_coeffs = json.load(open(rich_club, 'r'))
+    print rich_club_coeffs.keys()
+    print 'outputting rich club coefficient distribution plot...'
+    plt.loglog(rich_club_coeffs['degree_vec'], rich_club_coeffs['degree_rc_coeff_vec'], 'ro')
     plt.show()
 
+    # clustering = json.load(open(clustering_coeff, 'r'))
+    # freq_dict = dict()
+    # for v in clustering.values():
+    #     if v not in freq_dict:
+    #         freq_dict[v] = 0
+    #     freq_dict[v] += 1
+    #
+    # x = list()
+    # y = list()
+    #
+    # for k in sorted(freq_dict.keys()):
+    #     x.append(k)
+    #     y.append(freq_dict[k])
+    #
+    # # print clustering.keys()
+    # print 'outputting clustering coefficient distribution plot...'
+    # plt.loglog(x, y, 'ro')
+    # plt.show()
 
 
-def single_point_stats_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
-                                             connected_components=path + 'network-profiling-data/cc.jl',
-                                               cc_stats=path + 'network-profiling-data/cc_stats.csv'):
+
+def single_point_stats_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data-postid/postid-edge-list-merged-names',
+                                             connected_components=path + 'network-profiling-data-postid/cc.jl',
+                                               cc_stats=path + 'network-profiling-data-postid/cc_stats.csv'):
     G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
     out = codecs.open(cc_stats, 'w', 'utf-8')
     out.write('cc_id,num_nodes,num_edges,density,transitivity,degree_assortativity_coefficient\n')
@@ -782,10 +785,10 @@ def single_point_stats_on_connected_components(edge_list_phone_postid_merged_nam
             # break
     out.close()
 
-def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
-                                             connected_components=path + 'network-profiling-data/cc.jl',
-                                               cc_path_matrix=path + 'network-profiling-data/cc_path_matrix.jl',
-                                matrix_exception_ccids=path+'network-profiling-data/cc_path_matrix_exceptions.json'):
+def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data-postid/postid-edge-list-merged-names',
+                                             connected_components=path + 'network-profiling-data-postid/cc.jl',
+                                               cc_path_matrix=path + 'network-profiling-data-postid/cc_path_matrix.jl',
+                                matrix_exception_ccids=path+'network-profiling-data-postid/cc_path_matrix_exceptions.json'):
     """
 
     :param edge_list_phone_postid_merged_names:
@@ -805,18 +808,91 @@ def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_n
             cid = obj.keys()[0]
             node_list = obj[cid]
             G_sub = G.subgraph(node_list)
-            if len(G_sub.nodes()) > 1000:
+            if len(G_sub.nodes()) > 3000:
                 forbidden_list.append(cid)
                 print 'adding cid ',cid, ' to the forbidden list, since it has num nodes ',str(len(G_sub.nodes())),\
                 ' and num edges ',str(len(G_sub.edges()))
                 continue
-            print 'computing shortest paths for cid ', cid, ' which has num nodes ',str(len(G_sub.nodes())),\
-                ' and num edges ',str(len(G_sub.edges()))
+            # print 'computing shortest paths for cid ', cid, ' which has num nodes ',str(len(G_sub.nodes())),\
+            #     ' and num edges ',str(len(G_sub.edges()))
             length = dict(nx.all_pairs_shortest_path_length(G_sub))
             json.dump(length, out)
             out.write('\n')
     out.close()
     json.dump(forbidden_list, open(matrix_exception_ccids, 'w'))
+
+
+def edge_temporal_lag(int_day=path+'adj_lists/int-day.jl',int_postid=path+'adj_lists/int-postid.jl',
+                      edge_list_merged_names=path + 'network-profiling-data-postid/postid-edge-list-merged-names',
+                      timestamped_edge_list = path + 'network-profiling-data-postid/timestamped-postid-edge-list-merged-names'):
+    int_day_dict = dict()
+    int_postid_dict = dict()
+    with codecs.open(int_day, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            int_day_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+    with codecs.open(int_postid, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            int_postid_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+
+
+def node_earliest_temporal(int_day=path+'adj_lists/int-day.jl',
+                conn_comp_worker_ints=path+'network-profiling-data-postid/conn-comp-worker-ints.json',
+                           node_output=path+'network-profiling-data-postid/worker-appearance-date.json'
+                           ):
+    int_day_dict = dict()
+    conn_comp_dict = json.load(open(conn_comp_worker_ints, 'r'))
+    node_output_dict = dict()
+    with codecs.open(int_day, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            int_day_dict[str(obj.keys()[0])] = obj[obj.keys()[0]]
+
+    for k, v in conn_comp_dict.items():
+        earliest_date = ''
+        for i in v:
+            if earliest_date == '':
+                earliest_date = int_day_dict[i]
+            else:
+                if int_day_dict[i] < earliest_date:
+                    earliest_date = int_day_dict[i]
+        node_output_dict[k] = earliest_date
+
+    json.dump(node_output_dict, open(node_output, 'w'))
+
+
+
+
+def write_out_worker_ints(edge_list_merged_names=path + 'network-profiling-data-postid/postid-edge-list-merged-names',
+                      merged_names=path + 'network-profiling-data-postid/merged-names-map.json',
+                      conn_comp_folder=path+'adj_lists/connected-component-workers-old/',
+                          output = path+'network-profiling-data-postid/conn-comp-worker-ints.json'):
+    G = nx.read_edgelist(edge_list_merged_names, delimiter='\t')
+    print 'finished reading in edge list'
+    orig_merged_names_map = json.load(open(merged_names, 'r'))
+    conn_comp_int_dict = dict()
+    for n in G.nodes():
+        if n in conn_comp_int_dict:
+            continue
+        set_of_ints = set()
+        file_list = list()
+        if 'PREF' not in n:
+            file_list.append(n)
+        else:
+            file_list = orig_merged_names_map[n]
+        for f in file_list:
+            with codecs.open(conn_comp_folder+f+'.txt', 'r', 'utf-8') as m:
+                counter = 0
+                for line in m:
+                    set_of_ints=set_of_ints.union(set(re.split(' ', line[0:-1])))
+                    counter += 1
+                if counter != 1:
+                    print 'problems in file.' + f + '...more than one line...'
+                    raise Exception
+        conn_comp_int_dict[n] = list(set_of_ints)
+
+    json.dump(conn_comp_int_dict, open(output, 'w'))
 
 
 def rate_of_entry_phones_postids(ads = path+'data_for_memex.json',
@@ -861,15 +937,15 @@ def rate_of_entry_phones_postids(ads = path+'data_for_memex.json',
     out.close()
 
 
-def global_network_metrics_on_edge_list(edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
-                                        singleton_node_list=path + 'network-profiling-data/singleton_node-list.json',
-                                        degree_distr=path+'network-profiling-data/degree_distribution.json',
-                                        basic_stats=path + 'network-profiling-data/basic_stats_connectivity.json',
-                                        rich_club_coefficient=path+'network-profiling-data/rich_club.json',
-                                        clustering_coefficient=path + 'network-profiling-data/clustering_coeff.json'):
+def global_network_metrics_on_edge_list(edge_list_merged_names=path + 'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
+                                        singleton_node_list=path + 'connected-component-analysis/network-profiling-data/singleton_node-list.json',
+                                        degree_distr=path+'connected-component-analysis/network-profiling-data/degree_distribution.json',
+                                        basic_stats=path + 'connected-component-analysis/network-profiling-data/basic_stats_connectivity.json',
+                                        rich_club_coefficient=path+'connected-component-analysis/network-profiling-data/rich_club.json',
+                                        clustering_coefficient=path + 'connected-component-analysis/network-profiling-data/clustering_coeff.json'):
     singleton_nodes = json.load(codecs.open(singleton_node_list, 'r', 'utf-8'))
 
-    G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
+    G = nx.read_edgelist(edge_list_merged_names, delimiter='\t')
     # print len(G.nodes())
     G.add_nodes_from(singleton_nodes)
     # print len(G.nodes())
@@ -921,15 +997,107 @@ def global_network_metrics_on_edge_list(edge_list_phone_postid_merged_names=path
     json.dump(clustering_coeff_dict, open(clustering_coefficient, 'w'))
 
 
-
-def produce_metaphone_merged_names_list(edge_list_postid=path+'adj_lists/postid-edge-list-names',
+def produce_metaphone_postid_only_merged_names_list(edge_list_postid=path+'adj_lists/postid-edge-list-names',
                                         ccp_file_postid=path + 'adj_lists/connected-component-postid-map.jl',
-                                        edge_list_phone=path + 'adj_lists/phone-edge-list-names',
-                                        ccp_file_phone=path + 'adj_lists/connected-component-phone-map.jl',
-                                        edge_list_phone_postid_merged_names=path + 'network-profiling-data/phone-postid-edge-list-merged-names',
-                                        merged_names_map=path+'network-profiling-data/merged-names-map.json',
-                                        all_node_list=path + 'network-profiling-data/all_node-list.json',
-                                        singleton_node_list=path + 'network-profiling-data/singleton_node-list.json'):
+                                        edge_list_phone_postid_merged_names=path + 'network-profiling-data-postid/postid-edge-list-merged-names',
+                                        merged_names_map=path+'network-profiling-data-postid/merged-names-map.json',
+                                        all_node_list=path + 'network-profiling-data-postid/all_node-list.json',
+                                        singleton_node_list=path + 'network-profiling-data-postid/singleton_node-list.json'):
+
+
+    node_list = list()
+    # G_phone = nx.read_edgelist(edge_list_phone, delimiter='\t')
+    G = nx.read_edgelist(edge_list_postid, delimiter='\t')
+    # G = nx.compose(G_phone, G_postid)
+    print 'finished reading edge list'
+
+
+    with codecs.open(ccp_file_postid, 'r', 'utf-8') as f:
+        for line in f:
+            node_list.append(json.loads(line[0:-1]).keys()[0])
+    G.add_nodes_from(node_list)
+    print 'finished adding nodes'
+
+    singleton_nodes = set(G.nodes())
+    all_nodes = list(G.nodes())
+    print 'number of nodes before name merging...',len(all_nodes)
+
+    new_edge_list = list()
+    for e in G.edges():
+        singleton_nodes.discard(e[0])
+        singleton_nodes.discard(e[1])
+        name1 = re.split('-',e[0])[0]
+        name2 = re.split('-', e[1])[0]
+        metaphone_code1 = _metaphone(name1)
+        metaphone_code2 = _metaphone(name2)
+        if metaphone_code1 != metaphone_code2:
+            continue
+        new_edge_list.append(e)
+
+    print 'number of singleton nodes before name merging...', len(singleton_nodes)
+
+    H = nx.Graph()
+    # print H.is_directed()
+    H.add_edges_from(new_edge_list)
+    conn_comp = sorted(nx.connected_components(H), key=len, reverse=True)
+    preferred_names_map = dict()
+    names_preferred_name = dict()
+    for c in conn_comp:
+        if len(set([_metaphone(re.split('-',k)[0]) for k in c])) != 1: # just simple error checking
+            raise Exception
+        pref_name = sorted(c)[-1]+'-PREF'
+        preferred_names_map[pref_name] = list(c)
+        for i in c:
+            names_preferred_name[i] = pref_name
+
+    json.dump(preferred_names_map, open(merged_names_map, 'w'))
+    out = codecs.open(edge_list_phone_postid_merged_names, 'w')
+    partial_non_singletons = set()
+    definite_non_singletons = set()
+    for e in G.edges():
+        m = list(e)
+        if m[0] in names_preferred_name:
+            m[0] = names_preferred_name[m[0]]
+        if m[1] in names_preferred_name:
+            m[1] = names_preferred_name[m[1]]
+        if m[0] != m[1]:
+            out.write(m[0]+'\t'+m[1]+'\n')
+            definite_non_singletons.add(m[0])
+            definite_non_singletons.add(m[1])
+            partial_non_singletons.discard(m[0])
+            partial_non_singletons.discard(m[1])
+        else:
+            if m[0] not in definite_non_singletons:
+                partial_non_singletons.add(m[0])
+
+
+    out.close()
+
+    singleton_nodes = singleton_nodes.union(partial_non_singletons)
+
+    for i in range(len(all_nodes)):
+        if all_nodes[i] in names_preferred_name:
+            all_nodes[i] = names_preferred_name[all_nodes[i]]
+    all_nodes = set(all_nodes)
+    if len(all_nodes.intersection(definite_non_singletons.union(singleton_nodes))) != len(all_nodes) \
+        and len(all_nodes.intersection(definite_non_singletons.union(singleton_nodes))) != len(definite_non_singletons.union(singleton_nodes)):
+        raise Exception # test to make sure that all_nodes equals definite_non_singletons.union(singleton_nodes))
+    all_nodes = list(all_nodes)
+    print 'number of nodes after name merging...', len(all_nodes)
+    print 'number of singleton nodes after name merging...',len(singleton_nodes)
+    json.dump(list(singleton_nodes), codecs.open(singleton_node_list, 'w'))
+    json.dump(list(all_nodes), codecs.open(all_node_list, 'w'))
+
+
+
+def produce_metaphone_merged_names_list(edge_list_postid=path+'connected-component-analysis/postid-edge-list-names',
+                                        ccp_file_postid=path + 'connected-component-analysis/connected-component-postid-map.jl',
+                                        edge_list_phone=path + 'connected-component-analysis/phone-edge-list-names',
+                                        ccp_file_phone=path + 'connected-component-analysis/connected-component-phone-map.jl',
+                                        edge_list_phone_postid_merged_names=path + 'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
+                                        merged_names_map=path+'connected-component-analysis/network-profiling-data/merged-names-map.json',
+                                        all_node_list=path + 'connected-component-analysis/network-profiling-data/all_node-list.json',
+                                        singleton_node_list=path + 'connected-component-analysis/network-profiling-data/singleton_node-list.json'):
 
 
     node_list = list()
@@ -1034,7 +1202,7 @@ def serialize_connected_components_to_file(graphs, out_prefix):
         out.close()
 
 def conn_comp_from_macro_workers(input_folder=path+'adj_lists/macro-workers/',
-                    output_folder=path+'adj_lists/connected-component-workers/'):
+                    output_folder=path+'connected-component-analysis/connected-component-workers-old/'):
     files = glob.glob(input_folder+'*.txt')
     for f in files:
         out_prefix = re.split(input_folder+'|txt',f)[1][0:-1]
@@ -1069,7 +1237,16 @@ def construct_int_phone_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
                 continue
             else:
                 answer = dict()
-                answer[int_id] = obj['phone']
+                new_phones = list()
+                for ph in obj['phone']:
+                    if len(ph) == 10:
+                        new_phones.append(ph)
+                    else:
+                        if ph[0] != '1' or len(ph)!=11:
+                            raise Exception
+                        else:
+                            new_phones.append(ph[1:])
+                answer[int_id] = new_phones
                 json.dump(answer, out)
                 out.write('\n')
     out.close()
@@ -1133,7 +1310,7 @@ def construct_int_postid_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
         for line in f:
             obj = json.loads(line[0:-1])  # exclude newline
             int_id = id_int_dict[obj['_id']]
-            if 'post_id' not in obj:
+            if 'post_id' not in obj or not obj['post_id'] or len(obj['post_id'])<=5:
                 continue
             else:
                 answer = dict()
@@ -1144,8 +1321,8 @@ def construct_int_postid_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
 
 
 def construct_conn_comp_day_map(int_day_file=path+'adj_lists/int-day.jl',
-                          conn_comp_folder=path + 'adj_lists/connected-component-workers/',
-                          output_file=path + 'adj_lists/connected-component-day-map.jl'
+                          conn_comp_folder=path + 'adj_lists/connected-component-workers-old/',
+                          output_file=path + 'connected-component-analysis/connected-component-day-map.jl'
                           ):
     int_day_dict = dict()
     with codecs.open(int_day_file, 'r', 'utf-8') as f:
@@ -1185,8 +1362,8 @@ def construct_conn_comp_day_map(int_day_file=path+'adj_lists/int-day.jl',
     out.close()
 
 def construct_conn_comp_postid_map(int_postid_file=path+'adj_lists/int-postid.jl',
-                                  conn_comp_folder=path+'adj_lists/connected-component-workers/',
-                                  output_file=path+'adj_lists/connected-component-postid-map.jl'):
+                                  conn_comp_folder=path+'adj_lists/connected-component-workers-old/',
+                                  output_file=path+'connected-component-analysis/connected-component-postid-map.jl'):
     int_postid_dict = dict()
     with codecs.open(int_postid_file, 'r', 'utf-8') as f:
         for line in f:
@@ -1227,8 +1404,8 @@ def construct_conn_comp_postid_map(int_postid_file=path+'adj_lists/int-postid.jl
 
 
 def construct_conn_comp_phone_map(int_phone_file=path+'adj_lists/int-phones.jl',
-                                  conn_comp_folder=path+'adj_lists/connected-component-workers/',
-                                  output_file=path+'adj_lists/connected-component-phone-map.jl'):
+                                  conn_comp_folder=path+'adj_lists/connected-component-workers-old/',
+                                  output_file=path+'connected-component-analysis/connected-component-phone-map.jl'):
     int_phone_dict = dict()
     with codecs.open(int_phone_file, 'r', 'utf-8') as f:
         for line in f:
@@ -1295,7 +1472,7 @@ def output_guaranteed_singleton_workers(conn_comp_phone_file=path+'adj_lists/con
     out.close()
 
 
-def output_all_singleton_workers(edge_list_file=path+'adj_lists/postid-edge-list-names',
+def output_all_singleton_workers(edge_list_file=path+'adj_lists/phone-postid-edge-list-names',
     conn_comp_file=path+'adj_lists/connected-component-postid-map.jl',
                       output_file=path+'adj_lists/postid-all-singleton-workers.txt'):
     # out = codecs.open(output_file, 'w', 'utf-8')
@@ -1325,10 +1502,10 @@ def output_all_singleton_workers(edge_list_file=path+'adj_lists/postid-edge-list
     out.close()
 
 
-def reverse_connected_components_map(map_file=path+'adj_lists/connected-component-postid-map.jl',
-                      output_file=path+'adj_lists/postid-connected-component-map.jl'):
+def reverse_connected_components_map(map_file=path+'connected-component-analysis/connected-component-postid-map.jl',
+                      output_file=path+'connected-component-analysis/postid-connected-component-map.jl'):
     """
-    Be careful: worker nodes guaranteed to be singletons (those with no phones) will be ignored.
+    Be careful: worker nodes guaranteed to be singletons (those with no values) will be ignored.
     :param phone_map_file:
     :param output_file:
     :return:
@@ -1388,10 +1565,17 @@ def get_size_statistics(pcc_file=path+'adj_lists/phone-connected-component-map.j
     plt.loglog(x, y, 'ro')
     plt.show()
 
+def compose_phone_postid_edge_lists(edge_list_phone=path+'connected-component-analysis/phone-edge-list-names',
+                                    edge_list_postid=path+'connected-component-analysis/postid-edge-list-names',
+                                    outlist = path+'connected-component-analysis/phone-postid-edge-list-names'):
+    G = nx.compose(nx.read_edgelist(edge_list_phone, delimiter='\t'),nx.read_edgelist(edge_list_postid, delimiter='\t'))
+    out = codecs.open(outlist, 'w', 'utf-8')
+    for e in G.edges():
+        out.write(e[0]+'\t'+e[1]+'\n')
+    out.close()
 
-
-def write_edge_list(pcc_file=path+'adj_lists/postid-connected-component-map.jl',
-                    edge_list=path+'adj_lists/postid-edge-list-names'):
+def write_edge_list(pcc_file=path+'connected-component-analysis/phone-connected-component-map.jl',
+                    edge_list=path+'connected-component-analysis/phone-edge-list-names'):
     """
     File will not be deduplicated.
     :param pcc_file:
@@ -2806,15 +2990,16 @@ def prepare_text_embeddings_file(input_file=path+'data_for_memex_txt.json', outp
     out.close()
 
 
-def debug_cid5_edgelist(cc_file=path+'network-profiling-data/cc.jl',
-               edge_list=path+'network-profiling-data/phone-postid-edge-list-merged-names',
-               output_file=path+'network-profiling-data/cid5_analysis/cid5-edge-list',
+def debug_cid5_edgelist(cc_file=path+'connected-component-analysis/network-profiling-data/cc.jl',
+               edge_list=path+'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
+               output_file=path+'connected-component-analysis/network-profiling-data/cid6_analysis/cid6-edge-list',
                         degree_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-degrees',
                         degree_centrality_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-degree-centrality',
                 cluster_coeff_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-cluster-coefficient'
                         ):
     """
     First step is to output cid5 as an edge list and output nodes with degrees, sorted by degree.
+    Although we call it cid5, we use it for debugging any large component, such as in the re-generated network.
     :param cc_file:
     :param edge_list:
     :param output_file:
@@ -2825,10 +3010,11 @@ def debug_cid5_edgelist(cc_file=path+'network-profiling-data/cc.jl',
     nodes = None
     with codecs.open(cc_file, 'r', 'utf-8') as f:
         for line in f:
-            if 'cid_5' in line:
+            if 'cid_6' in line:
 
                 obj = json.loads(line[0:-1])
                 nodes = obj[obj.keys()[0]]
+                print len(nodes)
                 break
 
 
@@ -2837,10 +3023,10 @@ def debug_cid5_edgelist(cc_file=path+'network-profiling-data/cc.jl',
 
     # uncomment accordingly for re-generation of files
 
-    # out = codecs.open(output_file, 'w', 'utf-8')
-    # for e in H.edges():
-    #     out.write(e[0]+'\t'+e[1]+'\n')
-    # out.close()
+    out = codecs.open(output_file, 'w', 'utf-8')
+    for e in H.edges():
+        out.write(e[0]+'\t'+e[1]+'\n')
+    out.close()
     #
     # degrees = dict(nx.classes.function.degree(H))
     # print 'finished computing degrees'
@@ -2868,18 +3054,18 @@ def debug_cid5_edgelist(cc_file=path+'network-profiling-data/cc.jl',
     #         out.write(v + '\t' + str(k) + '\n')
     # out.close()
 
-    clust_coeff = dict(nx.algorithms.cluster.clustering(H))
-    print 'finished computing cluster coefficients'
-    reverse_dict = dict()
-    for k, v in clust_coeff.items():
-        if v not in reverse_dict:
-            reverse_dict[v] = list()
-        reverse_dict[v].append(k)
-    out = codecs.open(cluster_coeff_out_list, 'w', 'utf-8')
-    for k in sorted(reverse_dict.keys()):
-        for v in reverse_dict[k]:
-            out.write(v + '\t' + str(k) + '\n')
-    out.close()
+    # clust_coeff = dict(nx.algorithms.cluster.clustering(H))
+    # print 'finished computing cluster coefficients'
+    # reverse_dict = dict()
+    # for k, v in clust_coeff.items():
+    #     if v not in reverse_dict:
+    #         reverse_dict[v] = list()
+    #     reverse_dict[v].append(k)
+    # out = codecs.open(cluster_coeff_out_list, 'w', 'utf-8')
+    # for k in sorted(reverse_dict.keys()):
+    #     for v in reverse_dict[k]:
+    #         out.write(v + '\t' + str(k) + '\n')
+    # out.close()
 
 
 def segregate_cid5_by_degree_centrality(cid5_edgelist=path+'network-profiling-data/cid5_analysis/cid5-edge-list',
@@ -2993,7 +3179,21 @@ def segregate_cid5_edges_by_postid_only_edges(cid5_edgelist=path+'network-profil
 # _test_metaphone()
 # debug_cid5_edgelist()
 # segregate_cid5_edges_by_cluster_coefficient()
-segregate_cid5_edges_by_postid_only_edges()
+# segregate_cid5_edges_by_postid_only_edges()
+
+#regeneration of macro-workers because of blank postids issue
+# construct_int_phone_map() # one time task, because of the issue with a '1' prefix
+# combine_name_phone_postid_jls()
+# conn_comp_from_macro_workers() # changed connected-component-workers to conn...-workers-old. may have to run twice, depending on where you're storing results
+# construct_int_postid_map() # because I accidentally ended up deleting int-postid, I'm re-generating it, this time correctly.
+# construct_conn_comp_day_map() #need to run
+# construct_conn_comp_phone_map()
+# construct_conn_comp_postid_map()
+# reverse_connected_components_map() # have to run at least twice (for phone and post id)
+# write_edge_list() # have to run at least twice (for phone and post id)
+# compose_phone_postid_edge_lists()
+
+
 ### steps for network profiling outputs
 # produce_metaphone_merged_names_list()
 # global_network_metrics_on_edge_list()
@@ -3002,6 +3202,12 @@ segregate_cid5_edges_by_postid_only_edges()
 # rate_of_entry_phones_postids()
 # output_global_plots() # need to implement/execute
 # shortest_path_matrix_on_connected_components() # need to implement/execute
+
+### steps for temporal profiling experiments
+# write_out_worker_ints()
+# node_earliest_temporal()
+# edge_temporal_lag() # to be implemented
+
 
 # print metaphone_similarity('daina', 'tania')
 # prepare_text_embeddings_file()
