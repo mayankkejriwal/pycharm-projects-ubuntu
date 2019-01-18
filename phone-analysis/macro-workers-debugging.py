@@ -113,10 +113,18 @@ def reprocess_faulty_phones(name_postid_file=path+'adj_lists/name_phone_faulty.j
                 if len(phone) == 11:
                     if phone[0] != '1':
                         raise Exception
-                    new_dict[phone[1:]] = ids
+                    if phone[1:] not in new_dict:
+                        new_dict[phone[1:]] = ids
+                    else:
+                        new_dict[phone[1:]] += ids
+                        new_dict[phone[1:]] = list(set(new_dict[phone[1:]]))
                     count += 1
                 elif len(phone) == 10:
-                    new_dict[phone] = ids
+                    if phone not in new_dict:
+                        new_dict[phone] = ids
+                    else:
+                        new_dict[phone] += ids
+                        new_dict[phone] = list(set(new_dict[phone]))
                 else:
                     raise Exception
             if bool(new_dict):
@@ -159,10 +167,46 @@ def intersect_phone_postid_ccs_without_values(postid=path+'connected-component-a
             if line[0:-1] in postid_set:
                 print line[0:-1]
 
+def _compare_faulty_name_with_gen_name(faulty_phone=path+'adj_lists/name_phone_faulty.jl', new_phone=path+'adj_lists/name_phone.jl'):
+    """
+    Turned out that faulty names does have more IDs. so we have to re-generate name_phone and check again.
+    :param faulty_phone:
+    :param new_phone:
+    :return:
+    """
+    faulty_dict = dict()
+    with codecs.open(faulty_phone, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+
+            name = obj.keys()[0]
+            if name in faulty_dict:
+                raise Exception
+            else:
+                faulty_dict[name] = set()
+            phones = obj[name]
+            for phone, ids in phones.items():
+                faulty_dict[name] = faulty_dict[name].union(set(ids))
+
+    with codecs.open(new_phone, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            name = obj.keys()[0]
+            if name not in faulty_dict:
+                raise Exception
+            phones = obj[name]
+            new_set = set()
+            for phone, ids in phones.items():
+                new_set = new_set.union(set(ids))
+            if len(faulty_dict[name].difference(new_set)) != 0:
+                print name
+
+
 
 # find_faulty_day_int() # no faulty post ids in the re-generated int-postid file
 # intersect_phone_postid_ccs_without_values() # there are no connected components that have no postid AND no phone (phew)
-reprocess_faulty_phones()
+# reprocess_faulty_phones()
+# _compare_faulty_name_with_gen_name()
 # console output from running reprocess_:
 # discarded name  fernan  because it has no postids that are non-blank
 # deleted  102  postids in total from file.

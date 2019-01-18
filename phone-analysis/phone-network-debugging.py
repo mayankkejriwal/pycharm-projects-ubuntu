@@ -709,6 +709,159 @@ def phone_or_postid_pruning_network_construction(edge_list=
     print len(ccs[0])
 
 
+def common_ad_jaccard_pruning(edge_list=
+                path+'connected-component-analysis-round2/network-profiling-data/cid6_analysis/cid6-edge-list',
+            worker_ads_file = path+'connected-component-analysis-round2/network-profiling-data/cid6_analysis/worker-ads-int-dict.json'):
+    """
+    Remove edges if there is high edge jaccard similarity in terms of shared ads. The idea is that these edges
+    will most likely collapse into singletons.
+    :param edge_list:
+    :param worker_ads_file:
+    :return:
+    """
+    G = nx.read_edgelist(edge_list, delimiter='\t')
+    worker_ints = json.load(open(worker_ads_file, 'r'))
+    print nx.info(G)
+    threshold = 0.0
+    count = 0
+    forbidden_phones = set()
+    # with codecs.open(edge_phone_count, 'r', 'utf-8') as f:
+    #     for line in f:
+    #         obj = json.loads(line[0:-1])
+    #         if int(obj.keys()[0]) >= threshold:
+    #             forbidden_phones = forbidden_phones.union(set(obj[obj.keys()[0]]))
+    # with codecs.open(phone_edge_list, 'r', 'utf-8') as f:
+    #     for line in f:
+    #         fields = re.split('\t', line[0:-1])
+    #         phones = set(fields[2:])
+    #         if len(phones.intersection(forbidden_phones)) != 0:
+    #             count += 1
+    #             G.remove_edge(fields[0], fields[1])
+    H = nx.Graph()
+    for e in G.edges:
+        if e[0] not in worker_ints or e[1] not in worker_ints:
+            raise Exception
+        else:
+            w1 = set(worker_ints[e[0]])
+            w2 = set(worker_ints[e[1]])
+            j = len(w1.intersection(w2)) * 1.0 / len(w1.union(w2))
+            if j <= threshold:
+                H.add_edge(e[0], e[1])
+            else:
+                count += 1
+    print str(count),' edges pruned from graph'
+    print nx.info(H)
+    ccs = sorted(nx.connected_components(H), key=len, reverse=True)
+    print len(ccs)
+    print len(ccs[0])
+
+def num_ad_pruning(edge_list=
+                path+'connected-component-analysis-round2/network-profiling-data/cid6_analysis/cid6-edge-list',
+            worker_ads_file = path+'connected-component-analysis-round2/network-profiling-data/cid6_analysis/worker-ads-int-dict.json'):
+    """
+    Remove an edge if either worker in the edge has more than 'threshold' ads
+    :param edge_list:
+    :param worker_ads_file:
+    :return:
+    """
+    G = nx.read_edgelist(edge_list, delimiter='\t')
+    worker_ints = json.load(open(worker_ads_file, 'r'))
+    print nx.info(G)
+    threshold = 16
+    count = 0
+    forbidden_phones = set()
+    # with codecs.open(edge_phone_count, 'r', 'utf-8') as f:
+    #     for line in f:
+    #         obj = json.loads(line[0:-1])
+    #         if int(obj.keys()[0]) >= threshold:
+    #             forbidden_phones = forbidden_phones.union(set(obj[obj.keys()[0]]))
+    # with codecs.open(phone_edge_list, 'r', 'utf-8') as f:
+    #     for line in f:
+    #         fields = re.split('\t', line[0:-1])
+    #         phones = set(fields[2:])
+    #         if len(phones.intersection(forbidden_phones)) != 0:
+    #             count += 1
+    #             G.remove_edge(fields[0], fields[1])
+    H = nx.Graph()
+    for e in G.edges:
+        if e[0] not in worker_ints or e[1] not in worker_ints:
+            raise Exception
+        else:
+            if len(worker_ints[e[0]]) < threshold and len(worker_ints[e[1]]) < threshold:
+                H.add_edge(e[0], e[1])
+            else:
+                count += 1
+    print str(count),' edges pruned from graph'
+    print nx.info(H)
+    ccs = sorted(nx.connected_components(H), key=len, reverse=True)
+    print len(ccs)
+    print len(ccs[0])
+
+
+def worker_ads_count_stats(cc_folder=path+'connected-component-analysis-round2/connected-component-workers-old/'):
+    files = glob.glob(cc_folder+'*.txt')
+    count_dict = dict()
+    total = 0
+    count = 0
+    for fi in files:
+        if count % 50000 == 0:
+            print count
+        count += 1
+        with codecs.open(fi, 'r') as f:
+            counter = 0
+            for line in f:
+                l = len(set(re.split(' ', line[0:-1])))
+                counter += 1
+                if l not in count_dict:
+                    count_dict[l] = 0
+                count_dict[l] += 1
+                total += l
+            if counter != 1:
+                print 'problems in file.' + f + '...more than one line...'
+                raise Exception
+
+    X = sorted(count_dict.keys())
+    Y = list()
+    for x in X:
+        Y.append(count_dict[x])
+    plt.loglog(X, Y)
+    print 'average num. ads per worker is ',str(total*1.0/len(files))
+    # print np.std(Y)
+    plt.show()
+
+
+def cid6_ads_count_stats(edge_list=
+                path+'connected-component-analysis-round2/network-profiling-data/cid6_analysis/cid6-edge-list',
+            worker_ads_file = path+'connected-component-analysis-round2/network-profiling-data/cid6_analysis/worker-ads-int-dict.json'):
+    N = nx.read_edgelist(edge_list, delimiter='\t').nodes
+    worker_ints = json.load(open(worker_ads_file, 'r'))
+    count_dict = dict()
+    total = 0
+    count = 0
+
+    for n in N:
+
+        l = len(set(worker_ints[n]))
+        if 'PREF' in n:
+            count+= 1
+            continue
+
+        if l not in count_dict:
+            count_dict[l] = 0
+        count_dict[l] += 1
+        total += l
+
+
+    X = sorted(count_dict.keys())
+    Y = list()
+    for x in X:
+        Y.append(count_dict[x])
+    plt.loglog(X, Y)
+    print 'average num. ads per worker in cid6 is ',str(total*1.0/(len(N)-count))
+    # print np.std(Y)
+    plt.show()
+
+
 # ads_with_wrong_postids()
 # phone_or_postid_pruning_network_construction()
 # edge_betweenness()
@@ -725,4 +878,7 @@ def phone_or_postid_pruning_network_construction(edge_list=
 # edge_counts_postid()
 # postid_statistics_from_int_postid()
 # conn_comp_analyses_postid_phone_composition()
-
+# common_ad_jaccard_pruning()
+# num_ad_pruning()
+# worker_ads_count_stats()
+cid6_ads_count_stats()

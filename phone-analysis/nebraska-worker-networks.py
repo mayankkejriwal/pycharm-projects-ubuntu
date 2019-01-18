@@ -699,8 +699,8 @@ def combine_name_phone_postid_jls(phone=path+'adj_lists/name_phone.jl',postid=pa
 
 
 
-def output_non_singleton_connected_components_on_edge_list(edge_list_phone_postid_merged_names=path + 'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
-                                        cc_output=path + 'connected-component-analysis/network-profiling-data/cc.jl'):
+def output_non_singleton_connected_components_on_edge_list(edge_list_phone_postid_merged_names=path + 'connected-component-analysis-round4/network-profiling-data/phone-postid-edge-list-merged-names',
+                                        cc_output=path + 'connected-component-analysis-round4/network-profiling-data/cc.jl'):
     G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
     cc = list(nx.connected_components(G))
     print 'number of connected components...',len(cc)
@@ -719,9 +719,9 @@ def output_non_singleton_connected_components_on_edge_list(edge_list_phone_posti
     out.close()
 
 
-def output_global_plots(degree_distr=path+'network-profiling-data-postid/degree_distribution.json',
-                        rich_club=path+'network-profiling-data-postid/rich_club.json',
-                        clustering_coeff=path+'network-profiling-data-postid/clustering_coeff.json',
+def output_global_plots(degree_distr=path+'connected-component-analysis-round4/network-profiling-data/degree_distribution.json',
+                        rich_club=path+'connected-component-analysis-round4/network-profiling-data/rich_club.json',
+                        clustering_coeff=path+'connected-component-analysis-round4/network-profiling-data/clustering_coeff.json',
                         ):
     """
     Plots will have to be saved manually. We'll render them one after the other.
@@ -735,37 +735,40 @@ def output_global_plots(degree_distr=path+'network-profiling-data-postid/degree_
     # print 'outputting degree distribution plot...'
     # plt.loglog(degrees['degree_vec'], degrees['degree_rel_freq_vec'], 'ro')
     # plt.show()
-
-    rich_club_coeffs = json.load(open(rich_club, 'r'))
-    print rich_club_coeffs.keys()
-    print 'outputting rich club coefficient distribution plot...'
-    plt.loglog(rich_club_coeffs['degree_vec'], rich_club_coeffs['degree_rc_coeff_vec'], 'ro')
-    plt.show()
-
-    # clustering = json.load(open(clustering_coeff, 'r'))
-    # freq_dict = dict()
-    # for v in clustering.values():
-    #     if v not in freq_dict:
-    #         freq_dict[v] = 0
-    #     freq_dict[v] += 1
     #
-    # x = list()
-    # y = list()
-    #
-    # for k in sorted(freq_dict.keys()):
-    #     x.append(k)
-    #     y.append(freq_dict[k])
-    #
-    # # print clustering.keys()
-    # print 'outputting clustering coefficient distribution plot...'
-    # plt.loglog(x, y, 'ro')
+    # rich_club_coeffs = json.load(open(rich_club, 'r'))
+    # print rich_club_coeffs.keys()
+    # print 'outputting rich club coefficient distribution plot...'
+    # plt.loglog(rich_club_coeffs['degree_vec'], rich_club_coeffs['degree_rc_coeff_vec'], 'ro')
     # plt.show()
 
+    clustering = json.load(open(clustering_coeff, 'r'))
+    print len(clustering.values())
+    freq_dict = dict()
+    for v in clustering.values():
+        if v not in freq_dict:
+            freq_dict[v] = 0
+        freq_dict[v] += 1
+
+    x = list()
+    y = list()
+
+    for k in sorted(freq_dict.keys()):
+        x.append(k)
+        y.append(freq_dict[k])
+
+    # print clustering.keys()
+    print 'outputting clustering coefficient distribution plot...'
+    plt.loglog(x, y, 'ro')
+
+    plt.hist(clustering.values())
+    plt.show()
 
 
-def single_point_stats_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data-postid/postid-edge-list-merged-names',
-                                             connected_components=path + 'network-profiling-data-postid/cc.jl',
-                                               cc_stats=path + 'network-profiling-data-postid/cc_stats.csv'):
+
+def single_point_stats_on_connected_components(edge_list_phone_postid_merged_names=path + 'connected-component-analysis-round4/network-profiling-data/phone-postid-edge-list-merged-names',
+                                             connected_components=path + 'connected-component-analysis-round4/network-profiling-data/cc.jl',
+                                               cc_stats=path + 'connected-component-analysis-round4/network-profiling-data/cc_stats.csv'):
     G = nx.read_edgelist(edge_list_phone_postid_merged_names, delimiter='\t')
     out = codecs.open(cc_stats, 'w', 'utf-8')
     out.write('cc_id,num_nodes,num_edges,density,transitivity,degree_assortativity_coefficient\n')
@@ -785,10 +788,10 @@ def single_point_stats_on_connected_components(edge_list_phone_postid_merged_nam
             # break
     out.close()
 
-def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_names=path + 'network-profiling-data-postid/postid-edge-list-merged-names',
-                                             connected_components=path + 'network-profiling-data-postid/cc.jl',
-                                               cc_path_matrix=path + 'network-profiling-data-postid/cc_path_matrix.jl',
-                                matrix_exception_ccids=path+'network-profiling-data-postid/cc_path_matrix_exceptions.json'):
+def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_names=path + 'connected-component-analysis-round4/network-profiling-data/phone-postid-edge-list-merged-names',
+                                             connected_components=path + 'connected-component-analysis-round4/network-profiling-data/cc.jl',
+                                               cc_path_matrix=path + 'connected-component-analysis-round4/network-profiling-data/cc_path_matrix.jl',
+                                matrix_exception_ccids=path+'connected-component-analysis-round4/network-profiling-data/cc_path_matrix_exceptions.json'):
     """
 
     :param edge_list_phone_postid_merged_names:
@@ -808,7 +811,7 @@ def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_n
             cid = obj.keys()[0]
             node_list = obj[cid]
             G_sub = G.subgraph(node_list)
-            if len(G_sub.nodes()) > 3000:
+            if len(G_sub.nodes()) > 5000:
                 forbidden_list.append(cid)
                 print 'adding cid ',cid, ' to the forbidden list, since it has num nodes ',str(len(G_sub.nodes())),\
                 ' and num edges ',str(len(G_sub.edges()))
@@ -820,6 +823,35 @@ def shortest_path_matrix_on_connected_components(edge_list_phone_postid_merged_n
             out.write('\n')
     out.close()
     json.dump(forbidden_list, open(matrix_exception_ccids, 'w'))
+
+
+def diameter_avg_path_stats(cc_path_matrix=path + 'connected-component-analysis-round4/network-profiling-data/cc_path_matrix.jl',
+                            output=path + 'connected-component-analysis-round4/network-profiling-data/cc_diam_avgpath_length.csv'):
+    out = codecs.open(output, 'w', 'utf-8')
+    out.write('cc_id,avg_min_path_length,diameter\n')
+    count = 0
+    with codecs.open(cc_path_matrix, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            max = -1
+            running_sum = 0
+            total_pairs = 0
+            for k, v in obj.items():
+                for k1, v1 in v.items():
+                    if k1==k:
+                        if v1 != 0:
+                            raise Exception
+                    else:
+                        running_sum += v1
+                        total_pairs += 1
+                        if v1 > max:
+                            max = v1
+            avg = running_sum*1.0/total_pairs
+            out.write(str(count)+','+str(avg)+','+str(max)+'\n')
+            count += 1
+
+
+
 
 
 def edge_temporal_lag(int_day=path+'adj_lists/int-day.jl',int_postid=path+'adj_lists/int-postid.jl',
@@ -835,6 +867,9 @@ def edge_temporal_lag(int_day=path+'adj_lists/int-day.jl',int_postid=path+'adj_l
         for line in f:
             obj = json.loads(line[0:-1])
             int_postid_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+
+
+
 
 
 def node_earliest_temporal(int_day=path+'adj_lists/int-day.jl',
@@ -936,13 +971,61 @@ def rate_of_entry_phones_postids(ads = path+'data_for_memex.json',
         out.write(str(d)+','+str(day_dict_phone[d])+','+str(day_dict_postids[d])+'\n')
     out.close()
 
+def rate_of_entry_phones_postids_filtered(ads = path+'data_for_memex.json',
+                                          ids_to_consider=path+'connected-component-analysis-round3/network-profiling-data/worker-ads-id-dict.json', # contains the ids that should be considered in this computation
+                         num_new_phones_postids_by_day=path + 'connected-component-analysis-round3/network-profiling-data/rate_of_entry_phones_postids.csv'
+                                          ):
 
-def global_network_metrics_on_edge_list(edge_list_merged_names=path + 'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
-                                        singleton_node_list=path + 'connected-component-analysis/network-profiling-data/singleton_node-list.json',
-                                        degree_distr=path+'connected-component-analysis/network-profiling-data/degree_distribution.json',
-                                        basic_stats=path + 'connected-component-analysis/network-profiling-data/basic_stats_connectivity.json',
-                                        rich_club_coefficient=path+'connected-component-analysis/network-profiling-data/rich_club.json',
-                                        clustering_coefficient=path + 'connected-component-analysis/network-profiling-data/clustering_coeff.json'):
+    day_dict_phone = dict()
+    day_dict_postids = dict()
+    seen_postids = set()
+    seen_phones = set()
+    ids_dict = json.load(open(ids_to_consider, 'r'))
+    ids = set()
+    for k, v in ids_dict.items():
+        for element in v:
+            ids.add(element)
+    with codecs.open(ads, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            if len(obj['name']) == 0 or obj['_id'] not in ids:
+                continue
+
+
+            day = obj['day']
+            phone = obj['phone']
+            postid = obj['post_id']
+            if day not in day_dict_phone:
+                day_dict_phone[day] = 0
+            if day not in day_dict_postids:
+                day_dict_postids[day] = 0
+            for p in phone:
+                if p in seen_phones:
+                    continue
+                else:
+                    seen_phones.add(p)
+                    day_dict_phone[day] += 1
+
+            if postid in seen_postids:
+                continue
+            else:
+                seen_postids.add(postid)
+                day_dict_postids[day] += 1
+
+    out = codecs.open(num_new_phones_postids_by_day, 'w', 'utf-8')
+    out.write('day,num_new_phones,num_new_postids\n')
+    days = sorted(day_dict_phone.keys())
+    for d in days:
+        out.write(str(d)+','+str(day_dict_phone[d])+','+str(day_dict_postids[d])+'\n')
+    out.close()
+
+
+def global_network_metrics_on_edge_list(edge_list_merged_names=path + 'connected-component-analysis-round4/network-profiling-data/phone-postid-edge-list-merged-names',
+                                        singleton_node_list=path + 'connected-component-analysis-round4/network-profiling-data/singleton_node-list.json',
+                                        degree_distr=path+'connected-component-analysis-round4/network-profiling-data/degree_distribution.json',
+                                        basic_stats=path + 'connected-component-analysis-round4/network-profiling-data/basic_stats_connectivity.json',
+                                        rich_club_coefficient=path+'connected-component-analysis-round4/network-profiling-data/rich_club.json',
+                                        clustering_coefficient=path + 'connected-component-analysis-round4/network-profiling-data/clustering_coeff.json'):
     singleton_nodes = json.load(codecs.open(singleton_node_list, 'r', 'utf-8'))
 
     G = nx.read_edgelist(edge_list_merged_names, delimiter='\t')
@@ -1090,14 +1173,14 @@ def produce_metaphone_postid_only_merged_names_list(edge_list_postid=path+'adj_l
 
 
 
-def produce_metaphone_merged_names_list(edge_list_postid=path+'connected-component-analysis/postid-edge-list-names',
-                                        ccp_file_postid=path + 'connected-component-analysis/connected-component-postid-map.jl',
-                                        edge_list_phone=path + 'connected-component-analysis/phone-edge-list-names',
-                                        ccp_file_phone=path + 'connected-component-analysis/connected-component-phone-map.jl',
-                                        edge_list_phone_postid_merged_names=path + 'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
-                                        merged_names_map=path+'connected-component-analysis/network-profiling-data/merged-names-map.json',
-                                        all_node_list=path + 'connected-component-analysis/network-profiling-data/all_node-list.json',
-                                        singleton_node_list=path + 'connected-component-analysis/network-profiling-data/singleton_node-list.json'):
+def produce_metaphone_merged_names_list(edge_list_postid=path+'connected-component-analysis-round4/postid-edge-list-names',
+                                        ccp_file_postid=path + 'connected-component-analysis-round4/connected-component-postid-map.jl',
+                                        edge_list_phone=path + 'connected-component-analysis-round4/phone-edge-list-names',
+                                        ccp_file_phone=path + 'connected-component-analysis-round4/connected-component-phone-map.jl',
+                                        edge_list_phone_postid_merged_names=path + 'connected-component-analysis-round4/network-profiling-data/phone-postid-edge-list-merged-names',
+                                        merged_names_map=path+'connected-component-analysis-round4/network-profiling-data/merged-names-map.json',
+                                        all_node_list=path + 'connected-component-analysis-round4/network-profiling-data/all_node-list.json',
+                                        singleton_node_list=path + 'connected-component-analysis-round4/network-profiling-data/singleton_node-list.json'):
 
 
     node_list = list()
@@ -1202,7 +1285,7 @@ def serialize_connected_components_to_file(graphs, out_prefix):
         out.close()
 
 def conn_comp_from_macro_workers(input_folder=path+'adj_lists/macro-workers/',
-                    output_folder=path+'connected-component-analysis/connected-component-workers-old/'):
+                    output_folder=path+'connected-component-analysis-round2/connected-component-workers-old/'):
     files = glob.glob(input_folder+'*.txt')
     for f in files:
         out_prefix = re.split(input_folder+'|txt',f)[1][0:-1]
@@ -1321,8 +1404,8 @@ def construct_int_postid_map(id_int_file=path+'adj_lists/id-int-mapping.tsv',
 
 
 def construct_conn_comp_day_map(int_day_file=path+'adj_lists/int-day.jl',
-                          conn_comp_folder=path + 'adj_lists/connected-component-workers-old/',
-                          output_file=path + 'connected-component-analysis/connected-component-day-map.jl'
+                          conn_comp_folder=path + 'connected-component-analysis-round4/connected-component-workers-old/',
+                          output_file=path + 'connected-component-analysis-round4/connected-component-day-map.jl'
                           ):
     int_day_dict = dict()
     with codecs.open(int_day_file, 'r', 'utf-8') as f:
@@ -1362,8 +1445,8 @@ def construct_conn_comp_day_map(int_day_file=path+'adj_lists/int-day.jl',
     out.close()
 
 def construct_conn_comp_postid_map(int_postid_file=path+'adj_lists/int-postid.jl',
-                                  conn_comp_folder=path+'adj_lists/connected-component-workers-old/',
-                                  output_file=path+'connected-component-analysis/connected-component-postid-map.jl'):
+                                  conn_comp_folder=path+'connected-component-analysis-round4/connected-component-workers-old/',
+                                  output_file=path+'connected-component-analysis-round4/connected-component-postid-map.jl'):
     int_postid_dict = dict()
     with codecs.open(int_postid_file, 'r', 'utf-8') as f:
         for line in f:
@@ -1404,8 +1487,8 @@ def construct_conn_comp_postid_map(int_postid_file=path+'adj_lists/int-postid.jl
 
 
 def construct_conn_comp_phone_map(int_phone_file=path+'adj_lists/int-phones.jl',
-                                  conn_comp_folder=path+'adj_lists/connected-component-workers-old/',
-                                  output_file=path+'connected-component-analysis/connected-component-phone-map.jl'):
+                                  conn_comp_folder=path+'connected-component-analysis-round4/connected-component-workers-old/',
+                                  output_file=path+'connected-component-analysis-round4/connected-component-phone-map.jl'):
     int_phone_dict = dict()
     with codecs.open(int_phone_file, 'r', 'utf-8') as f:
         for line in f:
@@ -1502,8 +1585,8 @@ def output_all_singleton_workers(edge_list_file=path+'adj_lists/phone-postid-edg
     out.close()
 
 
-def reverse_connected_components_map(map_file=path+'connected-component-analysis/connected-component-postid-map.jl',
-                      output_file=path+'connected-component-analysis/postid-connected-component-map.jl'):
+def reverse_connected_components_map(map_file=path+'connected-component-analysis-round4/connected-component-postid-map.jl',
+                      output_file=path+'connected-component-analysis-round4/postid-connected-component-map.jl'):
     """
     Be careful: worker nodes guaranteed to be singletons (those with no values) will be ignored.
     :param phone_map_file:
@@ -1565,17 +1648,17 @@ def get_size_statistics(pcc_file=path+'adj_lists/phone-connected-component-map.j
     plt.loglog(x, y, 'ro')
     plt.show()
 
-def compose_phone_postid_edge_lists(edge_list_phone=path+'connected-component-analysis/phone-edge-list-names',
-                                    edge_list_postid=path+'connected-component-analysis/postid-edge-list-names',
-                                    outlist = path+'connected-component-analysis/phone-postid-edge-list-names'):
+def compose_phone_postid_edge_lists(edge_list_phone=path+'connected-component-analysis-round4/phone-edge-list-names',
+                                    edge_list_postid=path+'connected-component-analysis-round4/postid-edge-list-names',
+                                    outlist = path+'connected-component-analysis-round4/phone-postid-edge-list-names'):
     G = nx.compose(nx.read_edgelist(edge_list_phone, delimiter='\t'),nx.read_edgelist(edge_list_postid, delimiter='\t'))
     out = codecs.open(outlist, 'w', 'utf-8')
     for e in G.edges():
         out.write(e[0]+'\t'+e[1]+'\n')
     out.close()
 
-def write_edge_list(pcc_file=path+'connected-component-analysis/phone-connected-component-map.jl',
-                    edge_list=path+'connected-component-analysis/phone-edge-list-names'):
+def write_edge_list(pcc_file=path+'connected-component-analysis-round4/postid-connected-component-map.jl',
+                    edge_list=path+'connected-component-analysis-round4/postid-edge-list-names'):
     """
     File will not be deduplicated.
     :param pcc_file:
@@ -2990,9 +3073,9 @@ def prepare_text_embeddings_file(input_file=path+'data_for_memex_txt.json', outp
     out.close()
 
 
-def debug_cid5_edgelist(cc_file=path+'connected-component-analysis/network-profiling-data/cc.jl',
-               edge_list=path+'connected-component-analysis/network-profiling-data/phone-postid-edge-list-merged-names',
-               output_file=path+'connected-component-analysis/network-profiling-data/cid6_analysis/cid6-edge-list',
+def debug_cid5_edgelist(cc_file=path+'connected-component-analysis-round2/network-profiling-data/cc.jl',
+               edge_list=path+'connected-component-analysis-round2/network-profiling-data/phone-postid-edge-list-merged-names',
+               output_file=path+'connected-component-analysis-round2/network-profiling-data/cid6_analysis/cid6-edge-list',
                         degree_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-degrees',
                         degree_centrality_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-degree-centrality',
                 cluster_coeff_out_list=path+'network-profiling-data/cid5_analysis/cid5-nodes-cluster-coefficient'
@@ -3175,11 +3258,266 @@ def segregate_cid5_edges_by_postid_only_edges(cid5_edgelist=path+'network-profil
     print 'Number of connected components...',
     print len(ccs)
 
+def worker_percentiles(conn_comp=path+'connected-component-analysis-round2/connected-component-workers-old/'):
+    files = glob.glob(conn_comp+'*.txt')
+    arr = list()
+    # lim = 0
+    for fi in files:
+        # lim += 1
+        # if lim > 100:
+        #     break
+        with codecs.open(fi, 'r', 'utf-8') as f:
+            count = 0
+            for line in f:
+                fields = re.split(' ', line[0:-1])
+                count += 1
+                if count != 1:
+                    print f
+                    raise Exception
+                if len(fields) == 1:
+                    continue
+                arr.append(len(fields))
+    # print arr
+    # print 'printing percentiles 0, 25, 50, 75, 100'
+    # print np.percentile(arr, 0),
+    # print np.percentile(arr, 25),
+    # print np.percentile(arr, 50),
+    # print np.percentile(arr, 75),
+    # print np.percentile(arr, 100)
+    for i in range(0, 101):
+        print i,
+        print np.percentile(arr, i)
+
+
+def connected_component_percentile_sparsity_transfer(conn_comp_in=path+'connected-component-analysis-round2/connected-component-workers-old/',
+                                                     conn_comp_out=path + 'connected-component-analysis-round3/connected-component-workers-old/',
+                                                     min_value=1, max_value=9):
+    files = glob.glob(conn_comp_in + '*.txt')
+    doc_count = 0
+    # print files[1].replace(conn_comp_in, conn_comp_out)
+    for fi in files:
+        # lim += 1
+        # if lim > 100:
+        #     break
+        with codecs.open(fi, 'r', 'utf-8') as f:
+            count = 0
+            for line in f:
+                fields = re.split(' ', line[0:-1])
+                count += 1
+                if count != 1:
+                    print f
+                    raise Exception
+                if len(fields) >= min_value and len(fields) <= max_value:
+                    out = codecs.open(fi.replace(conn_comp_in, conn_comp_out), 'w', 'utf-8')
+                    out.write(line)
+                    out.close()
+                    doc_count += 1
+
+    print doc_count
+
+def build_int_day_city_dicts(int_id_file=path+'adj_lists/int-id-mapping.tsv',
+                                         data_memex=path+'data_for_memex.json',
+                                         int_day = path+'adj_lists/int-day.jl',
+                             int_city=path + 'adj_lists/int-city.jl'):
+    id_int_dict = dict()
+    out1 = codecs.open(int_day, 'w', 'utf-8')
+    out2 = codecs.open(int_city, 'w', 'utf-8')
+    with codecs.open(int_id_file, 'r', 'utf-8') as f:
+        for line in f:
+            fields = re.split('\t',line[0:-1])
+            id_int_dict[fields[1]] = fields[0]
+    print 'finished reading in id_int dict'
+    count = 0
+    with codecs.open(data_memex, 'r', 'utf-8') as f:
+        for line in f:
+            if count % 100000 == 0:
+                print count
+            count += 1
+            obj = json.loads(line[0:-1])
+            if 'name' not in obj or len(obj['name']) == 0:
+                continue
+            else:
+                int_id = id_int_dict[obj['_id']]
+                int_day_dict = dict()
+                int_day_dict[int_id] = obj['day']
+                json.dump(int_day_dict, out1)
+                out1.write('\n')
+                if 'city' not in obj or not obj['city']:
+                    continue
+                else:
+
+                    int_city_dict = dict()
+                    int_city_dict[int_id] = obj['city']
+                    json.dump(int_city_dict, out2)
+                    out2.write('\n')
+
+    out1.close()
+    out2.close()
+
+
+def connected_component_city_date_transfer(conn_comp_in=path+'connected-component-analysis-round2/connected-component-workers-old/',
+                                                     conn_comp_out=path + 'connected-component-analysis-round4/connected-component-workers-old/',
+                                           int_day=path + 'adj_lists/int-day.jl',
+                                           int_city=path + 'adj_lists/int-city.jl'):
+    int_day_dict = dict()
+    int_city_dict = dict()
+    with codecs.open(int_day, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            int_day_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+    with codecs.open(int_city, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            int_city_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+
+    print 'finished reading int dicts...'
+
+    files = glob.glob(conn_comp_in + '*.txt')
+    doc_count = 0
+    orig_count = 0
+    # print files[1].replace(conn_comp_in, conn_comp_out)
+    for fi in files:
+        orig_count += 1
+        with codecs.open(fi, 'r', 'utf-8') as f:
+            count = 0
+            for line in f:
+                fields = re.split(' ', line[0:-1])
+                count += 1
+                if count != 1:
+                    print f
+                    raise Exception
+                # city_set = set()
+                month_set = set()
+                day_city_dict = dict()
+                for field in fields:
+                    # city_set.add(int_city_dict[field])
+                    month_set.add(str(int_day_dict[field])[4:6])
+                    day = int_day_dict[field]
+                    if day not in day_city_dict:
+                        day_city_dict[day] = set()
+                    day_city_dict[day].add(int_city_dict[field])
+                flag = True
+                for d, v in day_city_dict.items():
+                    if len(v) >= 10:
+                        flag = False
+                    elif len(month_set) < 3:
+                        flag = False
+
+                if flag:
+                    out = codecs.open(fi.replace(conn_comp_in, conn_comp_out), 'w', 'utf-8')
+                    out.write(line)
+                    out.close()
+                    doc_count += 1
+
+    print doc_count
+    print orig_count
+
+
+def connected_component_gap_statistics(conn_comp_in=path + 'connected-component-analysis-round4/connected-component-workers-old/',
+                                           int_day=path+'adj_lists/int-day.jl',
+                                       gap_output=path+'connected-component-analysis-round4/cc_gap_stats_min.csv'):
+    """
+    Depending on our task, we may compute avg., max., min. etc.
+    :param conn_comp_in:
+    :param int_day:
+    :param gap_output:
+    :return:
+    """
+    int_day_dict = dict()
+
+    with codecs.open(int_day, 'r', 'utf-8') as f:
+        for line in f:
+            obj = json.loads(line[0:-1])
+            int_day_dict[obj.keys()[0]] = obj[obj.keys()[0]]
+    out = codecs.open(gap_output, 'w', 'utf-8')
+    out.write('file_name,day_gap\n')
+    files = glob.glob(conn_comp_in + '*.txt')
+    # doc_count = 0
+    # orig_count = 0
+    # print files[1].replace(conn_comp_in, conn_comp_out)
+    for fi in files:
+        # orig_count += 1
+        with codecs.open(fi, 'r', 'utf-8') as f:
+            count = 0
+            for line in f:
+                fields = re.split(' ', line[0:-1])
+                count += 1
+                if count != 1:
+                    print f
+                    raise Exception
+                month_set = set()
+                for field in fields:
+                    month_set.add(str(int_day_dict[field]))
+                month_list = sorted(list(month_set), reverse=True)
+                # max = 0
+                # avg = 0
+                min = 400 # since we're only considering yearlong data, this is a safe limit
+                for m in range(0, len(month_list)-1):
+                    g = (parse(month_list[m]) - parse(month_list[m+1])).days
+                    # if g > max:
+                    #     max = g
+                    # avg += g
+                    if g < min:
+                        min = g
+                # avg = avg/len(month_list)
+                out.write(fi+','+str(min)+'\n')
+
+
+    out.close()
+
+def cc_gap_analysis(gap_input=path+'connected-component-analysis-round4/cc_gap_stats_min.csv'):
+    header = True
+    gaps = list()
+    with codecs.open(gap_input, 'r', 'utf-8') as f:
+
+        for line in f:
+            if header is True:
+                header = False
+                continue
+            fields = re.split(',', line[0:-1])
+            gaps.append(int(fields[1]))
+    plt.hist(gaps)
+    plt.show()
+
+def cc_workers_folder_to_jl(folder_in=path+'connected-component-analysis-round4/connected-component-workers-old/',
+                            out_file=path+'connected-component-analysis-round4/workers-int.jl'):
+    out = codecs.open(out_file, 'w', 'utf-8')
+    files = glob.glob(folder_in + '*.txt')
+    # doc_count = 0
+    orig_count = 0
+    # print files[1].replace(conn_comp_in, conn_comp_out)
+    for fi in files:
+        orig_count += 1
+        orig_name = fi[len(folder_in):-4]
+        fields = None
+        with codecs.open(fi, 'r', 'utf-8') as f:
+            count = 0
+
+            for line in f:
+                fields = re.split(' ', line[0:-1])
+                count += 1
+                if count != 1:
+                    print f
+                    raise Exception
+
+        answer = dict()
+        answer[orig_name] = fields
+        json.dump(answer, out)
+        out.write('\n')
+
+
+    out.close()
+
 
 # _test_metaphone()
 # debug_cid5_edgelist()
 # segregate_cid5_edges_by_cluster_coefficient()
 # segregate_cid5_edges_by_postid_only_edges()
+# connected_component_percentile_sparsity_transfer()
+# worker_percentiles()
+# build_int_day_city_dicts()
+# connected_component_gap_statistics()
+# cc_gap_analysis()
 
 #regeneration of macro-workers because of blank postids issue
 # construct_int_phone_map() # one time task, because of the issue with a '1' prefix
@@ -3200,14 +3538,16 @@ def segregate_cid5_edges_by_postid_only_edges(cid5_edgelist=path+'network-profil
 # output_non_singleton_connected_components_on_edge_list()
 # single_point_stats_on_connected_components()
 # rate_of_entry_phones_postids()
-# output_global_plots() # need to implement/execute
-# shortest_path_matrix_on_connected_components() # need to implement/execute
+# output_global_plots()
+# shortest_path_matrix_on_connected_components()
+# diameter_avg_path_stats()
 
 ### steps for temporal profiling experiments
 # write_out_worker_ints()
 # node_earliest_temporal()
 # edge_temporal_lag() # to be implemented
 
+cc_workers_folder_to_jl()
 
 # print metaphone_similarity('daina', 'tania')
 # prepare_text_embeddings_file()
